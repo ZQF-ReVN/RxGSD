@@ -1,0 +1,624 @@
+{
+    "game_title": "ボクの目の前で親友に抱かれ腰を振る彼女 ―奴の言いなりにそのエロい肢体は開かれていく― PKG",
+    "game_version": "1.0",
+    "game_engine": "GSD",
+    "export_time": "2023-11-29 01:02:11.885716",
+    "func_list": [
+        {
+            "name": "GSD::STD::Str::Ctor_Via_Copy",
+            "addr": "0x408070"
+        },
+        {
+            "name": "GSD::STD::Str::Copy_T1",
+            "addr": "0x4080d0"
+        },
+        {
+            "name": "GSD::STD::Str::Ctor_T0",
+            "addr": "0x408110"
+        },
+        {
+            "name": "GSD::STD::Str::Copy",
+            "addr": "0x408170"
+        },
+        {
+            "name": "GSD::STD::Str::Init_",
+            "addr": "0x408870"
+        },
+        {
+            "name": "GSD::STD::Str::Copyx",
+            "addr": "0x408960"
+        },
+        {
+            "name": "GSD::STD::Str::Init",
+            "addr": "0x4089f0"
+        },
+        {
+            "name": "GSD::STD::Str::Dctor_T1",
+            "addr": "0x408a60"
+        },
+        {
+            "name": "GSD::STD::Str::Copy_1",
+            "addr": "0x408ac0"
+        },
+        {
+            "name": "GSD::STD::Str::Ctor_Via_RawStr",
+            "addr": "0x408ae0"
+        },
+        {
+            "name": "GSD::STD::Str::Empty",
+            "addr": "0x408b00"
+        },
+        {
+            "name": "GSD::STD::Str::SubStr",
+            "addr": "0x408b50"
+        },
+        {
+            "name": "GSD::STD::Str::Copy_2",
+            "addr": "0x409610"
+        },
+        {
+            "name": "GSD::STD::Str::Copy_3",
+            "addr": "0x409640"
+        },
+        {
+            "name": "GSD::STD::Str::Dctor_2",
+            "addr": "0x409880"
+        },
+        {
+            "name": "GSD::STD::Str::Resize__0",
+            "addr": "0x409ce0"
+        },
+        {
+            "name": "GSD::STD::Str::409D90",
+            "addr": "0x409d90"
+        },
+        {
+            "name": "GSD::STD::Str::GetRawStr",
+            "addr": "0x409e30"
+        },
+        {
+            "name": "GSD::GetHeigh",
+            "addr": "0x40fb60"
+        },
+        {
+            "name": "GSD::GetWidth",
+            "addr": "0x40fb80"
+        },
+        {
+            "name": "GSD::STD::Str::GetRawStr_",
+            "addr": "0x40fe00"
+        },
+        {
+            "name": "GSD::STD::Str::GetLen",
+            "addr": "0x413ae0"
+        },
+        {
+            "name": "GSD::STD::Str::Resize",
+            "addr": "0x415b40"
+        },
+        {
+            "name": "GSD::Vector::At",
+            "addr": "0x415cd0"
+        },
+        {
+            "name": "GSD::STD::Str::Resize_",
+            "addr": "0x415d60"
+        },
+        {
+            "name": "GSD::STD::Str::Resize__",
+            "addr": "0x415f40"
+        },
+        {
+            "name": "GSD::VM::GlobalCommand",
+            "addr": "0x4222b0"
+        },
+        {
+            "name": "GSD::STD::Str::At",
+            "addr": "0x432310"
+        },
+        {
+            "name": "GSD::Win32::RegCotr_T0",
+            "addr": "0x442b20"
+        },
+        {
+            "name": "GSD::VM::Parser",
+            "addr": "0x443140"
+        },
+        {
+            "name": "GSD::ReadScript",
+            "addr": "0x444e90"
+        },
+        {
+            "name": "GSD::Vector::448B30",
+            "addr": "0x448b30"
+        },
+        {
+            "name": "GSD::Vector::Alloc",
+            "addr": "0x458c80"
+        },
+        {
+            "name": "GSD::STD::Str::Dctor",
+            "addr": "0x4707e0"
+        },
+        {
+            "name": "GSD::STD::Str::C_Str",
+            "addr": "0x474990"
+        },
+        {
+            "name": "GSD::VM::Command",
+            "addr": "0x493200"
+        },
+        {
+            "name": "GSD::Vector::Next_",
+            "addr": "0x4a3690"
+        },
+        {
+            "name": "GSD::Vector::Next__",
+            "addr": "0x4a36b0"
+        },
+        {
+            "name": "GSD::Debug",
+            "addr": "0x4a4ec0"
+        },
+        {
+            "name": "GSD::ScriptDecode",
+            "addr": "0x4a6290"
+        },
+        {
+            "name": "GSD::Script::Load",
+            "addr": "0x4aabf0"
+        },
+        {
+            "name": "GSD::FS::ReadInt64",
+            "addr": "0x4af700"
+        },
+        {
+            "name": "GSD::FS::ReadInt16",
+            "addr": "0x4afaa0"
+        },
+        {
+            "name": "GSD::FS::ReadInt8",
+            "addr": "0x4afc60"
+        },
+        {
+            "name": "GSD::ReadStr",
+            "addr": "0x4b18c0"
+        },
+        {
+            "name": "GSD::ReadStrList",
+            "addr": "0x4b1900"
+        },
+        {
+            "name": "GSD::Vector::SetSize",
+            "addr": "0x4b2210"
+        },
+        {
+            "name": "GSD::FS::ReadInt32",
+            "addr": "0x4b2820"
+        },
+        {
+            "name": "GSD::FS::ReadInt8_",
+            "addr": "0x4b2840"
+        },
+        {
+            "name": "GSD::Win32::RegInit",
+            "addr": "0x4b3920"
+        },
+        {
+            "name": "GSD::Win32::RegUnInit",
+            "addr": "0x4b3a20"
+        },
+        {
+            "name": "GSD::Win32::Proc",
+            "addr": "0x4b3c40"
+        },
+        {
+            "name": "GSD::CoInit",
+            "addr": "0x4b3f90"
+        },
+        {
+            "name": "GSD::CoUnInit",
+            "addr": "0x4b3fb0"
+        },
+        {
+            "name": "GSD::SetFontSmoothing",
+            "addr": "0x4b3fd0"
+        },
+        {
+            "name": "GSD::RestoreFontSmoothing",
+            "addr": "0x4b4010"
+        },
+        {
+            "name": "GSD::Win32::SetCursor",
+            "addr": "0x4b44a0"
+        },
+        {
+            "name": "GSD::MsgProc",
+            "addr": "0x4b5e40"
+        },
+        {
+            "name": "GSD::PutText::GetCharStruct",
+            "addr": "0x4c04b0"
+        },
+        {
+            "name": "GSD::VM::Parser::ReadText",
+            "addr": "0x4c9f70"
+        },
+        {
+            "name": "GSD::Vector::At_",
+            "addr": "0x506210"
+        },
+        {
+            "name": "GSD::Un::Ctor",
+            "addr": "0x562220"
+        },
+        {
+            "name": "GSD::Image::Load",
+            "addr": "0x568ad0"
+        },
+        {
+            "name": "GSD::Win32::GetHwndPrent",
+            "addr": "0x5732d0"
+        },
+        {
+            "name": "GSD::Win32::GetHandle_1",
+            "addr": "0x573370"
+        },
+        {
+            "name": "GSD::Win32::CreateWindow",
+            "addr": "0x573c90"
+        },
+        {
+            "name": "GSD::Win32::GetHandle",
+            "addr": "0x573dc0"
+        },
+        {
+            "name": "GSD::CheckChar",
+            "addr": "0x574380"
+        },
+        {
+            "name": "GSD::ToMbcs",
+            "addr": "0x5746e0"
+        },
+        {
+            "name": "GSD::ToWStr",
+            "addr": "0x574870"
+        },
+        {
+            "name": "GSD::GetEnginePath",
+            "addr": "0x574d70"
+        },
+        {
+            "name": "GSD::StripPath",
+            "addr": "0x5752c0"
+        },
+        {
+            "name": "GSD::PathAppend",
+            "addr": "0x575760"
+        },
+        {
+            "name": "GSD::PathMerge",
+            "addr": "0x575980"
+        },
+        {
+            "name": "GSD::STD::Str::Merge",
+            "addr": "0x575a20"
+        },
+        {
+            "name": "GSD::STD::WStr::Dctor",
+            "addr": "0x575e40"
+        },
+        {
+            "name": "GSD::STD::WStr::At",
+            "addr": "0x575ee0"
+        },
+        {
+            "name": "GSD::STD::WStr::GetRawStr",
+            "addr": "0x575f00"
+        },
+        {
+            "name": "GSD::STD::WStr::Delete",
+            "addr": "0x575fb0"
+        },
+        {
+            "name": "GSD::STD::WStr::Dctor_",
+            "addr": "0x5768d0"
+        },
+        {
+            "name": "GSD::STD::WStr::GetRawStr_",
+            "addr": "0x576950"
+        },
+        {
+            "name": "GSD::FS::Dector_2",
+            "addr": "0x588740"
+        },
+        {
+            "name": "GSD::FS::Open",
+            "addr": "0x5888e0"
+        },
+        {
+            "name": "GSD::FS::Read",
+            "addr": "0x588a90"
+        },
+        {
+            "name": "GSD::FS::Read_NotMove",
+            "addr": "0x588b10"
+        },
+        {
+            "name": "GSD::FS::Move",
+            "addr": "0x588c10"
+        },
+        {
+            "name": "GSD::FS::SetPtrBegin",
+            "addr": "0x588d10"
+        },
+        {
+            "name": "GSD::FS::SetPtr_",
+            "addr": "0x588d80"
+        },
+        {
+            "name": "GSD::FS::GetSize",
+            "addr": "0x588ec0"
+        },
+        {
+            "name": "GSD::FS::Close",
+            "addr": "0x5893a0"
+        },
+        {
+            "name": "GSD::FS::SetPtr",
+            "addr": "0x589420"
+        },
+        {
+            "name": "GSD::FS::UnLock?",
+            "addr": "0x589490"
+        },
+        {
+            "name": "GSD::FS::Lock?",
+            "addr": "0x5894b0"
+        },
+        {
+            "name": "GSD::FS::Dector_1",
+            "addr": "0x589610"
+        },
+        {
+            "name": "GSD::FS::Decompress",
+            "addr": "0x5896f0"
+        },
+        {
+            "name": "GSD::VFS::Pic::Read",
+            "addr": "0x589a50"
+        },
+        {
+            "name": "GSD::PutText::ToNextCharStruct",
+            "addr": "0x58fe60"
+        },
+        {
+            "name": "GSD::PutText::IsEnd",
+            "addr": "0x58feb0"
+        },
+        {
+            "name": "GSD::Vector::Next",
+            "addr": "0x58ff80"
+        },
+        {
+            "name": "GSD::OutDebugString",
+            "addr": "0x5929e0"
+        },
+        {
+            "name": "GSD::Win32::RegOpen",
+            "addr": "0x599210"
+        },
+        {
+            "name": "GSD::Win32::RegSetValue",
+            "addr": "0x599500"
+        },
+        {
+            "name": "GSD::Win32::RegClose",
+            "addr": "0x599980"
+        },
+        {
+            "name": "GSD::Win32::RegCotr_T1",
+            "addr": "0x599a20"
+        },
+        {
+            "name": "GSD::Win32::RegCotr_T2",
+            "addr": "0x599b20"
+        },
+        {
+            "name": "GSD::Win32::RegCotr_T3",
+            "addr": "0x599c20"
+        },
+        {
+            "name": "GSD::Win32::RegCotr_T4",
+            "addr": "0x599d20"
+        },
+        {
+            "name": "GSD::FS::Ctor",
+            "addr": "0x599e20"
+        },
+        {
+            "name": "GSD::FS::Dector",
+            "addr": "0x599ec0"
+        },
+        {
+            "name": "GSD::FS::Dector_0",
+            "addr": "0x599f20"
+        },
+        {
+            "name": "GSD::FS::Pack::Open",
+            "addr": "0x599fe0"
+        },
+        {
+            "name": "GSD::FS::ReadEntryCount",
+            "addr": "0x59a0e0"
+        },
+        {
+            "name": "GSD::FS::Pack::ReadEntry",
+            "addr": "0x59a110"
+        },
+        {
+            "name": "GSD::FS::Pack::ReadRes",
+            "addr": "0x59a200"
+        },
+        {
+            "name": "GSD::FS::Decode",
+            "addr": "0x59a370"
+        },
+        {
+            "name": "GSD::FS::Pack::Finder",
+            "addr": "0x59a780"
+        },
+        {
+            "name": "GSD::FS::LoadFileViaEntry",
+            "addr": "0x59aa10"
+        },
+        {
+            "name": "GSD::FS::LoadFileViaPack",
+            "addr": "0x59ab10"
+        },
+        {
+            "name": "GSD::FS::LoadFileViaDir",
+            "addr": "0x59ac40"
+        },
+        {
+            "name": "GSD::Pack::Entry::Ctor",
+            "addr": "0x59afe0"
+        },
+        {
+            "name": "GSD::ScriptDecoder::MakeTable",
+            "addr": "0x5a4340"
+        },
+        {
+            "name": "GSD::ScriptDecoder::MakeTable_128",
+            "addr": "0x5a4570"
+        },
+        {
+            "name": "GSD::ScriptDecoder::Round1",
+            "addr": "0x5a46c0"
+        },
+        {
+            "name": "GSD::ScriptDecoder::Round0_Swap2",
+            "addr": "0x5a47c0"
+        },
+        {
+            "name": "GSD::ScriptDecoder::Round0_Swap4",
+            "addr": "0x5a4830"
+        },
+        {
+            "name": "GSD::ScriptDecoder::Round0_Swap8",
+            "addr": "0x5a48d0"
+        },
+        {
+            "name": "GSD::ScriptDecoder::Round0",
+            "addr": "0x5a49f0"
+        },
+        {
+            "name": "GSD::Win32::Exit",
+            "addr": "0x5aa8d0"
+        },
+        {
+            "name": "GSD::Win32::CheckIsDialogMsg",
+            "addr": "0x5aa980"
+        },
+        {
+            "name": "GSD::Win32::TranslateAcc",
+            "addr": "0x5aaa50"
+        },
+        {
+            "name": "GSD::Win32::Loop",
+            "addr": "0x5aaac0"
+        },
+        {
+            "name": "GSD::Win32::Ctor",
+            "addr": "0x5aabd0"
+        },
+        {
+            "name": "GSD::GDI::Ctor",
+            "addr": "0x5aac10"
+        },
+        {
+            "name": "GSD::Win32::RegWNDClass",
+            "addr": "0x5aaca0"
+        },
+        {
+            "name": "GSD::FS::CheckHandle_Slot0",
+            "addr": "0x5b0ab0"
+        },
+        {
+            "name": "GSD::FS::OpenFile_Native",
+            "addr": "0x5b0ad0"
+        },
+        {
+            "name": "GSD::FS::Dector_T0",
+            "addr": "0x5b0c30"
+        },
+        {
+            "name": "GSD::FS::Read_Native",
+            "addr": "0x5b0cb0"
+        },
+        {
+            "name": "GSD::FS::SetPointerCur",
+            "addr": "0x5b2b30"
+        },
+        {
+            "name": "GSD::FS::SetPointerBegin",
+            "addr": "0x5b2b80"
+        },
+        {
+            "name": "GSD::FS::SetPointerEnd",
+            "addr": "0x5b2bd0"
+        },
+        {
+            "name": "GSD::FS::Rewind",
+            "addr": "0x5b2c20"
+        },
+        {
+            "name": "GSD::FS::RestoreFilePointer",
+            "addr": "0x5b2c50"
+        },
+        {
+            "name": "GSD::FS::GetSize_Low_",
+            "addr": "0x5b2ca0"
+        },
+        {
+            "name": "GSD::FS::GetSize_Low",
+            "addr": "0x5b2cc0"
+        },
+        {
+            "name": "GSD::FS::5B2D00",
+            "addr": "0x5b2d00"
+        },
+        {
+            "name": "GSD::FS::SetBackFilePointer",
+            "addr": "0x5b2da0"
+        },
+        {
+            "name": "GSD::FS::GetBackFilePointer",
+            "addr": "0x5b2dd0"
+        },
+        {
+            "name": "GSD::FS::BackFilePointer_X",
+            "addr": "0x5b2df0"
+        },
+        {
+            "name": "GSD::FS::CheckHandle_Slot1",
+            "addr": "0x5b94b0"
+        },
+        {
+            "name": "GSD::FS::OpenFile_Native_Slot1",
+            "addr": "0x5b94d0"
+        },
+        {
+            "name": "GSD::FS::Dector_T1",
+            "addr": "0x5b9640"
+        },
+        {
+            "name": "GSD::FS::SetHandle",
+            "addr": "0x5c93e0"
+        },
+        {
+            "name": "GSD::ZLIB::Decompress",
+            "addr": "0x606cd0"
+        }
+    ]
+}

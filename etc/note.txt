@@ -39,7 +39,7 @@ struct GSD_FS_Pack_Entry
 	char aFileName[0x70];
 }
 
-struct __declspec(align(8)) GSD_FS
+struct GSD_FS
 {
   HANDLE hFile;
   uint32_t uiFilePointer_Back;
@@ -66,7 +66,7 @@ struct __declspec(align(8)) GSD_FS
   uint32_t uiEntryCount;
   uint32_t uiIsEntryMaxCount;
   uint32_t uiUnx;
-GSD_FS_Pack_Entry memEntry;
+  GSD_FS_Pack_Entry memEntry;
   uint8_t *pResBuffer_Org;
   uint32_t uiUnSize;
   uint32_t aUn6[52];
@@ -90,9 +90,18 @@ struct GSD_Script_Decoder
 	GSD_Script_Decoder_One[16];
 }
 
+struct BMZ
+{
+  uint8_t aSignature[4]; // ZLC3
+  uint32_t uiBMPSize;
+  // zlib compress data
+};
+
+
 脚本偏移0x60进入第一个op
 op -> 0x24字节
 
+"
 01000000 --> 判断文本消息结果位
 00000000
 00000000
@@ -107,6 +116,7 @@ FFFFFFFF --> 字符开始？没懂啥玩意，好像没什么实际作用
 FFFFFFFF
 FFFFFFFF
 FFFFFFFF
+
 
 09000000 --> 字符个数
 00000000
@@ -147,6 +157,24 @@ FFFFFFFF
 0D000000 --> 结束标志 '\n'
 00000000
 00000000
+"
 
+"
+spt脚本可以不用加密回去，spt脚本开头有2个字节，
+第一个字节是查找解密表的开始位置，但程序里有判断，大于等于8就不解密
+第二个字节是第一次解密的模式，大于2就不解密
+这两个字节都是xor了0xF0的，所以把开头的两个字节改成0xFF就可以跳过解密了
+"
+"
+bmz图片其实就是 头四个字节，'ZLC3' 然后四个字节是解压后大小，后面就全是zlib的压缩数据
+zib压缩数据解密后其实就是个bmp图片（完整的bmp文件结构）直接把解压后的数据保存，然后后缀改成bmp就可以查看了
+也可以用zlib压缩回去，但没什么必要，因为程序里会判断ZLC3标识，即文件开头不是ZLC3就不会进行解压操作
+所以直接把bmz解密后的bmp图片后缀改成bmz就可以了
+"
+
+"
+spt脚本目前看来，很像是按照块来读取的，不过里面的结构很奇葩，有可能是直接从vector里拷贝出来的数据，其中有些数据看起来像是乱码的
+估计是它这个加密的锅，但不影响正常读取，文本似乎可以直接按照结构变长，随便测了一下，没什么问题，暂时先这样用着把吧。
+"
 
 https://github.com/shangjiaxuan/Crass-source/blob/4aff113b98fc39fb85f64501ab47c580df779a3d/cui-1.0.4/AGSD/AGSD.cpp

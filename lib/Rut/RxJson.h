@@ -112,6 +112,8 @@ namespace Rut::RxJson
 
 	public:
 		Parser();
+		Parser(std::wstring_view wsJson);
+		Parser(std::wstring_view wsJson, Value& rfJValue);
 		~Parser();
 
 	private:
@@ -137,6 +139,7 @@ namespace Rut::RxJson
 	public:
 		void Open(std::wstring_view wsJson);
 		bool Read(Value& rfJValue);
+		bool Load(std::wstring_view wsJson, Value& rfJValue);
 		static void Save(Value& rfJVaue, std::wstring_view wsFileName);
 	};
 }

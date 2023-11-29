@@ -1,5 +1,5 @@
 ﻿# Value Define
-set(PROJECT_NAME GSP_Unpack)
+set(PROJECT_NAME BMZ_Editor)
 
 # Cpp Standard
 set(CMAKE_CXX_STANDARD 20)
@@ -11,4 +11,3 @@ link_libraries(GSD)
 # Current Project
 project("${PROJECT_NAME}")
 add_executable(${PROJECT_NAME} "main.cpp")
-

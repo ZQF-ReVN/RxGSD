@@ -458,6 +458,16 @@ namespace Rut::RxJson
 		m_nReadCCH = 0;
 	}
 
+	Parser::Parser(std::wstring_view wsJson) : Parser()
+	{
+		this->Open(wsJson);
+	}
+
+	Parser::Parser(std::wstring_view wsJson, Value& rfJValue) : Parser(wsJson)
+	{
+		this->Read(rfJValue);
+	}
+
 	Parser::~Parser()
 	{
 		if (m_wpJson)
@@ -741,6 +751,12 @@ namespace Rut::RxJson
 
 		this->SkipWhite();
 		return (this->GeReadCCH() >= this->GetJsonCCH()) ? (true) : (false);
+	}
+
+	bool Parser::Load(std::wstring_view wsJson, Value& rfJValue)
+	{
+		this->Open(wsJson);
+		return this->Read(rfJValue);
 	}
 
 	void Parser::Save(Value& rfJVaue, std::wstring_view wsFileName)

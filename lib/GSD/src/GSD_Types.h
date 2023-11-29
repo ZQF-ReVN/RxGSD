@@ -18,7 +18,7 @@ namespace GSD
 	//	GSP_Entry aEntry[uiEntryCount];
 	//};
 
-	struct BMZ
+	struct BMZ_HDR
 	{
 		uint8_t aSignature[4]; // ZLC3
 		uint32_t uiBMPSize;
@@ -78,6 +78,20 @@ namespace GSD
 		GSD_FS_Pack_Entry memEntry;
 		uint8_t* pResBuffer_Org;
 		uint32_t uiUnSize;
+	};
+
+	struct SPT_Char_Entry
+	{
+		uint32_t uiVal0; // 0x7
+		uint32_t uiVal1; // 0x0
+		uint32_t uiVal2; // char
+	};
+
+	struct SPT_Text_Entry
+	{
+		uint32_t uiCharCount;
+		uint32_t aUn0[2];
+		// SPT_Char aText[uiCharCount];
 	};
 
 	typedef GSD_STD_String* (__thiscall* Fn_GSD_STD_Str_Ctor_T0)(GSD_STD_String* This, char* pStr);

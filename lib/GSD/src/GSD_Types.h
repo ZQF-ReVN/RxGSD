@@ -82,9 +82,9 @@ namespace GSD
 
 	struct SPT_Char_Entry
 	{
-		uint32_t uiVal0; // 0x7
-		uint32_t uiVal1; // 0x0
-		uint32_t uiVal2; // char
+		uint32_t uiType; // [0x7](normal char flag), [0xD](end string flag), [0x8](notation beg flag), [0x9](notation end flag)
+		uint32_t uiNotationCount; // 0x0
+		uint32_t uiChar; // char
 	};
 
 	struct SPT_Text_Entry
@@ -95,6 +95,11 @@ namespace GSD
 	};
 
 	typedef GSD_STD_String* (__thiscall* Fn_GSD_STD_Str_Ctor_T0)(GSD_STD_String* This, char* pStr);
-	typedef bool (__thiscall* Fn_FS_LoadFileViaDir)(GSD_FS* This, GSD_STD_String msFileName, size_t uiStrPx, size_t uiZLC3Flag);
-	typedef bool (__thiscall* Fn_FS_LoadFileViaPack)(GSD_FS* This, GSD_STD_String msPackName, size_t uiStrAp0, GSD_STD_String msFileName, size_t uiStrAp1, size_t uiZLC3Flag);
+	typedef bool(__thiscall* Fn_FS_LoadFileViaDir)(GSD_FS* This, GSD_STD_String msFileName, uint32_t uiStrPx, uint32_t uiZLC3Flag);
+
+	// version 3.0.2.9
+	typedef bool(__thiscall* Fn_FS_LoadFileViaPack_Type0)(GSD_FS* This, GSD_STD_String msPackName, uint32_t uiStrAp0, GSD_STD_String msFileName, uint32_t uiStrAp1, uint32_t uiZLC3Flag);
+
+	// version 3.0.1.8
+	typedef bool(__thiscall* Fn_FS_LoadFileViaPack_Type1)(GSD_FS* This, uint32_t uiStrAp0, GSD_STD_String msPackName, uint32_t uiStrAp1, GSD_STD_String msFileName, uint32_t uiZLC3Flag);
 }

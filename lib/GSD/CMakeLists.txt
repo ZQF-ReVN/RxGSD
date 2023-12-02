@@ -16,6 +16,7 @@ link_libraries("${THIRD_DIR}/zlib/lib.X86/zlibstatic.lib")
 list(APPEND SRC_FILE 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/BMZ_Coder.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Decoder.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Chunks_Parser.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Text_Editor.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/GSP_Editor.cpp" 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/VFS_Hook.cpp")

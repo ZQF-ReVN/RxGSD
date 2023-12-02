@@ -18,10 +18,12 @@ namespace GSD::SPT
 		std::vector<SPT_Text_Entry*> m_vcTextEntryPtr;
 
 	private:
-		static std::wstring NumToHexStr(const size_t nValue);
-		static size_t HexStrToNum(const std::wstring_view& wsText);
-		static size_t DBCSCountChar(std::string_view msText);
-		static std::wstring ReadText(SPT_Text_Entry* pEntry);
+		static std::string NumToHexStr(const size_t nValue);
+		static std::wstring NumToHexWStr(const size_t nValue);
+		static size_t HexWStrToNum(const std::wstring_view& wsText);
+		static bool IsDBCS(uint32_t uiChar);
+		static void DBCSReadChar(std::string& msText, uint32_t uiChar);
+		static std::wstring ReadText(SPT_Text_Entry* pEntry, size_t uiCodePage);
 		static void MakeStruct(Rut::RxMem::Auto& rfMem, const std::string& msText);
 		static void FileSwapData(Rut::RxFile::Binary& fsSource, size_t nBegPos, size_t nEndPos, Rut::RxFile::Binary& fsDest, Rut::RxMem::Auto& rfBuffer);
 
@@ -29,7 +31,7 @@ namespace GSD::SPT
 		Text_Editor(std::wstring_view wsPath);
 
 		void ReadEntry();
-		void Extract(const std::wstring_view wsJson);
-		void Insert(const std::wstring_view wsJson);
+		void Extract(const std::wstring_view wsJson, size_t uiCodePage);
+		void Insert(const std::wstring_view wsJson, size_t uiCodePage);
 	};
 }

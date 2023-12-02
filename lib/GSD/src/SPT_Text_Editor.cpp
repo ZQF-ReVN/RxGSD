@@ -2,95 +2,221 @@
 #include "../../Rut/RxStr.h"
 #include "../../Rut/RxJson.h"
 
+#include <list>
 
 
 namespace GSD::SPT
 {
-	std::wstring Text_Editor::NumToHexStr(const size_t nValue)
+	std::string Text_Editor::NumToHexStr(const size_t nValue)
 	{
-		wchar_t foa_str[64];
-		(void)swprintf_s(foa_str, 64, L"0x%08X", nValue);
-		return foa_str;
+		char buf[64];
+		(void)sprintf_s(buf, 64, "0x%08X", nValue);
+		return buf;
 	}
 
-	size_t Text_Editor::HexStrToNum(const std::wstring_view& wsText)
+	std::wstring Text_Editor::NumToHexWStr(const size_t nValue)
+	{
+		wchar_t buf[64];
+		(void)swprintf_s(buf, 64, L"0x%08X", nValue);
+		return buf;
+	}
+
+	size_t Text_Editor::HexWStrToNum(const std::wstring_view& wsText)
 	{
 		size_t num = 0;
 		(void)swscanf_s(wsText.data(), L"0x%08X", &num);
 		return num;
 	}
 
-	size_t Text_Editor::DBCSCountChar(std::string_view msText)
+	bool Text_Editor::IsDBCS(uint32_t uiChar)
 	{
-		size_t count = 0;
-		for (auto ite_char = msText.begin(); ite_char != msText.end(); ite_char++)
-		{
-			(uint8_t)ite_char[0] >= 0x81 ? (void)(count++, ite_char++) : (void)(count++);
-		}
-		return count;
+		return uiChar >= 0x81 ? true : false;
 	}
 
-	std::wstring Text_Editor::ReadText(SPT_Text_Entry* pEntry)
+	void Text_Editor::DBCSReadChar(std::string& msText, uint32_t uiChar)
 	{
-		std::string text;
+		char dbcs_char_l = (char)((uiChar >> 0) & 0x00FF);
+		char dbcs_char_h = (char)((uiChar >> 8) & 0x00FF);
+		((uint8_t)dbcs_char_l >= 0x81u) ? (void)(msText.append(1, dbcs_char_l), msText.append(1, dbcs_char_h)) : (void)(msText.append(1, dbcs_char_l));
+	}
 
-		size_t dbcs_char_count = pEntry->uiCharCount - 1;
-		SPT_Char_Entry* char_entry_beg = (SPT_Char_Entry*)(pEntry + 1);
-
-		for (size_t ite_char = 0; ite_char < dbcs_char_count; ite_char++)
+	void CheckEntry(const SPT_Char_Entry& rfEntry)
+	{
+		switch (rfEntry.uiType)
 		{
-			uint32_t dbcs_char = char_entry_beg[ite_char].uiVal2;
+		// normal char flag
+		case 0x7:
+		{
+			if (rfEntry.uiNotationCount == 0)
+			{
+				return;
+			}
+		}
+		break;
 
-			char dbcs_char_l = (char)((dbcs_char >> 0) & 0x00FF);
-			char dbcs_char_h = (char)((dbcs_char >> 8) & 0x00FF);
+		// notation beg flag
+		case 0x8:
+		{
+			if (rfEntry.uiChar == 0)
+			{
+				return;
+			}
+		}
+		break;
 
-			((uint8_t)dbcs_char_l >= 0x81u) ? (void)(text.append(1, dbcs_char_l), text.append(1, dbcs_char_h)) : (void)(text.append(1, dbcs_char_l));
+		case 0x9:
+		{
+			if ((rfEntry.uiNotationCount == 0) && (rfEntry.uiChar == 0))
+			{
+				return;
+			}
+		}
+		break;
+
+		case 0xD:
+		{
+			//if ((rfEntry.uiNotationCount == 0) && (rfEntry.uiChar == 0))
+			//{
+			//	return;
+			//}
+			return;
+		}
+		break;
 		}
 
-		return Rut::RxStr::ToWCS(text, 932);
+		throw std::runtime_error("Error Char Type!");
+	}
+
+	std::wstring Text_Editor::ReadText(SPT_Text_Entry* pEntry, size_t uiCodePage)
+	{
+		std::vector<uint32_t> char_list;
+		{
+			SPT_Char_Entry* char_entry_arry = (SPT_Char_Entry*)(pEntry + 1);
+			for (size_t ite_entry = 0; ite_entry < pEntry->uiCharCount; ite_entry++)
+			{
+				const SPT_Char_Entry& char_entry = char_entry_arry[ite_entry];
+
+				CheckEntry(char_entry);
+
+				switch (char_entry.uiType)
+				{
+				// normal char flag
+				case 0x7:
+				{
+					char_list.push_back(char_entry.uiChar);
+				}
+				break;
+
+				// notation beg flag
+				case 0x8:
+				{
+					char_list.insert(char_list.end() - char_entry.uiNotationCount, '<');
+					char_list.push_back('/');
+				}
+				break;
+
+				// notation end flag
+				case 0x9:
+				{
+					char_list.push_back('>');
+				}
+				break;
+
+				// string end flag
+				case 0xD:
+				{
+					// Nothing
+				}
+				break;
+
+				default: 
+				{
+					throw std::runtime_error("Unknow Char Type!");
+				}
+				}
+			}
+		}
+
+		std::string text;
+		for (auto charx : char_list)
+		{
+			DBCSReadChar(text, charx);
+		}
+
+		return Rut::RxStr::ToWCS(text, uiCodePage);
 	}
 
 	void Text_Editor::MakeStruct(Rut::RxMem::Auto& rfMem, const std::string& msText)
 	{
-		size_t char_count = DBCSCountChar(msText);
+		std::vector<SPT_Char_Entry> char_entry_list;
+		{
+			size_t notation_pos_beg = 0;
+			SPT_Char_Entry entry = { 0 };
+			for (size_t ite_char = 0; ite_char < msText.size(); ite_char++)
+			{
+				if (IsDBCS(msText[ite_char]))
+				{
+					uint32_t dbcs_char_l = (msText[ite_char + 0]) & 0xFF;
+					uint32_t dbcs_char_h = (msText[ite_char + 1]) & 0xFF;
+					ite_char++;
+					entry.uiType = 0x7;
+					entry.uiNotationCount = 0x0;
+					entry.uiChar = (dbcs_char_l) | (dbcs_char_h << 0x8);
+				}
+				else
+				{
+					if (msText[ite_char] == '<')
+					{
+						notation_pos_beg = char_entry_list.size();
+						continue;
+					}
+					else if (msText[ite_char] == '/')
+					{
+						if (notation_pos_beg == 0) { throw std::runtime_error("Notation token mismatched"); }
 
-		rfMem.SetSize(sizeof(SPT_Text_Entry) + (char_count + 1) * sizeof(SPT_Char_Entry));
+						entry.uiType = 0x8; // notation beg
+						entry.uiNotationCount = char_entry_list.size() - notation_pos_beg;
+						entry.uiChar = 0;
 
-		uint8_t* bin_ptr = rfMem.GetPtr();
+						notation_pos_beg = 0;
+					}
+					else if (msText[ite_char] == '>')
+					{
+						entry.uiType = 0x9; // notation end
+						entry.uiNotationCount = 0;
+						entry.uiChar = 0;
+					}
+					else
+					{
+						entry.uiType = 0x7; // normal char
+						entry.uiNotationCount = 0x0;
+						entry.uiChar = msText[ite_char];
+					}
+				}
 
-		SPT_Text_Entry* text_entry_ptr = (SPT_Text_Entry*)bin_ptr;
-		text_entry_ptr->uiCharCount = char_count + 1;
+				char_entry_list.push_back(entry);
+			}
+
+			entry.uiType = 0xD; // end flag
+			entry.uiNotationCount = 0x0;
+			entry.uiChar = 0;
+			char_entry_list.push_back(entry);
+		}
+
+
+		rfMem.SetSize(sizeof(SPT_Text_Entry) + char_entry_list.size() * sizeof(SPT_Char_Entry));
+
+		SPT_Text_Entry* text_entry_ptr = (SPT_Text_Entry*)rfMem.GetPtr();
+		text_entry_ptr->uiCharCount = char_entry_list.size();
 		text_entry_ptr->aUn0[0] = 0;
 		text_entry_ptr->aUn0[1] = 0;
 
-		SPT_Char_Entry* char_entry_beg = (SPT_Char_Entry*)(text_entry_ptr + 1);
-		for (auto ite_char = msText.begin(); ite_char != msText.end(); ite_char++)
+		SPT_Char_Entry* char_entry_arry = (SPT_Char_Entry*)(text_entry_ptr + 1);
+
+		for (size_t ite_entry = 0; ite_entry < char_entry_list.size(); ite_entry++)
 		{
-			uint32_t char_value = 0;
-
-			if ((uint8_t)ite_char[0] >= 0x81)
-			{
-				uint32_t dbcs_char_l = (ite_char[0]) & 0xFF;
-				uint32_t dbcs_char_h = (ite_char[1]) & 0xFF;
-
-				ite_char++;
-
-				char_value = (dbcs_char_l) | (dbcs_char_h << 0x8);
-			}
-			else
-			{
-				char_value = ite_char[0];
-			}
-
-			char_entry_beg->uiVal0 = 0x7;
-			char_entry_beg->uiVal1 = 0;
-			char_entry_beg->uiVal2 = char_value;
-			char_entry_beg++;
+			char_entry_arry[ite_entry] = char_entry_list[ite_entry];
 		}
-
-		char_entry_beg->uiVal0 = 0xD;
-		char_entry_beg->uiVal1 = 0;
-		char_entry_beg->uiVal2 = 0;
 	}
 
 	void Text_Editor::FileSwapData(Rut::RxFile::Binary& fsSource, size_t nBegPos, size_t nEndPos, Rut::RxFile::Binary& fsDest, Rut::RxMem::Auto& rfBuffer)
@@ -118,7 +244,9 @@ namespace GSD::SPT
 		uint8_t* spt_ptr = this->m_amSPT.GetPtr();
 		size_t spt_size = this->m_amSPT.GetSize();
 
-		for (size_t ite_bytes = 0; ite_bytes < spt_size; ite_bytes++)
+		size_t search_size = spt_size - sizeof(text_code);
+
+		for (size_t ite_bytes = 0; ite_bytes < search_size; ite_bytes++)
 		{
 			uint8_t* cur_ptr = spt_ptr + ite_bytes;
 			if (memcmp(cur_ptr, text_code, sizeof(text_code)) == 0)
@@ -128,7 +256,7 @@ namespace GSD::SPT
 				if ((spt_text_ptr->uiCharCount != 0) &&
 					(spt_text_ptr->aUn0[0] == 0) &&
 					(spt_text_ptr->aUn0[1] == 0) &&
-					(spt_char_last_ptr->uiVal0 == 0xD))
+					(spt_char_last_ptr->uiType == 0xD))
 				{
 					this->m_vcTextEntryPtr.push_back(spt_text_ptr);
 				}
@@ -136,9 +264,11 @@ namespace GSD::SPT
 		}
 	}
 
-	void Text_Editor::Extract(const std::wstring_view wsJson)
+	void Text_Editor::Extract(const std::wstring_view wsJson, size_t uiCodePage)
 	{
 		this->ReadEntry();
+
+		if (this->m_vcTextEntryPtr.empty()) { return; }
 
 		Rut::RxJson::Value json;
 		uint8_t* spt_ptr = this->m_amSPT.GetPtr();
@@ -149,9 +279,9 @@ namespace GSD::SPT
 			size_t end_foa = beg_foa + sizeof(SPT_Text_Entry) + entry_ptr->uiCharCount * sizeof(SPT_Char_Entry);
 
 			Rut::RxJson::JObject text_obj;
-			text_obj[L"beg"] = NumToHexStr(beg_foa);
-			text_obj[L"end"] = NumToHexStr(end_foa);
-			text_obj[L"msg"] = ReadText(entry_ptr);
+			text_obj[L"beg"] = NumToHexWStr(beg_foa);
+			text_obj[L"end"] = NumToHexWStr(end_foa);
+			text_obj[L"msg"] = ReadText(entry_ptr, uiCodePage);
 
 			json.Append(std::move(text_obj));
 		}
@@ -159,7 +289,7 @@ namespace GSD::SPT
 		Rut::RxJson::Parser::Save(json, wsJson);
 	}
 
-	void Text_Editor::Insert(const std::wstring_view wsJson)
+	void Text_Editor::Insert(const std::wstring_view wsJson, size_t uiCodePage)
 	{
 		Rut::RxFile::Binary old_spt{ this->m_wsPath, Rut::RIO_READ };
 		Rut::RxFile::Binary new_spt{ this->m_wsPath + L".new", Rut::RIO_WRITE };
@@ -176,13 +306,13 @@ namespace GSD::SPT
 		for (auto& info : info_list)
 		{
 			std::wstring text = info[L"msg"];
-			size_t text_beg = HexStrToNum(info[L"beg"]);
-			size_t text_end = HexStrToNum(info[L"end"]);
+			size_t text_beg = HexWStrToNum(info[L"beg"]);
+			size_t text_end = HexWStrToNum(info[L"end"]);
 
 			FileSwapData(old_spt, swap_beg, text_beg, new_spt, tmp_buffer);
 			swap_beg = text_end;
 
-			MakeStruct(tmp_buffer, Rut::RxStr::ToMBCS(text, 936));
+			MakeStruct(tmp_buffer, Rut::RxStr::ToMBCS(text, uiCodePage));
 			new_spt.Write(tmp_buffer.GetPtr(), tmp_buffer.GetSize());
 		}
 

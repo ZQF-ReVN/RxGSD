@@ -21,5 +21,5 @@ void Decode()
 
 int main()
 {
-
+	Decode();
 }

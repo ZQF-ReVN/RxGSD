@@ -763,6 +763,6 @@ namespace Rut::RxJson
 	{
 		std::wstring text;
 		rfJVaue.Dump(text);
-		RxFile::Text{ wsFileName, RIO_WRITE, RFM_UTF8 }.WriteLine(text);
+		RxFile::SaveFileViaPath(wsFileName, text.data(), text.size() * sizeof(wchar_t));
 	}
 }

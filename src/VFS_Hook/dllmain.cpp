@@ -8,7 +8,10 @@
 static void StartHook(HMODULE hDllBase)
 {
 	size_t exe_base = (size_t)::GetModuleHandleW(nullptr);
-	GSD::VFS::SetHook(exe_base + 0x19AB10, exe_base + 0x19AC40, exe_base + 0x08110);
+	GSD::VFS::SetHookType0(exe_base + 0x19AB10, exe_base + 0x19AC40, exe_base + 0x8110);
+
+	// 他の男の精液で孕んでもいいですか…？３
+	//GSD::VFS::SetHookType1(exe_base + 0x1A30A0, exe_base + 0x1A31D0, exe_base + 0x8140);
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)

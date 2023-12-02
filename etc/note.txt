@@ -1,21 +1,24 @@
+网上现成参考资料:
+https://github.com/shangjiaxuan/Crass-source/blob/4aff113b98fc39fb85f64501ab47c580df779a3d/cui-1.0.4/AGSD/AGSD.cpp
+
+
 struct GSD_Pack_Info
 {
 	uint32_t uiFOA;
 	uint32_t uiSize;
-}
-
+};
 
 struct GSD_Pack_Entry
 {
 	GSD_Pack_Info Info;
 	char aFileName[0x38];
-}
+};
 
 struct GSD_Pack_HDR
 {
 	uint32_t uiEntryCount;
 	GSD_Pack_Entry aEntry[uiEntryCount];
-}
+};
 
 union GSD_STD_RawStr
 {
@@ -26,18 +29,17 @@ union GSD_STD_RawStr
 
 struct GSD_STD_String
 {
-
 	GSD_STD_RawStr uStr;
 	uint32_t uiLen;
 	uint32_t uiReserve;
-}
+};
 
 struct GSD_FS_Pack_Entry
 {
 	uint64_t uiFOA;
 	uint64_t uiSize;
 	char aFileName[0x70];
-}
+};
 
 struct GSD_FS
 {
@@ -78,17 +80,17 @@ strutc GSD_Spt
 	uint8_t ucType;
 	uint8_t ucUn1;
 	uint8_t ucUn2;
-}
+};
 
 struct GSD_Script_Decoder_One
 {
 	uint32_t aKey0[4];
-}
+};
 
 struct GSD_Script_Decoder
 {
 	GSD_Script_Decoder_One[16];
-}
+};
 
 struct BMZ
 {
@@ -178,7 +180,19 @@ spt脚本目前看来，很像是按照块来读取的，不过里面的结构�
 "
 
 
-
+struct SPT_Code_Append_Data_Type0
+{
+  uint32_t uiUn0;
+  uint32_t uiUn1;
+  uint32_t uiUn2;
+  uint32_t uiUn3;
+  uint32_t uiCharCount;
+  uint32_t uiStrType0Len;
+  uint32_t uiStrType1Len;
+  SPT_Char_Entry aCharIndex[uiCharCount]
+  char aStrType0[uiStrType0Len + 1]
+  char aStrType0[uiStrType1Len + 1]
+};
 
 // if str_len == 0 {size = 0x1D} else {size = 0x1D + strlen + 1}
 struct SPT_Code_Append_Data_Type1_Ele
@@ -191,13 +205,13 @@ struct SPT_Code_Append_Data_Type1_Ele
   uint32_t uiVal_5;
   uint8_t uiVal_6;
   uint32_t uiVal_7;
-  // char aStr[uiStrLen + 1];
+  char aStr[uiStrLen + 1];
 };
 
 struct SPT_Code_Append_Data_Type2_Ele
 {
   uint32_t uiType1Count;
-  SPT_Code_Append_Type1 aAppend_Type1[uiType1Count];
+  SPT_Code_Append_Type1 aAppendType1[uiType1Count];
 };
 
 struct SPT_Code_Append_Data_Type3_Ele
@@ -206,7 +220,6 @@ struct SPT_Code_Append_Data_Type3_Ele
   uint32_t uiVal_1;
   uint32_t uiVal_2;
 };
-
 
 struct SPT_Code
 {
@@ -219,12 +232,15 @@ struct SPT_Code
   uint32_t uiAppendDataCount_Type1;
   uint32_t uiAppendDataCount_Type2;
   uint32_t uiAppendDataCount_Type3;
-  // SPT_Code_Append_Data_TypeX[uiAppendDataCount_TypeX]
+  SPT_Code_Append_Data_Type0 aDataType0
+  SPT_Code_Append_Data_Type1 aDataType1[uiAppendDataCount_Type1]
+  SPT_Code_Append_Data_Type2 aDataType2[uiAppendDataCount_Type2]
+  SPT_Code_Append_Data_Type3 aDataType3[uiAppendDataCount_Type3]
 };
 
 struct SPT_Chunks_Info
 {
-  uint32_t uiBlockCount;
+  uint32_t uiChunkCount;
   uint32_t uiUn0;
   uint32_t uiUn1;
   uint32_t uiUn2;
@@ -233,7 +249,10 @@ struct SPT_Chunks_Info
 struct SPT_Append_Script_info
 {
   uint32_t uiStrLen0;
-  char aScriptName[uiStrLen0];
+  if uiStrLen0
+  {
+    char aScriptName[uiStrLen0];
+  }
   uint32_t uiStrLen1;
   if uiStrLen1
   {
@@ -242,8 +261,8 @@ struct SPT_Append_Script_info
   uint32_t uiUn0;
   uint32_t uiUn1;
   uint32_t uiUn2;
-  char aAppend[0x80];
-}
+  uint8_t aAppendData[0x80];
+};
 
 if uiScriptCount == 0 -> size = 4;
 else size = 4 + SPT_Append_Script_info * uiScriptCount
@@ -254,7 +273,7 @@ struct SPT_Append_Script
   {
     SPT_Append_Script_info Info[uiScriptCount]
   }
-}
+};
 
 struct SPT_HDR
 {
@@ -266,11 +285,7 @@ struct SPT_HDR
   uint32_t uiScriptNameLen;
   char aScriptName[uiScriptNameLen];
   SPT_Chunks_Info ChunksInfo;
-  // SPT_Append_Script[0xF]
+  SPT_Append_Script[0xF]
   uint32_t uiUnSize;
-  // SPT_Code[Block_Info.uiBlockCount]
+  SPT_Code[Block_Info.uiBlockCount]
 };
-
-
-网上现成的参考资料:
-https://github.com/shangjiaxuan/Crass-source/blob/4aff113b98fc39fb85f64501ab47c580df779a3d/cui-1.0.4/AGSD/AGSD.cpp

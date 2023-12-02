@@ -6,6 +6,90 @@
 
 namespace GSD::SPT
 {
+	struct SPT_Char_Entry
+	{
+		uint32_t uiType; // [0x7](normal char flag), [0xD](end string flag), [0x8](notation beg flag), [0x9](notation end flag)
+		uint32_t uiNotationCount; // 0x0
+		uint32_t uiChar; // char
+	};
+
+	class SPT_Code_Append_Dara_Type0
+	{
+	public:
+		uint32_t m_uiUn0;
+		uint32_t m_uiUn1;
+		uint32_t m_uiUn2;
+		uint32_t m_uiUn3;
+		uint32_t m_uiCharCount;
+		uint32_t m_uiStrType0Len;
+		uint32_t m_uiStrType1Len;
+
+		std::vector<SPT_Char_Entry> m_vcCharList;
+		std::string m_msStrType0;
+		std::string m_msStrType1;
+
+		SPT_Code_Append_Dara_Type0()
+		{
+			this->m_uiUn0 = 0;
+			this->m_uiUn1 = 0;
+			this->m_uiUn2 = 0;
+			this->m_uiUn3 = 0;
+			this->m_uiCharCount = 0;
+			this->m_uiStrType0Len = 0;
+			this->m_uiStrType1Len = 0;
+		}
+
+		void Init(uint8_t* pData)
+		{
+			uint32_t* data_ptr = (uint32_t*)pData;
+			this->m_uiUn0 = data_ptr[0];
+			this->m_uiUn1 = data_ptr[1];
+			this->m_uiUn2 = data_ptr[2];
+			this->m_uiUn3 = data_ptr[3];
+			this->m_uiCharCount = data_ptr[4];
+			this->m_uiStrType0Len = data_ptr[5];
+			this->m_uiStrType1Len = data_ptr[6];
+
+			uint8_t* cur_prt = ((uint8_t*)data_ptr) + 4 * 7;
+
+			if (this->m_uiCharCount)
+			{
+				const SPT_Char_Entry* char_entry_arry = (SPT_Char_Entry*)cur_prt;
+				for (size_t ite_entry = 0; ite_entry < this->m_uiCharCount; ite_entry++)
+				{
+					SPT_Char_Entry entry = char_entry_arry[ite_entry];
+					m_vcCharList.push_back(entry);
+				}
+
+				cur_prt += m_vcCharList.size() * sizeof(SPT_Char_Entry);
+			}
+			if (this->m_uiStrType0Len)
+			{
+				this->m_msStrType0 = (char*)cur_prt;
+				cur_prt += this->m_uiStrType0Len + 1;
+			}
+			if (this->m_uiStrType1Len)
+			{
+				this->m_msStrType1 = (char*)cur_prt;
+				cur_prt += this->m_uiStrType0Len + 1;
+			}
+		}
+
+		size_t GetSize()
+		{
+			size_t size = 7 * 4 + m_vcCharList.size() * sizeof(SPT_Char_Entry);
+			if (this->m_uiStrType0Len)
+			{
+				size += this->m_uiStrType0Len + 1;
+			}
+			if (this->m_uiStrType1Len)
+			{
+				size += this->m_uiStrType1Len + 1;
+			}
+			return size;
+		}
+	};
+
 	// if str_len == 0 {size = 0x1D} else {size = 0x1D + strlen + 1}
 	class SPT_Code_Append_Data_Type1_Ele
 	{
@@ -131,92 +215,6 @@ namespace GSD::SPT
 			return 3 * 4;
 		}
 	};
-
-	struct SPT_Char_Entry
-	{
-		uint32_t uiType; // [0x7](normal char flag), [0xD](end string flag), [0x8](notation beg flag), [0x9](notation end flag)
-		uint32_t uiNotationCount; // 0x0
-		uint32_t uiChar; // char
-	};
-
-	class SPT_Code_Append_Dara_Type0
-	{
-	public:
-		uint32_t m_uiUn0;
-		uint32_t m_uiUn1;
-		uint32_t m_uiUn2;
-		uint32_t m_uiUn3;
-		uint32_t m_uiCharCount;
-		uint32_t m_uiStrType0Len;
-		uint32_t m_uiStrType1Len;
-
-		std::vector<SPT_Char_Entry> m_vcCharList;
-		std::string m_msStrType0;
-		std::string m_msStrType1;
-
-		SPT_Code_Append_Dara_Type0()
-		{
-			this->m_uiUn0 = 0;
-			this->m_uiUn1 = 0;
-			this->m_uiUn2 = 0;
-			this->m_uiUn3 = 0;
-			this->m_uiCharCount = 0;
-			this->m_uiStrType0Len = 0;
-			this->m_uiStrType1Len = 0;
-		}
-
-		void Init(uint8_t* pData)
-		{
-			uint32_t* data_ptr = (uint32_t*)pData;
-			this->m_uiUn0 = data_ptr[0];
-			this->m_uiUn1 = data_ptr[1];
-			this->m_uiUn2 = data_ptr[2];
-			this->m_uiUn3 = data_ptr[3];
-			this->m_uiCharCount = data_ptr[4];
-			this->m_uiStrType0Len = data_ptr[5];
-			this->m_uiStrType1Len = data_ptr[6];
-
-			uint8_t* cur_prt = ((uint8_t*)data_ptr) + 4 * 7;
-
-			if (this->m_uiCharCount)
-			{
-				const SPT_Char_Entry* char_entry_arry = (SPT_Char_Entry*)cur_prt;
-				for (size_t ite_entry = 0; ite_entry < this->m_uiCharCount; ite_entry++)
-				{
-					SPT_Char_Entry entry = char_entry_arry[ite_entry];
-					m_vcCharList.push_back(entry);
-				}
-
-				cur_prt += m_vcCharList.size() * sizeof(SPT_Char_Entry);
-			}
-			if (this->m_uiStrType0Len)
-			{
-				this->m_msStrType0 = (char*)cur_prt;
-				cur_prt += this->m_uiStrType0Len + 1;
-			}
-			if (this->m_uiStrType1Len)
-			{
-				this->m_msStrType1 = (char*)cur_prt;
-				cur_prt += this->m_uiStrType0Len + 1;
-			}
-		}
-
-		size_t GetSize()
-		{
-			size_t size = 7 * 4 + m_vcCharList.size() * sizeof(SPT_Char_Entry);
-			if (this->m_uiStrType0Len)
-			{
-				size += this->m_uiStrType0Len + 1;
-			}
-			if (this->m_uiStrType1Len)
-			{
-				size += this->m_uiStrType1Len + 1;
-			}
-			return size;
-		}
-	};
-
-
 
 	class SPT_Code
 	{

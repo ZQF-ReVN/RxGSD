@@ -83,8 +83,8 @@ namespace GSD
 	struct SPT_Char_Entry
 	{
 		uint32_t uiType; // [0x7](normal char flag), [0xD](end string flag), [0x8](notation beg flag), [0x9](notation end flag)
-		uint32_t uiNotationCount; // 0x0
-		uint32_t uiChar; // char
+		uint32_t uiNotationCount;
+		uint32_t uiChar;
 	};
 
 	struct SPT_Text_Entry

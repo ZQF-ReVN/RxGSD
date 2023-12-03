@@ -1,4 +1,6 @@
-﻿#include "../../lib/GSD/SPT.h"
+﻿#include <iostream>
+
+#include "../../lib/GSD/SPT.h"
 #include "../../lib/Rut/RxPath.h"
 #include "../../lib/Rut/RxFile.h"
 #include "../../lib/Rut/RxMem.h"
@@ -14,11 +16,11 @@ int main()
 	Rut::RxPath::CurFileNames(L"data_dec/", file_list, false);
 	for (auto& file_name : file_list)
 	{
-		std::wcout << L"start_parser:" << file_name << L"  ";
+		//std::wcout << L"start_parser:" << file_name << L"  ";
 		Rut::RxMem::Auto spt{ L"data_dec/" + file_name };
 		GSD::SPT::SPT_Parser parser;
-		parser.Init(spt.GetPtr());
-		std::wcout << L"OK" << L'\n';
+		parser.Parse(spt.GetPtr());
+		//std::wcout << L"OK" << L'\n';
 	}
 
 	int a = 0;

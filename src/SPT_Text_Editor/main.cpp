@@ -16,11 +16,11 @@ int main()
 	Rut::RxPath::CurFileNames(L"data_dec/", file_list, false);
 	for (auto& file_name : file_list)
 	{
-		//std::wcout << L"start_parser:" << file_name << L"  ";
+		std::wcout << L"start_parser:" << file_name << L"  ";
 		Rut::RxMem::Auto spt{ L"data_dec/" + file_name };
 		GSD::SPT::SPT_Parser parser;
 		parser.Parse(spt.GetPtr());
-		//std::wcout << L"OK" << L'\n';
+		std::wcout << L"OK" << L'\n';
 	}
 
 	int a = 0;

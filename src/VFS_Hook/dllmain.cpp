@@ -8,6 +8,9 @@
 static void StartHook(HMODULE hDllBase)
 {
 	size_t exe_base = (size_t)::GetModuleHandleW(nullptr);
+
+	// ボクの目の前で親友に抱かれ腰を振る彼女 ―奴の言いなりにそのエロい肢体は開かれていく― PKG
+	Rut::RxHook::HookCreateFontIndirectA(0x86, "Simhei");
 	GSD::VFS::SetHookType0(exe_base + 0x19AB10, exe_base + 0x19AC40, exe_base + 0x8110);
 
 	// 他の男の精液で孕んでもいいですか…？３

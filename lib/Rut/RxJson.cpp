@@ -3,7 +3,7 @@
 
 #include <assert.h>
 #include <stdexcept>
-
+#include <map>
 
 namespace Rut::RxJson
 {
@@ -316,7 +316,7 @@ namespace Rut::RxJson
 	}
 
 
-	void Value::Dump(std::wstring& wsText, bool isFormat)
+	void Value::Dump(std::wstring& wsText, bool isFormat, bool isOrder) const
 	{
 		static size_t count = 0;
 
@@ -379,15 +379,17 @@ namespace Rut::RxJson
 			wsText.append(1, L'[');
 
 			count++;
-			for (auto& value : *(m_Value.pAry))
 			{
-				if (isFormat)
+				for (auto& value : *(m_Value.pAry))
 				{
-					wsText.append(1, L'\n');
-					wsText.append(count, L'\t');
+					if (isFormat)
+					{
+						wsText.append(1, L'\n');
+						wsText.append(count, L'\t');
+					}
+					value.Dump(wsText, isFormat);
+					wsText.append(1, L',');
 				}
-				value.Dump(wsText, isFormat);
-				wsText.append(1, L',');
 			}
 			count--;
 
@@ -411,23 +413,50 @@ namespace Rut::RxJson
 			wsText.append(1, L'{');
 
 			count++;
-			for (auto& value : *(m_Value.pObj))
 			{
-				if (isFormat)
+				auto fn_proce_one = [&wsText,&isFormat](const std::pair<const std::wstring, Value>& rfKV)
+					{
+						if (isFormat)
+						{
+							wsText.append(1, L'\n');
+							wsText.append(count, L'\t');
+						}
+						wsText.append(1, L'\"');
+						wsText.append(rfKV.first);
+						wsText.append(1, L'\"');
+						wsText.append(1, L':');
+						if (isFormat)
+						{
+							wsText.append(1, L' ');
+						}
+						rfKV.second.Dump(wsText, isFormat);
+						wsText.append(1, L',');
+					};
+
+				const std::unordered_map<std::wstring, Value>& unorder_map = *(m_Value.pObj);
+
+				if (isOrder)
 				{
-					wsText.append(1, L'\n');
-					wsText.append(count, L'\t');
+					std::map<std::wstring, Value> map;
+					for (auto& value : unorder_map)
+					{
+						map.insert(value);
+					}
+
+					for (const auto& value : map)
+					{
+						fn_proce_one(value);
+					}
 				}
-				wsText.append(1, L'\"');
-				wsText.append(value.first);
-				wsText.append(1, L'\"');
-				wsText.append(1, L':');
-				if (isFormat)
+				else
 				{
-					wsText.append(1, L' ');
+
+					for (const auto& value : unorder_map)
+					{
+						fn_proce_one(value);
+					}
 				}
-				value.second.Dump(wsText, isFormat);
-				wsText.append(1, L',');
+
 			}
 			count--;
 
@@ -492,12 +521,12 @@ namespace Rut::RxJson
 		return m_wpJson + m_nReadCCH;
 	}
 
-	size_t Parser::GeReadCCH()
+	size_t Parser::GeReadCCH() const
 	{
 		return m_nReadCCH;
 	}
 
-	size_t Parser::GetJsonCCH()
+	size_t Parser::GetJsonCCH() const
 	{
 		return this->m_nJsonCCH;
 	}
@@ -736,12 +765,12 @@ namespace Rut::RxJson
 
 	void Parser::Open(std::wstring_view wsJson)
 	{
-		std::wstring json;
-		RxFile::Text{ wsJson, RIO_READ, RFM_UTF8 }.ReadRawText(json);
+		std::wstring json_text;
+		RxFile::Text{ wsJson, RIO_READ, RFM_UTF8 }.ReadRawText(json_text);
 
-		this->m_nJsonCCH = json.size();
+		this->m_nJsonCCH = json_text.size();
 		this->m_wpJson = new wchar_t[m_nJsonCCH + 1];
-		wcsncpy_s(this->m_wpJson, m_nJsonCCH + 1, json.data(), this->m_nJsonCCH);
+		wcsncpy_s(this->m_wpJson, m_nJsonCCH + 1, json_text.data(), this->m_nJsonCCH);
 		this->m_wpJson[this->m_nJsonCCH] = L'\0';
 	}
 
@@ -759,10 +788,10 @@ namespace Rut::RxJson
 		return this->Read(rfJValue);
 	}
 
-	void Parser::Save(Value& rfJVaue, std::wstring_view wsFileName)
+	void Parser::Save(Value& rfJVaue, std::wstring_view wsFileName, bool isFormat, bool isOrder)
 	{
 		std::wstring text;
-		rfJVaue.Dump(text);
+		rfJVaue.Dump(text, isFormat, isOrder);
 		RxFile::Text{ wsFileName ,RIO_WRITE, RFM_UTF8 }.WriteLine(text);
 	}
 }

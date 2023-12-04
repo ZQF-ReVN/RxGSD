@@ -53,8 +53,6 @@ namespace GSD::VFS
 
 	void SetHookType0(size_t fnLoadFileViaPack, size_t fnLoadFileViaDir, size_t fnStrCtor)
 	{
-		Rut::RxConsole::Alloc(L"", true, false);
-
 		sg_fnSTDStrCtor = (Fn_GSD_STD_Str_Ctor_T0)fnStrCtor;
 		sg_fnLoadFileViaDir = (Fn_FS_LoadFileViaDir)fnLoadFileViaDir;
 		sg_fnLoadFileViaPack_Type0 = (Fn_FS_LoadFileViaPack_Type0)fnLoadFileViaPack;

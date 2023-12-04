@@ -28,6 +28,7 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_LIST_DIR}/.out/lib)
 
 # Project
     add_subdirectory("src/SPT_Decoder")
+    add_subdirectory("src/SPT_Test")
     add_subdirectory("src/SPT_Text_Editor")
     add_subdirectory("src/GSP_Unpack")
     add_subdirectory("src/VFS_Hook")

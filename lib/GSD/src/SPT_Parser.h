@@ -1,22 +1,25 @@
 #pragma once
-#include <vector>
-#include <string>
 #include <memory>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
-#include "GSD_Types.h"
-#include "../../Rut/RxStr.h"
-#include "../../Rut/RxMem.h"
 #include "../../Rut/RxJson.h"
+#include "../../Rut/RxMem.h"
+#include "../../Rut/RxStr.h"
+#include "GSD_Types.h"
 
 
 namespace GSD::SPT
 {
 	template <typename SPT_OBJ_T>
-	static bool CheckDump(uint8_t* pOrg, SPT_OBJ_T& rfOBj)
+	static void CheckDumpDataMatched(uint8_t* pOrg, SPT_OBJ_T& rfOBj)
 	{
 		Rut::RxMem::Auto mem_data = rfOBj.Dump();
-		return memcmp(pOrg, mem_data.GetPtr(), mem_data.GetSize()) ? false : true;
+		if (memcmp(pOrg, mem_data.GetPtr(), mem_data.GetSize()))
+		{
+			throw std::runtime_error("Dump data mismatch");
+		}
 	}
 
 	static std::wstring NumToHexWStr(const size_t nValue)
@@ -24,13 +27,6 @@ namespace GSD::SPT
 		wchar_t buf[64];
 		(void)swprintf_s(buf, 64, L"0x%08X", nValue);
 		return buf;
-	}
-
-	static void DBCSReadChar(std::string& msText, uint32_t uiChar)
-	{
-		char dbcs_char_l = (char)((uiChar >> 0) & 0x00FF);
-		char dbcs_char_h = (char)((uiChar >> 8) & 0x00FF);
-		((uint8_t)dbcs_char_l >= 0x81u) ? (void)(msText.append(1, dbcs_char_l), msText.append(1, dbcs_char_h)) : (void)(msText.append(1, dbcs_char_l));
 	}
 
 
@@ -50,33 +46,23 @@ namespace GSD::SPT
 		std::string m_msStrType2;
 
 	private:
-		size_t m_nMemSize = 0;
-
-		void CountSize()
+		static bool IsDBCS(uint32_t uiChar)
 		{
-			size_t size = 0;
-
-			size += sizeof(this->m_uiUn0) + sizeof(this->m_uiUn1) + sizeof(this->m_uiUn2) + sizeof(this->m_uiUn3);
-			size += sizeof(this->m_uiStrType0Len) + sizeof(this->m_uiStrType1Len) + sizeof(this->m_uiStrType2Len);
-			size += this->m_vcCharList.size() * sizeof(SPT_Char_Entry);
-
-			if (this->m_uiStrType1Len)
-			{
-				size += this->m_uiStrType1Len + 1;
-			}
-			if (this->m_uiStrType2Len)
-			{
-				size += this->m_uiStrType2Len + 1;
-			}
-
-			this->m_nMemSize = size;
+			return uiChar >= 0x81 ? true : false;
 		}
 
-		std::wstring ReadText(size_t uiCodePage) const
+		static void DBCSReadChar(std::string& msText, uint32_t uiChar)
+		{
+			char dbcs_char_l = (char)((uiChar >> 0) & 0x00FF);
+			char dbcs_char_h = (char)((uiChar >> 8) & 0x00FF);
+			((uint8_t)dbcs_char_l >= 0x81u) ? (void)(msText.append(1, dbcs_char_l), msText.append(1, dbcs_char_h)) : (void)(msText.append(1, dbcs_char_l));
+		}
+
+		static std::string ParseSptText(const std::vector<SPT_Char_Entry>& rfCharEntries)
 		{
 			std::vector<uint32_t> char_list;
 			{
-				for (auto& char_entry : this->m_vcCharList)
+				for (auto& char_entry : rfCharEntries)
 				{
 					switch (char_entry.uiType)
 					{
@@ -119,7 +105,66 @@ namespace GSD::SPT
 				DBCSReadChar(text, charx);
 			}
 
-			return Rut::RxStr::ToWCS(text, uiCodePage);
+			return text;
+		}
+
+		static std::vector<SPT_Char_Entry> MakeSptText(const std::string& msText)
+		{
+			std::vector<SPT_Char_Entry> char_entry_list;
+			{
+				size_t notation_pos_beg = 0;
+				SPT_Char_Entry entry = { 0 };
+				for (size_t ite_char = 0; ite_char < msText.size(); ite_char++)
+				{
+					if (IsDBCS(msText[ite_char]))
+					{
+						uint32_t dbcs_char_l = (msText[ite_char + 0]) & 0xFF;
+						uint32_t dbcs_char_h = (msText[ite_char + 1]) & 0xFF;
+						ite_char++;
+						entry.uiType = 0x7;
+						entry.uiNotationCount = 0x0;
+						entry.uiChar = (dbcs_char_l) | (dbcs_char_h << 0x8);
+					}
+					else
+					{
+						if (msText[ite_char] == '<')
+						{
+							notation_pos_beg = char_entry_list.size();
+							continue;
+						}
+						else if (msText[ite_char] == '/')
+						{
+							if (notation_pos_beg == 0) { throw std::runtime_error("Notation token mismatched"); }
+
+							entry.uiType = 0x8; // notation beg
+							entry.uiNotationCount = char_entry_list.size() - notation_pos_beg;
+							entry.uiChar = 0;
+
+							notation_pos_beg = 0;
+						}
+						else if (msText[ite_char] == '>')
+						{
+							entry.uiType = 0x9; // notation end
+							entry.uiNotationCount = 0;
+							entry.uiChar = 0;
+						}
+						else
+						{
+							entry.uiType = 0x7; // normal char
+							entry.uiNotationCount = 0x0;
+							entry.uiChar = msText[ite_char];
+						}
+					}
+
+					char_entry_list.push_back(entry);
+				}
+
+				entry.uiType = 0xD; // end flag
+				entry.uiNotationCount = 0x0;
+				entry.uiChar = 0;
+				char_entry_list.push_back(entry);
+			}
+			return char_entry_list;
 		}
 
 	public:
@@ -165,8 +210,6 @@ namespace GSD::SPT
 				this->m_msStrType2 = { (char*)cur_prt };
 				cur_prt += this->m_uiStrType1Len + 1;
 			}
-
-			this->CountSize();
 		}
 
 		Rut::RxMem::Auto Dump() const
@@ -215,23 +258,57 @@ namespace GSD::SPT
 		Rut::RxJson::Value ToJson() const
 		{
 			Rut::RxJson::Value json;
-			json.Append(NumToHexWStr(m_uiUn0));
-			json.Append(NumToHexWStr(m_uiUn1));
-			json.Append(NumToHexWStr(m_uiUn2));
-			json.Append(NumToHexWStr(m_uiUn3));
-			json.Append(NumToHexWStr(m_uiStrType0Len));
-			json.Append(NumToHexWStr(m_uiStrType1Len));
-			json.Append(NumToHexWStr(m_uiStrType2Len));
-			json.Append(this->ReadText(932));
-			json.Append(Rut::RxStr::ToWCS(this->m_msStrType1, 932));
-			json.Append(Rut::RxStr::ToWCS(this->m_msStrType2, 932));
+			{
+				json[L"Un0"] = NumToHexWStr(m_uiUn0);
+				json[L"Un1"] = NumToHexWStr(m_uiUn1);
+				json[L"Un2"] = NumToHexWStr(m_uiUn2);
+				json[L"Un3"] = NumToHexWStr(m_uiUn3);
+				json[L"StrType0Len"] = NumToHexWStr(m_uiStrType0Len);
+				json[L"StrType1Len"] = NumToHexWStr(m_uiStrType1Len);
+				json[L"StrType2Len"] = NumToHexWStr(m_uiStrType2Len);
+				json[L"StrType0"] = Rut::RxStr::ToWCS(this->GetType0Text(), 932);
+				json[L"StrType1"] = Rut::RxStr::ToWCS(this->m_msStrType1, 932);
+				json[L"StrType2"] = Rut::RxStr::ToWCS(this->m_msStrType2, 932);
+			}
 			return json;
+		}
+
+		void SetType0Text(const std::string& msText)
+		{
+			this->m_vcCharList.clear();
+			this->m_vcCharList = std::move(MakeSptText(msText));
+			this->m_uiStrType0Len = m_vcCharList.size();
+		}
+
+		size_t GetType0TextLen()const
+		{
+			return this->m_uiStrType0Len;
+		}
+
+		std::string GetType0Text() const
+		{
+			return ParseSptText(this->m_vcCharList);
 		}
 
 	public:
 		size_t GetSize() const
 		{
-			return this->m_nMemSize;
+			size_t size = 0;
+
+			size += sizeof(this->m_uiUn0) + sizeof(this->m_uiUn1) + sizeof(this->m_uiUn2) + sizeof(this->m_uiUn3);
+			size += sizeof(this->m_uiStrType0Len) + sizeof(this->m_uiStrType1Len) + sizeof(this->m_uiStrType2Len);
+			size += this->m_vcCharList.size() * sizeof(SPT_Char_Entry);
+
+			if (this->m_uiStrType1Len)
+			{
+				size += this->m_uiStrType1Len + 1;
+			}
+			if (this->m_uiStrType2Len)
+			{
+				size += this->m_uiStrType2Len + 1;
+			}
+
+			return size;
 		}
 	};
 
@@ -247,23 +324,6 @@ namespace GSD::SPT
 		uint8_t m_uiVal_6 = 0;
 		uint32_t m_uiVal_7 = 0;
 		std::string m_msStr;
-
-	private:
-		size_t m_nMemSize = 0;
-
-		void CountSize()
-		{
-			size_t size = 0;
-
-			size += sizeof(m_uiVal_0) + sizeof(m_uiVal_1) + sizeof(m_uiVal_2) + sizeof(m_uiVal_3) + sizeof(m_uiStrLen) + sizeof(m_uiVal_5) + sizeof(m_uiVal_6) + sizeof(m_uiVal_7);
-
-			if (this->m_uiStrLen)
-			{
-				size += this->m_uiStrLen + 1;
-			}
-
-			this->m_nMemSize = size;
-		}
 
 	public:
 		SPT_Code_Parameter_Type1()
@@ -297,8 +357,6 @@ namespace GSD::SPT
 				char* str_ptr = (char*)(cur_ptr);
 				this->m_msStr = { str_ptr, this->m_uiStrLen };
 			}
-
-			this->CountSize();
 		}
 
 		Rut::RxMem::Auto Dump() const
@@ -337,22 +395,33 @@ namespace GSD::SPT
 		Rut::RxJson::Value ToJson() const
 		{
 			Rut::RxJson::Value json;
-			json.Append(NumToHexWStr(this->m_uiVal_0));
-			json.Append(NumToHexWStr(this->m_uiVal_1));
-			json.Append(NumToHexWStr(this->m_uiVal_2));
-			json.Append(NumToHexWStr(this->m_uiVal_3));
-			json.Append(NumToHexWStr(this->m_uiStrLen));
-			json.Append(NumToHexWStr(this->m_uiVal_5));
-			json.Append(NumToHexWStr(this->m_uiVal_6));
-			json.Append(NumToHexWStr(this->m_uiVal_7));
-			json.Append(Rut::RxStr::ToWCS(this->m_msStr, 932));
+			{
+				json[L"Val_0"] = NumToHexWStr(this->m_uiVal_0);
+				json[L"Val_1"] = NumToHexWStr(this->m_uiVal_1);
+				json[L"Val_2"] = NumToHexWStr(this->m_uiVal_2);
+				json[L"Val_3"] = NumToHexWStr(this->m_uiVal_3);
+				json[L"StrLen"] = NumToHexWStr(this->m_uiStrLen);
+				json[L"Val_5"] = NumToHexWStr(this->m_uiVal_5);
+				json[L"Val_6"] = NumToHexWStr(this->m_uiVal_6);
+				json[L"Val_7"] = NumToHexWStr(this->m_uiVal_7);
+				json[L"Str"] = Rut::RxStr::ToWCS(this->m_msStr, 932);
+			}
 			return json;
 		}
 
 	public:
 		size_t GetSize() const
 		{
-			return this->m_nMemSize;
+			size_t size = 0;
+
+			size += sizeof(m_uiVal_0) + sizeof(m_uiVal_1) + sizeof(m_uiVal_2) + sizeof(m_uiVal_3) + sizeof(m_uiStrLen) + sizeof(m_uiVal_5) + sizeof(m_uiVal_6) + sizeof(m_uiVal_7);
+
+			if (this->m_uiStrLen)
+			{
+				size += this->m_uiStrLen + 1;
+			}
+
+			return size;
 		}
 	};
 
@@ -361,23 +430,6 @@ namespace GSD::SPT
 	private:
 		uint32_t m_uiParameterType1Count = 0;
 		std::vector<SPT_Code_Parameter_Type1> m_vcParameterType1;
-
-	private:
-		size_t m_nMemSize = 0;
-
-		void CountSize()
-		{
-			size_t size = 0;
-
-			size += sizeof(this->m_uiParameterType1Count);
-
-			for (const auto& type1 : this->m_vcParameterType1)
-			{
-				size += type1.GetSize();
-			}
-
-			this->m_nMemSize = size;
-		}
 
 	public:
 		SPT_Code_Parameter_Type2()
@@ -397,8 +449,6 @@ namespace GSD::SPT
 				cur_ptr += type1.GetSize();
 				m_vcParameterType1.emplace_back(std::move(type1));
 			}
-
-			this->CountSize();
 		}
 
 		Rut::RxMem::Auto Dump() const
@@ -424,10 +474,13 @@ namespace GSD::SPT
 		Rut::RxJson::Value ToJson() const
 		{
 			Rut::RxJson::Value json;
-			json.Append(NumToHexWStr(this->m_uiParameterType1Count));
-			for (const auto& type1 : this->m_vcParameterType1)
 			{
-				json.Append(type1.ToJson());
+				json[L"ParameterType1Count"] = NumToHexWStr(this->m_uiParameterType1Count);
+				Rut::RxJson::Value& count_arrary = json[L"ParameterType1List"];
+				for (const auto& type1 : this->m_vcParameterType1)
+				{
+					count_arrary.Append(type1.ToJson());
+				}
 			}
 			return json;
 		}
@@ -435,7 +488,16 @@ namespace GSD::SPT
 	public:
 		size_t GetSize() const
 		{
-			return this->m_nMemSize;
+			size_t size = 0;
+
+			size += sizeof(this->m_uiParameterType1Count);
+
+			for (const auto& type1 : this->m_vcParameterType1)
+			{
+				size += type1.GetSize();
+			}
+
+			return size;
 		}
 
 	};
@@ -487,9 +549,11 @@ namespace GSD::SPT
 		Rut::RxJson::Value ToJson() const
 		{
 			Rut::RxJson::Value json;
-			json.Append(NumToHexWStr(this->m_uiVal_0));
-			json.Append(NumToHexWStr(this->m_uiVal_1));
-			json.Append(NumToHexWStr(this->m_uiVal_2));
+			{
+				json[L"Val_0"] = NumToHexWStr(this->m_uiVal_0);
+				json[L"Val_1"] = NumToHexWStr(this->m_uiVal_1);
+				json[L"Val_2"] = NumToHexWStr(this->m_uiVal_2);
+			}
 			return json;
 		}
 
@@ -517,46 +581,6 @@ namespace GSD::SPT
 		std::vector<SPT_Code_Parameter_Type1> m_vcParameterType1;
 		std::vector<SPT_Code_Parameter_Type2> m_vcParameterType2;
 		std::vector<SPT_Code_Parameter_Type3> m_vcParameterType3;
-
-	private:
-		size_t m_nMemSize = 0;
-
-		void CountSize()
-		{
-			size_t code_size = 0;
-
-			code_size += sizeof(this->m_uiCommand);
-			code_size += sizeof(this->m_uiVal_1);
-			code_size += sizeof(this->m_uiVal_2);
-			code_size += sizeof(this->m_uiVal_3);
-			code_size += sizeof(this->m_uiVal_4);
-			code_size += sizeof(this->m_uiSequnece);
-			code_size += sizeof(this->m_uiParameterType1Count);
-			code_size += sizeof(this->m_uiParameterType2Count);
-			code_size += sizeof(this->m_uiParameterType3Count);
-
-			if (this->m_uiCommand == 1)
-			{
-				code_size += m_ParameterType0.GetSize();
-			}
-
-			for (auto& type1 : this->m_vcParameterType1)
-			{
-				code_size += type1.GetSize();
-			}
-
-			for (auto& type2 : this->m_vcParameterType2)
-			{
-				code_size += type2.GetSize();
-			}
-
-			for (auto& type3 : this->m_vcParameterType3)
-			{
-				code_size += type3.GetSize();
-			}
-
-			this->m_nMemSize = code_size;
-		}
 
 	public:
 		SPT_Code()
@@ -609,8 +633,6 @@ namespace GSD::SPT
 				append_data_ptr += type3.GetSize();
 				m_vcParameterType3.push_back(type3);
 			}
-
-			this->CountSize();
 		}
 
 		Rut::RxMem::Auto Dump() const
@@ -670,43 +692,39 @@ namespace GSD::SPT
 		{
 			Rut::RxJson::Value json;
 			{
-				json.Append(NumToHexWStr(this->m_uiCommand));
-				json.Append(NumToHexWStr(this->m_uiVal_1));
-				json.Append(NumToHexWStr(this->m_uiVal_2));
-				json.Append(NumToHexWStr(this->m_uiVal_3));
-				json.Append(NumToHexWStr(this->m_uiVal_4));
-				json.Append(NumToHexWStr(this->m_uiSequnece));
-				json.Append(NumToHexWStr(this->m_uiParameterType1Count));
-				json.Append(NumToHexWStr(this->m_uiParameterType2Count));
-				json.Append(NumToHexWStr(this->m_uiParameterType3Count));
+				json[L"Command"] = NumToHexWStr(this->m_uiCommand);
+				json[L"Val_1"] = NumToHexWStr(this->m_uiVal_1);
+				json[L"Val_2"] = NumToHexWStr(this->m_uiVal_2);
+				json[L"Val_3"] = NumToHexWStr(this->m_uiVal_3);
+				json[L"Val_4"] = NumToHexWStr(this->m_uiVal_4);
+				json[L"Sequnece"] = NumToHexWStr(this->m_uiSequnece);
+				json[L"ParameterType1Count"] = NumToHexWStr(this->m_uiParameterType1Count);
+				json[L"ParameterType2Count"] = NumToHexWStr(this->m_uiParameterType2Count);
+				json[L"ParameterType3Count"] = NumToHexWStr(this->m_uiParameterType3Count);
 
-				Rut::RxJson::Value json_type0;
+				Rut::RxJson::Value& json_type0 = json[L"ParameterType0"];
 				if (m_uiCommand == 1) // Proc Text Struct
 				{
 					json_type0 = std::move(m_ParameterType0.ToJson());
 				}
-				json.Append(std::move(json_type0));
 
-				Rut::RxJson::Value json_type1;
+				Rut::RxJson::Value& json_type1 = json[L"ParameterType1"];
 				for (auto& type1 : this->m_vcParameterType1)
 				{
 					json_type1.Append(type1.ToJson());
 				}
-				json.Append(std::move(json_type1));
 
-				Rut::RxJson::Value json_type2;
+				Rut::RxJson::Value& json_type2 = json[L"ParameterType2"];
 				for (auto& type2 : this->m_vcParameterType2)
 				{
 					json_type2.Append(type2.ToJson());
 				}
-				json.Append(std::move(json_type2));
 
-				Rut::RxJson::Value json_type3;
+				Rut::RxJson::Value& json_type3 = json[L"ParameterType3"];
 				for (auto& type3 : this->m_vcParameterType3)
 				{
 					json_type3.Append(type3.ToJson());
 				}
-				json.Append(std::move(json_type3));
 			}
 			return json;
 		}
@@ -714,9 +732,50 @@ namespace GSD::SPT
 	public:
 		size_t GetSize() const
 		{
-			return this->m_nMemSize;
+			size_t code_size = 0;
+
+			code_size += sizeof(this->m_uiCommand);
+			code_size += sizeof(this->m_uiVal_1);
+			code_size += sizeof(this->m_uiVal_2);
+			code_size += sizeof(this->m_uiVal_3);
+			code_size += sizeof(this->m_uiVal_4);
+			code_size += sizeof(this->m_uiSequnece);
+			code_size += sizeof(this->m_uiParameterType1Count);
+			code_size += sizeof(this->m_uiParameterType2Count);
+			code_size += sizeof(this->m_uiParameterType3Count);
+
+			if (this->m_uiCommand == 1)
+			{
+				code_size += m_ParameterType0.GetSize();
+			}
+
+			for (auto& type1 : this->m_vcParameterType1)
+			{
+				code_size += type1.GetSize();
+			}
+
+			for (auto& type2 : this->m_vcParameterType2)
+			{
+				code_size += type2.GetSize();
+			}
+
+			for (auto& type3 : this->m_vcParameterType3)
+			{
+				code_size += type3.GetSize();
+			}
+
+			return code_size;
 		}
 
+		size_t GetCommand() const
+		{
+			return this->m_uiCommand;
+		}
+
+		SPT_Code_Parameter_Type0& GetParamType0()
+		{
+			return this->m_ParameterType0;
+		}
 	};
 
 	class SPT_Append_Script_Info
@@ -730,14 +789,6 @@ namespace GSD::SPT
 		uint32_t m_uiUn1 = 0;
 		uint32_t m_uiUn2 = 0;
 		char m_aAppend[0x80] = {}; // Maybe there's no data in here.
-
-	private:
-		size_t m_nMemSize = 0;
-
-		void CountSize()
-		{
-			this->m_nMemSize = sizeof(this->m_uiStrLen0) + m_msStr0.size() + sizeof(this->m_uiStrLen1) + m_msStr1.size() + sizeof(m_uiUn0) + sizeof(m_uiUn1) + sizeof(m_uiUn2) + sizeof(this->m_aAppend);
-		}
 
 	public:
 		SPT_Append_Script_Info()
@@ -780,7 +831,6 @@ namespace GSD::SPT
 
 			memcpy(this->m_aAppend, cur_ptr, sizeof(this->m_aAppend));
 
-			this->CountSize();
 		}
 
 		Rut::RxMem::Auto Dump() const
@@ -825,22 +875,21 @@ namespace GSD::SPT
 		{
 			Rut::RxJson::Value json;
 			{
-				json.Append(NumToHexWStr(this->m_uiStrLen0));
-				json.Append(Rut::RxStr::ToWCS(this->m_msStr0, 932));
-				json.Append(NumToHexWStr(this->m_uiStrLen1));
-				json.Append(Rut::RxStr::ToWCS(this->m_msStr1, 932));
-				json.Append(NumToHexWStr(this->m_uiUn0));
-				json.Append(NumToHexWStr(this->m_uiUn1));
-				json.Append(NumToHexWStr(this->m_uiUn2));
+				json[L"StrLen0"] = NumToHexWStr(this->m_uiStrLen0);
+				json[L"Str0"] = Rut::RxStr::ToWCS(this->m_msStr0, 932);
+				json[L"StrLen1"] = NumToHexWStr(this->m_uiStrLen1);
+				json[L"Str1"] = Rut::RxStr::ToWCS(this->m_msStr1, 932);
+				json[L"Un0"] = NumToHexWStr(this->m_uiUn0);
+				json[L"Un1"] = NumToHexWStr(this->m_uiUn1);
+				json[L"Un2"] = NumToHexWStr(this->m_uiUn2);
 
-				Rut::RxJson::Value json_append;
+				Rut::RxJson::Value& json_append = json[L"AppendData"];
 				uint32_t append_size = (sizeof(this->m_aAppend) / 4);
 				uint32_t* append_ptr = (uint32_t*)this->m_aAppend;
 				for (size_t ite_append = 0; ite_append < append_size; ite_append++)
 				{
 					json_append.Append(NumToHexWStr(append_ptr[ite_append]));
 				}
-				json.Append(json_append);
 			}
 			return json;
 		}
@@ -848,7 +897,7 @@ namespace GSD::SPT
 	public:
 		size_t GetSize() const
 		{
-			return this->m_nMemSize;
+			return sizeof(this->m_uiStrLen0) + m_msStr0.size() + sizeof(this->m_uiStrLen1) + m_msStr1.size() + sizeof(m_uiUn0) + sizeof(m_uiUn1) + sizeof(m_uiUn2) + sizeof(this->m_aAppend);
 		}
 	};
 
@@ -857,23 +906,6 @@ namespace GSD::SPT
 	private:
 		uint32_t m_uiScriptCount = 0;
 		std::vector<SPT_Append_Script_Info> m_vcInfo;
-
-	private:
-		size_t m_nMemSize = 0;
-
-		void CountSize()
-		{
-			size_t size = 0;
-
-			size += sizeof(this->m_uiScriptCount);
-
-			for (auto& info : this->m_vcInfo)
-			{
-				size += info.GetSize();
-			}
-
-			this->m_nMemSize = size;
-		}
 
 	public:
 		SPT_Append_Script()
@@ -895,8 +927,6 @@ namespace GSD::SPT
 				cur_prt += info.GetSize();
 				m_vcInfo.emplace_back(std::move(info));
 			}
-
-			this->CountSize();
 		}
 
 		Rut::RxMem::Auto Dump() const
@@ -922,14 +952,13 @@ namespace GSD::SPT
 		{
 			Rut::RxJson::Value json;
 			{
-				json.Append(NumToHexWStr(this->m_uiScriptCount));
+				json[L"ScriptCount"] = NumToHexWStr(this->m_uiScriptCount);
 
-				Rut::RxJson::Value json_info;
+				Rut::RxJson::Value& json_info = json[L"InfoList"];
 				for (const auto& info : this->m_vcInfo)
 				{
 					json_info.Append(info.ToJson());
 				}
-				json.Append(json_info);
 			}
 			return json;
 		}
@@ -937,7 +966,16 @@ namespace GSD::SPT
 	public:
 		size_t GetSize() const
 		{
-			return this->m_nMemSize;
+			size_t size = 0;
+
+			size += sizeof(this->m_uiScriptCount);
+
+			for (auto& info : this->m_vcInfo)
+			{
+				size += info.GetSize();
+			}
+
+			return size;
 		}
 	};
 
@@ -948,14 +986,6 @@ namespace GSD::SPT
 		uint8_t m_ucDecModeType = 0;
 		uint8_t m_ucUn0 = 0;
 		uint8_t m_ucUn1 = 0;
-
-	private:
-		size_t m_nMemSize = 0;
-
-		void CountSize()
-		{
-			this->m_nMemSize = sizeof(m_ucDecStartIndex) + sizeof(m_ucDecModeType) + sizeof(m_ucUn0) + sizeof(m_ucUn1);
-		}
 
 	public:
 		SPT_Encryptor_Info()
@@ -969,8 +999,6 @@ namespace GSD::SPT
 			this->m_ucDecModeType = pData[1];
 			this->m_ucUn0 = pData[2];
 			this->m_ucUn1 = pData[3];
-
-			this->CountSize();
 		}
 
 		Rut::RxMem::Auto Dump() const
@@ -991,10 +1019,10 @@ namespace GSD::SPT
 		{
 			Rut::RxJson::Value json;
 			{
-				json.Append(NumToHexWStr(this->m_ucDecStartIndex));
-				json.Append(NumToHexWStr(this->m_ucDecModeType));
-				json.Append(NumToHexWStr(this->m_ucUn0));
-				json.Append(NumToHexWStr(this->m_ucUn1));
+				json[L"DecStartIndex"] = NumToHexWStr(this->m_ucDecStartIndex);
+				json[L"DecModeType"] = NumToHexWStr(this->m_ucDecModeType);
+				json[L"Un0"] = NumToHexWStr(this->m_ucUn0);
+				json[L"Un1"] = NumToHexWStr(this->m_ucUn1);
 			}
 			return json;
 		}
@@ -1002,7 +1030,7 @@ namespace GSD::SPT
 	public:
 		size_t GetSize() const
 		{
-			return this->m_nMemSize;
+			return sizeof(m_ucDecStartIndex) + sizeof(m_ucDecModeType) + sizeof(m_ucUn0) + sizeof(m_ucUn1);
 		}
 	};
 
@@ -1013,14 +1041,6 @@ namespace GSD::SPT
 		uint32_t m_uiUn0 = 0;
 		uint32_t m_uiUn1 = 0;
 		uint32_t m_uiUn2 = 0;
-
-	private:
-		size_t m_nMemSize = 0;
-
-		void CountSize()
-		{
-			this->m_nMemSize = sizeof(m_uiCodeCount) + sizeof(m_uiUn0) + sizeof(m_uiUn1) + sizeof(m_uiUn2);
-		}
 
 	public:
 		SPT_Codes_Info()
@@ -1036,8 +1056,6 @@ namespace GSD::SPT
 			this->m_uiUn0 = info_chunk_ptr[1];
 			this->m_uiUn1 = info_chunk_ptr[2];
 			this->m_uiUn2 = info_chunk_ptr[3];
-
-			this->CountSize();
 		}
 
 		Rut::RxMem::Auto Dump() const
@@ -1059,10 +1077,10 @@ namespace GSD::SPT
 		{
 			Rut::RxJson::Value json;
 			{
-				json.Append(NumToHexWStr(this->m_uiCodeCount));
-				json.Append(NumToHexWStr(this->m_uiUn0));
-				json.Append(NumToHexWStr(this->m_uiUn1));
-				json.Append(NumToHexWStr(this->m_uiUn2));
+				json[L"CodeCount"] = NumToHexWStr(this->m_uiCodeCount);
+				json[L"Un0"] = NumToHexWStr(this->m_uiUn0);
+				json[L"Un1"] = NumToHexWStr(this->m_uiUn1);
+				json[L"Un2"] = NumToHexWStr(this->m_uiUn2);
 			}
 			return json;
 		}
@@ -1070,7 +1088,7 @@ namespace GSD::SPT
 	public:
 		size_t GetSize() const
 		{
-			return this->m_nMemSize;
+			return sizeof(m_uiCodeCount) + sizeof(m_uiUn0) + sizeof(m_uiUn1) + sizeof(m_uiUn2);;
 		}
 
 		size_t GetCodeCount() const
@@ -1089,23 +1107,6 @@ namespace GSD::SPT
 		SPT_Codes_Info m_CodesInfo;
 		SPT_Append_Script m_aAppendScript[0xF];
 		uint32_t m_uiUnsize = 0;
-
-	private:
-		size_t m_nMemSize = 0;
-
-		void CountSize()
-		{
-			size_t size = 0;
-			{
-				size += this->m_EncryptorInfo.GetSize() + sizeof(this->m_uiUnCount) + sizeof(this->m_uiScriptNameLen) + this->m_msScriptName.size() + this->m_CodesInfo.GetSize();
-				for (auto& append_script : this->m_aAppendScript)
-				{
-					size += append_script.GetSize();
-				}
-				size += sizeof(this->m_uiUnsize);
-			}
-			this->m_nMemSize = size;
-		}
 
 	public:
 		SPT_HDR()
@@ -1140,8 +1141,6 @@ namespace GSD::SPT
 			}
 
 			this->m_uiUnsize = *(uint32_t*)cur_ptr;
-
-			this->CountSize();
 		}
 
 		Rut::RxMem::Auto Dump() const
@@ -1183,20 +1182,19 @@ namespace GSD::SPT
 		{
 			Rut::RxJson::Value json;
 			{
-				json.Append(this->m_EncryptorInfo.ToJson());
-				json.Append(NumToHexWStr(this->m_uiUnCount));
-				json.Append(NumToHexWStr(this->m_uiScriptNameLen));
-				json.Append(Rut::RxStr::ToWCS(this->m_msScriptName, 932));
-				json.Append(m_CodesInfo.ToJson());
-				
-				Rut::RxJson::Value json_append_script;
+				json[L"EncryptorInfo"] = this->m_EncryptorInfo.ToJson();
+				json[L"UnCount"] = NumToHexWStr(this->m_uiUnCount);
+				json[L"ScriptNameLen"] = NumToHexWStr(this->m_uiScriptNameLen);
+				json[L"ScriptName"] = Rut::RxStr::ToWCS(this->m_msScriptName, 932);
+				json[L"CodesInfo"] = m_CodesInfo.ToJson();
+
+				Rut::RxJson::Value& json_append_script = json[L"Append"];
 				for (const auto& append_script : this->m_aAppendScript)
 				{
 					json_append_script.Append(append_script.ToJson());
 				}
-				json.Append(json_append_script);
 
-				json.Append(NumToHexWStr(this->m_uiUnsize));
+				json[L"Unsize"] = NumToHexWStr(this->m_uiUnsize);
 			}
 			return json;
 		}
@@ -1204,7 +1202,16 @@ namespace GSD::SPT
 	public:
 		size_t GetSize() const
 		{
-			return this->m_nMemSize;
+			size_t size = 0;
+			{
+				size += this->m_EncryptorInfo.GetSize() + sizeof(this->m_uiUnCount) + sizeof(this->m_uiScriptNameLen) + this->m_msScriptName.size() + this->m_CodesInfo.GetSize();
+				for (auto& append_script : this->m_aAppendScript)
+				{
+					size += append_script.GetSize();
+				}
+				size += sizeof(this->m_uiUnsize);
+			}
+			return size;
 		}
 
 		size_t GetCodeCount() const
@@ -1221,26 +1228,16 @@ namespace GSD::SPT
 		SPT_HDR m_HDR;
 		std::vector<SPT_Code> m_vcCode;
 
-	private:
-		size_t m_nMemSize = 0;
-
-		void CountSize()
-		{
-			size_t size = 0;
-			{
-				size += this->m_HDR.GetSize();
-				for (const auto& code : this->m_vcCode)
-				{
-					size += code.GetSize();
-				}
-			}
-			this->m_nMemSize = size;
-		}
-
 	public:
 		Parser()
 		{
 
+		}
+
+		void Parse(std::wstring_view wsPath)
+		{
+			Rut::RxMem::Auto spt{ wsPath };
+			this->Parse(spt.GetPtr());
 		}
 
 		void Parse(uint8_t* pData)
@@ -1258,8 +1255,6 @@ namespace GSD::SPT
 				cur_ptr += code.GetSize();
 				m_vcCode.emplace_back(std::move(code));
 			}
-
-			this->CountSize();
 		}
 
 		Rut::RxMem::Auto Dump() const
@@ -1282,10 +1277,40 @@ namespace GSD::SPT
 			return mem_data;
 		}
 
+		Rut::RxJson::Value ToJson() const
+		{
+			Rut::RxJson::Value json;
+			{
+				json[L"Header"] = this->m_HDR.ToJson();
+
+				auto& code_list = json[L"Codes"];
+				{
+					for (const auto& code : this->m_vcCode)
+					{
+						code_list.Append(code.ToJson());
+					}
+				}
+			}
+			return json;
+		}
+
+		std::vector<SPT_Code>& GetCodeList()
+		{
+			return this->m_vcCode;
+		}
+
 	public:
 		size_t GetSize() const
 		{
-			return this->m_nMemSize;
+			size_t size = 0;
+			{
+				size += this->m_HDR.GetSize();
+				for (const auto& code : this->m_vcCode)
+				{
+					size += code.GetSize();
+				}
+			}
+			return size;
 		}
 	};
 }

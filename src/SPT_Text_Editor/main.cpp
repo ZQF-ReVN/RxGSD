@@ -8,9 +8,10 @@
 
 int main()
 {
-	//Rut::RxMem::Auto spt{ L"global.dat" };
-	//SPT_Parser parser;
-	//parser.Init(spt.GetPtr());
+	Rut::RxMem::Auto spt{ L"data_dec/0scene_pro003_h.spt" };
+	GSD::SPT::Parser parser;
+	parser.Parse(spt.GetPtr());
+	bool status = GSD::SPT::CheckDump(spt.GetPtr(), parser);
 
 	std::vector<std::wstring> file_list;
 	Rut::RxPath::CurFileNames(L"data_dec/", file_list, false);
@@ -18,8 +19,11 @@ int main()
 	{
 		std::wcout << L"start_parser:" << file_name << L"  ";
 		Rut::RxMem::Auto spt{ L"data_dec/" + file_name };
-		GSD::SPT::SPT_Parser parser;
+		GSD::SPT::Parser parser;
 		parser.Parse(spt.GetPtr());
+		auto x = parser.Dump();
+		x.SaveData(L"data_dump/" + file_name);
+
 		std::wcout << L"OK" << L'\n';
 	}
 

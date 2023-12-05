@@ -1,5 +1,5 @@
 ﻿# Value Define
-set(PROJECT_NAME GSP_Unpack)
+set(PROJECT_NAME GSP_Editor)
 
 # Cpp Standard
 set(CMAKE_CXX_STANDARD 20)

@@ -1,67 +1,139 @@
 ﻿#include <iostream>
 
 #include "../../lib/GSD/SPT.h"
+#include "../../lib/Rut/RxPath.h"
+#include "../../lib/Rut/RxConsole.h"
 
 
-void ExportText(const std::wstring& wsPath, size_t nCodePage)
+bool ExportText(const std::wstring_view wsScriptPath, const std::wstring_view wsJsonPath, size_t nCodePage)
 {
-	Rut::RxJson::Value json;
+	// Parse SPT Script
+	GSD::SPT::Parser spt_parser;
+	spt_parser.Parse(wsScriptPath);
+
+	// Find Code With Text 
+	std::vector<std::vector<GSD::SPT::SPT_Code>::iterator> code_with_text_list;
 	{
-		GSD::SPT::Parser parser;
-		parser.Parse(wsPath);
-		for (auto& code : parser.GetCodeList())
+		std::vector<GSD::SPT::SPT_Code>& code_list = spt_parser.GetCodeList();
+
+		for (auto ite = code_list.begin(); ite != code_list.end(); ite++)
 		{
-			auto& type0 = code.GetParamType0();
+			const GSD::SPT::SPT_Code_Parameter_Type0& type0 = ite->GetParamType0();
 			if (type0.GetType0TextLen())
 			{
-				std::string text = type0.GetType0Text();
-				json.Append(Rut::RxStr::ToWCS(text, nCodePage));
+				code_with_text_list.push_back(ite);
 			}
 		}
-	}
-	Rut::RxJson::Parser::Save(json, wsPath + L".json", true);
-}
 
-void ImportText(const std::wstring& wsScriptPath, const std::wstring_view wsJsonPath, size_t nCodePage)
-{
-	GSD::SPT::Parser spt_parser;
-	Rut::RxJson::Value msg_json;
-
-	spt_parser.Parse(wsScriptPath);
-	Rut::RxJson::Parser{}.Load(wsJsonPath, msg_json);
-
-	Rut::RxJson::JArray& msg_list = msg_json.ToAry();
-	std::vector<GSD::SPT::SPT_Code>& code_list = spt_parser.GetCodeList();
-
-	std::vector<std::vector<GSD::SPT::SPT_Code>::iterator> code_list_with_text;
-	for (auto ite = code_list.begin(); ite != code_list.end(); ite++)
-	{
-		if (ite->GetParamType0().GetType0TextLen())
+		if (code_with_text_list.empty())
 		{
-			code_list_with_text.push_back(ite);
+			Rut::RxConsole::PutFormat(L"Not Find Text:%s\n", wsScriptPath.data());
+			return false;
 		}
 	}
 
-	if (code_list_with_text.size() != msg_list.size())
+	// Append Text To Json
+	Rut::RxJson::Value json;
+	for (auto& ite : code_with_text_list)
 	{
-		throw std::runtime_error("Mismatch text count");
+		std::string text = ite->GetParamType0().GetType0Text();
+		json.Append(Rut::RxStr::ToWCS(text, nCodePage));
 	}
 
-	for (size_t ite = 0; ite < msg_list.size(); ite++)
-	{
-		std::string text = Rut::RxStr::ToMBCS(msg_list[ite], nCodePage);
-		code_list_with_text[ite]->GetParamType0().SetType0Text(text);
-	}
+	// Save Json
+	Rut::RxJson::Parser::Save(json, wsJsonPath, true);
 
-	spt_parser.Dump().SaveData(wsScriptPath + L".new");
+	return true;
 }
 
-int main()
+bool ImportText(const std::wstring_view wsScriptPath, const std::wstring_view wsJsonPath, const std::wstring_view wsScriptNewPath, size_t nCodePage)
+{
+	// Parse SPT Script
+	GSD::SPT::Parser spt_parser;
+	spt_parser.Parse(wsScriptPath);
+
+	// Find Code With Text
+	std::vector<std::vector<GSD::SPT::SPT_Code>::iterator> code_with_text_list;
+	{
+		std::vector<GSD::SPT::SPT_Code>& code_list = spt_parser.GetCodeList();
+
+		for (auto ite = code_list.begin(); ite != code_list.end(); ite++)
+		{
+			if (ite->GetParamType0().GetType0TextLen())
+			{
+				code_with_text_list.push_back(ite);
+			}
+		}
+
+		if (code_with_text_list.empty())
+		{
+			Rut::RxConsole::PutFormat(L"Not Find Text:%s\n", wsScriptPath.data());
+			return false;
+		}
+	}
+
+	// Parse Text Json
+	Rut::RxJson::Value msg_json;
+	Rut::RxJson::Parser{}.Load(wsJsonPath, msg_json);
+	Rut::RxJson::JArray& msg_list = msg_json.ToAry();
+
+	if (code_with_text_list.size() != msg_list.size())
+	{
+		Rut::RxConsole::PutFormat(L"Text Count Mismatch :%s\n", wsJsonPath.data());
+		return false;
+	}
+
+	// Import Text
+	for (size_t ite = 0; ite < msg_list.size(); ite++)
+	{
+		const std::wstring_view text_w = msg_list[ite].ToStringView();
+		std::string text = Rut::RxStr::ToMBCS(text_w, nCodePage);
+		code_with_text_list[ite]->GetParamType0().SetType0Text(text);
+	}
+
+	// Save SPT Script
+	spt_parser.Dump().SaveData(wsScriptNewPath);
+
+	return true;
+}
+
+int wmain(int argc, wchar_t* argv[])
 {
 	try
 	{
-		ImportText(L"0scene_pro001.spt", L"0scene_pro001.spt.json", 936);
-		//ExportText(L"0scene_pro001.spt", 932);
+		switch (argc)
+		{
+		case 5:
+		{
+			std::wstring_view spt_path = argv[2];
+			std::wstring_view json_path = argv[3];
+			size_t code_page = _wtoi(argv[4]);
+			ExportText(spt_path, json_path, code_page) ? (std::cout << "Success\n") : (std::cout << "Failed\n");
+		}
+		break;
+
+		case 6:
+		{
+			std::wstring_view spt_path = argv[2];
+			std::wstring_view json_path = argv[3];
+			std::wstring_view spt_new_path = argv[4];
+			size_t code_page = _wtoi(argv[5]);
+			ImportText(spt_path, json_path, spt_new_path, code_page) ? (std::cout << "Success\n") : (std::cout << "Failed\n");
+		}
+		break;
+
+		default:
+		{
+			std::cout
+				<< "Command:\n"
+				<< "\tSPT_Text_Editor.exe e [spt_path] [json_path] [codepage]\n"
+				<< "\tSPT_Text_Editor.exe i [spt_path] [json_path] [spt_new_path] [codepage]\n"
+				<< "Example:\n"
+				<< "\tSPT_Text_Editor.exe e 0scene_pro001.spt 0scene_pro001.spt.json 932\n"
+				<< "\tSPT_Text_Editor.exe i 0scene_pro001.spt 0scene_pro001.spt.json 0scene_pro001.spt.new 936\n\n";
+		}
+		}
+
 	}
 	catch (const std::runtime_error& err)
 	{

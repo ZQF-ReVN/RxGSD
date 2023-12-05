@@ -134,13 +134,16 @@ namespace GSD::SPT
 						}
 						else if (msText[ite_char] == '/')
 						{
-							if (notation_pos_beg == 0) { throw std::runtime_error("Notation token mismatched"); }
+							if (notation_pos_beg == -1) 
+							{ 
+								throw std::runtime_error("Notation token mismatched");
+							}
 
 							entry.uiType = 0x8; // notation beg
 							entry.uiNotationCount = char_entry_list.size() - notation_pos_beg;
 							entry.uiChar = 0;
 
-							notation_pos_beg = 0;
+							notation_pos_beg = -1;
 						}
 						else if (msText[ite_char] == '>')
 						{
@@ -255,7 +258,7 @@ namespace GSD::SPT
 			return mem_data;
 		}
 
-		Rut::RxJson::Value ToJson() const
+		Rut::RxJson::Value ToJson(size_t nCodePage) const
 		{
 			Rut::RxJson::Value json;
 			{
@@ -266,9 +269,9 @@ namespace GSD::SPT
 				json[L"StrType0Len"] = NumToHexWStr(m_uiStrType0Len);
 				json[L"StrType1Len"] = NumToHexWStr(m_uiStrType1Len);
 				json[L"StrType2Len"] = NumToHexWStr(m_uiStrType2Len);
-				json[L"StrType0"] = Rut::RxStr::ToWCS(this->GetType0Text(), 932);
-				json[L"StrType1"] = Rut::RxStr::ToWCS(this->m_msStrType1, 932);
-				json[L"StrType2"] = Rut::RxStr::ToWCS(this->m_msStrType2, 932);
+				json[L"StrType0"] = Rut::RxStr::ToWCS(this->GetType0Text(), nCodePage);
+				json[L"StrType1"] = Rut::RxStr::ToWCS(this->m_msStrType1, nCodePage);
+				json[L"StrType2"] = Rut::RxStr::ToWCS(this->m_msStrType2, nCodePage);
 			}
 			return json;
 		}
@@ -392,7 +395,7 @@ namespace GSD::SPT
 			return mem_data;
 		}
 
-		Rut::RxJson::Value ToJson() const
+		Rut::RxJson::Value ToJson(size_t nCodePage) const
 		{
 			Rut::RxJson::Value json;
 			{
@@ -404,7 +407,7 @@ namespace GSD::SPT
 				json[L"Val_5"] = NumToHexWStr(this->m_uiVal_5);
 				json[L"Val_6"] = NumToHexWStr(this->m_uiVal_6);
 				json[L"Val_7"] = NumToHexWStr(this->m_uiVal_7);
-				json[L"Str"] = Rut::RxStr::ToWCS(this->m_msStr, 932);
+				json[L"Str"] = Rut::RxStr::ToWCS(this->m_msStr, nCodePage);
 			}
 			return json;
 		}
@@ -471,7 +474,7 @@ namespace GSD::SPT
 			return mem_data;
 		}
 
-		Rut::RxJson::Value ToJson() const
+		Rut::RxJson::Value ToJson(size_t nCodePage) const
 		{
 			Rut::RxJson::Value json;
 			{
@@ -479,7 +482,7 @@ namespace GSD::SPT
 				Rut::RxJson::Value& count_arrary = json[L"ParameterType1List"];
 				for (const auto& type1 : this->m_vcParameterType1)
 				{
-					count_arrary.Append(type1.ToJson());
+					count_arrary.Append(type1.ToJson(nCodePage));
 				}
 			}
 			return json;
@@ -546,7 +549,7 @@ namespace GSD::SPT
 			return mem_data;
 		}
 
-		Rut::RxJson::Value ToJson() const
+		Rut::RxJson::Value ToJson(size_t nCodePage) const
 		{
 			Rut::RxJson::Value json;
 			{
@@ -688,7 +691,7 @@ namespace GSD::SPT
 			return mem_data;
 		}
 
-		Rut::RxJson::Value ToJson() const
+		Rut::RxJson::Value ToJson(size_t nCodePage) const
 		{
 			Rut::RxJson::Value json;
 			{
@@ -705,25 +708,25 @@ namespace GSD::SPT
 				Rut::RxJson::Value& json_type0 = json[L"ParameterType0"];
 				if (m_uiCommand == 1) // Proc Text Struct
 				{
-					json_type0 = std::move(m_ParameterType0.ToJson());
+					json_type0 = std::move(m_ParameterType0.ToJson(nCodePage));
 				}
 
 				Rut::RxJson::Value& json_type1 = json[L"ParameterType1"];
 				for (auto& type1 : this->m_vcParameterType1)
 				{
-					json_type1.Append(type1.ToJson());
+					json_type1.Append(type1.ToJson(nCodePage));
 				}
 
 				Rut::RxJson::Value& json_type2 = json[L"ParameterType2"];
 				for (auto& type2 : this->m_vcParameterType2)
 				{
-					json_type2.Append(type2.ToJson());
+					json_type2.Append(type2.ToJson(nCodePage));
 				}
 
 				Rut::RxJson::Value& json_type3 = json[L"ParameterType3"];
 				for (auto& type3 : this->m_vcParameterType3)
 				{
-					json_type3.Append(type3.ToJson());
+					json_type3.Append(type3.ToJson(nCodePage));
 				}
 			}
 			return json;
@@ -871,14 +874,14 @@ namespace GSD::SPT
 			return mem_data;
 		}
 
-		Rut::RxJson::Value ToJson() const
+		Rut::RxJson::Value ToJson(size_t nCodePage) const
 		{
 			Rut::RxJson::Value json;
 			{
 				json[L"StrLen0"] = NumToHexWStr(this->m_uiStrLen0);
-				json[L"Str0"] = Rut::RxStr::ToWCS(this->m_msStr0, 932);
+				json[L"Str0"] = Rut::RxStr::ToWCS(this->m_msStr0, nCodePage);
 				json[L"StrLen1"] = NumToHexWStr(this->m_uiStrLen1);
-				json[L"Str1"] = Rut::RxStr::ToWCS(this->m_msStr1, 932);
+				json[L"Str1"] = Rut::RxStr::ToWCS(this->m_msStr1, nCodePage);
 				json[L"Un0"] = NumToHexWStr(this->m_uiUn0);
 				json[L"Un1"] = NumToHexWStr(this->m_uiUn1);
 				json[L"Un2"] = NumToHexWStr(this->m_uiUn2);
@@ -948,7 +951,7 @@ namespace GSD::SPT
 			return mem_data;
 		}
 
-		Rut::RxJson::Value ToJson() const
+		Rut::RxJson::Value ToJson(size_t nCodePage) const
 		{
 			Rut::RxJson::Value json;
 			{
@@ -957,7 +960,7 @@ namespace GSD::SPT
 				Rut::RxJson::Value& json_info = json[L"InfoList"];
 				for (const auto& info : this->m_vcInfo)
 				{
-					json_info.Append(info.ToJson());
+					json_info.Append(info.ToJson(nCodePage));
 				}
 			}
 			return json;
@@ -1015,7 +1018,7 @@ namespace GSD::SPT
 			return mem_data;
 		}
 
-		Rut::RxJson::Value ToJson() const
+		Rut::RxJson::Value ToJson(size_t nCodePage) const
 		{
 			Rut::RxJson::Value json;
 			{
@@ -1073,7 +1076,7 @@ namespace GSD::SPT
 			return mem_data;
 		}
 
-		Rut::RxJson::Value ToJson() const
+		Rut::RxJson::Value ToJson(size_t nCodePage) const
 		{
 			Rut::RxJson::Value json;
 			{
@@ -1178,20 +1181,20 @@ namespace GSD::SPT
 			return mem_data;
 		}
 
-		Rut::RxJson::Value ToJson() const
+		Rut::RxJson::Value ToJson(size_t nCodePage) const
 		{
 			Rut::RxJson::Value json;
 			{
-				json[L"EncryptorInfo"] = this->m_EncryptorInfo.ToJson();
+				json[L"EncryptorInfo"] = this->m_EncryptorInfo.ToJson(nCodePage);
 				json[L"UnCount"] = NumToHexWStr(this->m_uiUnCount);
 				json[L"ScriptNameLen"] = NumToHexWStr(this->m_uiScriptNameLen);
 				json[L"ScriptName"] = Rut::RxStr::ToWCS(this->m_msScriptName, 932);
-				json[L"CodesInfo"] = m_CodesInfo.ToJson();
+				json[L"CodesInfo"] = m_CodesInfo.ToJson(nCodePage);
 
 				Rut::RxJson::Value& json_append_script = json[L"Append"];
 				for (const auto& append_script : this->m_aAppendScript)
 				{
-					json_append_script.Append(append_script.ToJson());
+					json_append_script.Append(append_script.ToJson(nCodePage));
 				}
 
 				json[L"Unsize"] = NumToHexWStr(this->m_uiUnsize);
@@ -1277,17 +1280,17 @@ namespace GSD::SPT
 			return mem_data;
 		}
 
-		Rut::RxJson::Value ToJson() const
+		Rut::RxJson::Value ToJson(size_t nCodePage) const
 		{
 			Rut::RxJson::Value json;
 			{
-				json[L"Header"] = this->m_HDR.ToJson();
+				json[L"Header"] = this->m_HDR.ToJson(nCodePage);
 
 				auto& code_list = json[L"Codes"];
 				{
 					for (const auto& code : this->m_vcCode)
 					{
-						code_list.Append(code.ToJson());
+						code_list.Append(code.ToJson(nCodePage));
 					}
 				}
 			}

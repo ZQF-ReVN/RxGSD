@@ -1,5 +1,5 @@
 ﻿# Value Define
-set(PROJECT_NAME SPT_Test)
+set(PROJECT_NAME SPT_Text_Editor)
 
 # Cpp Standard
 set(CMAKE_CXX_STANDARD 20)

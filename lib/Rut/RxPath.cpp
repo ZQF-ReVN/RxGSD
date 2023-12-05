@@ -51,13 +51,13 @@ namespace Rut::RxPath
 
 	std::string FileName(std::string msPath)
 	{
-		FileName(msPath.data(), msPath.size());
+		msPath.resize(FileName(msPath.data(), msPath.size()));
 		return msPath;
 	}
 
 	std::wstring FileName(std::wstring wsPath)
 	{
-		FileName(wsPath.data(), wsPath.size());
+		wsPath.resize(FileName(wsPath.data(), wsPath.size()));
 		return wsPath;
 	}
 
@@ -107,13 +107,13 @@ namespace Rut::RxPath
 
 	std::string NotFileName(std::string msPath)
 	{
-		NotFileName(msPath.data(), msPath.size());
+		msPath.resize(NotFileName(msPath.data(), msPath.size()));
 		return msPath;
 	}
 
 	std::wstring NotFileName(std::wstring msPath)
 	{
-		NotFileName(msPath.data(),msPath.size());
+		msPath.resize(NotFileName(msPath.data(), msPath.size()));
 		return msPath;
 	}
 
@@ -126,11 +126,12 @@ namespace Rut::RxPath
 			{
 				size_t suffix_len = nChar - ite_char + 1;
 				memcpy(cpPath, cpPath + ite_char, suffix_len);
-				return ite_char;
+				return suffix_len - 1;
 			}
 		}
 
-		return nChar;
+		cpPath[0] = '\0';
+		return 0;
 	}
 
 	size_t Suffix(wchar_t* wpPath, size_t nChar)
@@ -141,22 +142,23 @@ namespace Rut::RxPath
 			{
 				size_t suffix_len = nChar - ite_char + 1;
 				memcpy(wpPath, wpPath + ite_char, suffix_len * sizeof(wchar_t));
-				return ite_char;
+				return suffix_len - 1;
 			}
 		}
 
-		return nChar;
+		wpPath[0] = L'\0';
+		return 0;
 	}
 
 	std::string Suffix(std::string msPath)
 	{
-		Suffix(msPath.data(), msPath.size());
+		msPath.resize(Suffix(msPath.data(), msPath.size()));
 		return msPath;
 	}
 
 	std::wstring Suffix(std::wstring wsPath)
 	{
-		Suffix(wsPath.data(), wsPath.size());
+		wsPath.resize(Suffix(wsPath.data(), wsPath.size()));
 		return wsPath;
 	}
 
@@ -191,13 +193,13 @@ namespace Rut::RxPath
 
 	std::string NotSuffix(std::string msPath)
 	{
-		NotSuffix(msPath.data(),msPath.size());
+		msPath.resize(NotSuffix(msPath.data(), msPath.size()));
 		return msPath;
 	}
 
 	std::wstring NotSuffix(std::wstring wsPath)
 	{
-		NotSuffix(wsPath.data(), wsPath.size());
+		wsPath.resize(NotSuffix(wsPath.data(), wsPath.size()));
 		return wsPath;
 	}
 
@@ -397,7 +399,8 @@ namespace Rut::RxPath
 	std::wstring ModuleNameW(void* pBase)
 	{
 		std::wstring name = ModulePathW(pBase);
-		FileName(name.data(), name.size());
+		size_t len = FileName(name.data(), name.size());
+		name.resize(len);
 		return name;
 	}
 

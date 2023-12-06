@@ -9,10 +9,14 @@ namespace Rut::Platform
 	{
 		const HANDLE hfile = ::CreateFileA(cpPath, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 		if (hfile == INVALID_HANDLE_VALUE) { return 0; }
-		std::uintmax_t h_size = 0;
-		std::uintmax_t size = ::GetFileSize(hfile, (LPDWORD)(&h_size));
-		size |= (h_size << 32);
-		CloseHandle(hfile);
+
+		LARGE_INTEGER file_size = { 0 };
+		::GetFileSizeEx(hfile, &file_size);
+		::CloseHandle(hfile);
+
+		std::uintmax_t size_h = file_size.HighPart;
+		std::uintmax_t size = file_size.LowPart;
+		size |= (size_h << 32);
 		return size;
 	}
 
@@ -20,10 +24,14 @@ namespace Rut::Platform
 	{
 		const HANDLE hfile = ::CreateFileW(wpPath, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 		if (hfile == INVALID_HANDLE_VALUE) { return 0; }
-		std::uintmax_t h_size = 0;
-		std::uintmax_t size = ::GetFileSize(hfile, (LPDWORD)(&h_size));
-		size |= (h_size << 32);
-		CloseHandle(hfile);
+
+		LARGE_INTEGER file_size = { 0 };
+		::GetFileSizeEx(hfile, &file_size);
+		::CloseHandle(hfile);
+
+		std::uintmax_t size_h = file_size.HighPart;
+		std::uintmax_t size = file_size.LowPart;
+		size |= (size_h << 32);
 		return size;
 	}
 
@@ -94,7 +102,7 @@ namespace Rut::Platform
 
 	size_t FileSetPtr(void* hFile, size_t nOffset, size_t nWay)
 	{
-		return ::SetFilePointer((HANDLE)hFile, nOffset, NULL, nWay);
+		return (size_t)::SetFilePointer((HANDLE)hFile, (LONG)nOffset, NULL, (DWORD)nWay);
 	}
 
 	size_t FileGetPtr(void* hFile)
@@ -109,14 +117,14 @@ namespace Rut::Platform
 	size_t FileRead(void* hFile, void* pBuffer, size_t nSize)
 	{
 		DWORD read = 0;
-		const BOOL status = ::ReadFile((HANDLE)hFile, pBuffer, nSize, &read, nullptr);
-		return (status) ? (read) : (0);
+		const BOOL status = ::ReadFile((HANDLE)hFile, pBuffer, (DWORD)nSize, &read, nullptr);
+		return (status) ? ((size_t)read) : (0);
 	}
 
 	size_t FileWrite(void* hFile, void* pData, size_t nSize)
 	{
 		DWORD write = 0;
-		const BOOL status = ::WriteFile((HANDLE)hFile, pData, nSize, &write, nullptr);
-		return (status) ? (write) : (0);
+		const BOOL status = ::WriteFile((HANDLE)hFile, pData, (DWORD)nSize, &write, nullptr);
+		return (status) ? ((size_t)write) : (0);
 	}
 }

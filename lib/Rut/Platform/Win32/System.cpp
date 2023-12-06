@@ -18,12 +18,14 @@ namespace Rut::Platform
 
 	bool PutConsole(const char* cpText, size_t nSize)
 	{
-		return ::WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), cpText, nSize, nullptr, nullptr);
+		DWORD written = 0;
+		return ::WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), cpText, (DWORD)nSize, &written, nullptr);
 	}
 
 	bool PutConsole(const wchar_t* wpText, size_t nSize)
 	{
-		return ::WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), wpText, nSize, nullptr, nullptr);
+		DWORD written = 0;
+		return ::WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), wpText, (DWORD)nSize, &written, nullptr);
 	}
 
 

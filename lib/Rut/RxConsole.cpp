@@ -73,44 +73,44 @@ namespace Rut::RxConsole
 
 	bool Put(const char* cpStr)
 	{
-		return Put(cpStr, (uint32_t)strlen(cpStr));
+		return Put(cpStr, strlen(cpStr));
 	}
 
-	bool Put(const char* cpStr, uint32_t nChar)
+	bool Put(const char* cpStr, size_t nChar)
 	{
 		return Platform::PutConsole(cpStr, nChar);
 	}
 
 	bool Put(std::string_view msStr)
 	{
-		return Put(msStr.data(), (uint32_t)msStr.size());
+		return Put(msStr.data(), msStr.size());
 	}
 
 	bool Put(const wchar_t* wpStr)
 	{
-		return Put(wpStr, (uint32_t)wcslen(wpStr));
+		return Put(wpStr, wcslen(wpStr));
 	}
 
-	bool Put(const wchar_t* wpStr, uint32_t nChar)
+	bool Put(const wchar_t* wpStr, size_t nChar)
 	{
 		return Platform::PutConsole(wpStr, nChar);
 	}
 
 	bool Put(std::wstring_view wsStr)
 	{
-		return Put(wsStr.data(), (uint32_t)wsStr.size());
+		return Put(wsStr.data(), wsStr.size());
 	}
 
-	bool PutMBCS(const char* cpStr, uint32_t uiCodePage)
+	bool PutMBCS(const char* cpStr, size_t nCodePage)
 	{
 		std::wstring out_str;
-		size_t cch = RxStr::ToWCS(cpStr, out_str, uiCodePage);
+		size_t cch = RxStr::ToWCS(cpStr, out_str, nCodePage);
 		return Put(out_str.c_str(), cch);
 	}
 
-	bool PutMBCS(std::string_view msStr, uint32_t uiCodePage)
+	bool PutMBCS(std::string_view msStr, size_t nCodePage)
 	{
-		return PutMBCS(msStr.data(), uiCodePage);
+		return PutMBCS(msStr.data(), nCodePage);
 	}
 
 	bool PutFormat(const char* cpFormat, ...)
@@ -131,7 +131,7 @@ namespace Rut::RxConsole
 
 		va_list args = nullptr;
 		va_start(args, cpFormat);
-		int32_t cch = Platform::Sprintf_V(buffer, sg_uiBufferCount, cpFormat, args);
+		size_t cch = Platform::Sprintf_V(buffer, sg_uiBufferCount, cpFormat, args);
 		va_end(args);
 
 		return (cch <= 0) ? (false) : (Put(buffer, cch));

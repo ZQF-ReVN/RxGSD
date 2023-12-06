@@ -10,196 +10,282 @@
 
 namespace Rut::RxPath
 {
-	size_t FileName(char* cpPath, size_t nChar)
+	size_t GetFileName(char* cpPath, size_t nBytes)
 	{
-		for (size_t iteChar = nChar - 1; iteChar > 0; iteChar--)
-		{
-			if (cpPath[iteChar] != '\\' && cpPath[iteChar] != '/')
-			{
-				continue;
-			}
+		size_t ite_unit = nBytes - 1;
+		size_t file_name_len = 0;
+		char* file_name_ptr = nullptr;
 
-			if (cpPath[iteChar - 1] <= 0x7F)
+		do
+		{
+			char tmp_unit = cpPath[ite_unit];
+
+			if (tmp_unit == '/' || tmp_unit == '\\')
 			{
-				size_t name_len = nChar - iteChar - 1;
-				memcpy(cpPath, cpPath + iteChar + 1, name_len);
-				cpPath[name_len] = '\0';
-				return name_len;
+				if ((ite_unit > 0) && ((uint8_t)cpPath[ite_unit - 1] > 0x7F)) { continue; } // check is dbcs char
+				file_name_len = nBytes - (ite_unit + 1);
+				file_name_ptr = cpPath + (ite_unit + 1);
+				break;
 			}
+		} while ((--ite_unit) != -1);
+
+		if (file_name_ptr)
+		{
+			file_name_len ? (void)(memcpy(cpPath, file_name_ptr, file_name_len * sizeof(char))) : (void)(0);
+			cpPath[file_name_len] = '\0';
+		}
+		else
+		{
+			file_name_len = nBytes;
 		}
 
-		return nChar;
+		return file_name_len;
 	}
 
-	size_t FileName(wchar_t* wpPath, size_t nChar)
+	size_t GetFileName(wchar_t* wpPath, size_t nChar)
 	{
-		for (size_t iteChar = nChar - 1; iteChar > 0; iteChar--)
-		{
-			if (wpPath[iteChar] != L'\\' && wpPath[iteChar] != L'/')
-			{
-				continue;
-			}
+		size_t ite_unit = nChar - 1;
+		size_t file_name_len = 0;
+		wchar_t* file_name_ptr = nullptr;
 
-			size_t name_len = nChar - iteChar - 1;
-			memcpy(wpPath, wpPath + iteChar + 1, name_len * 2);
-			wpPath[name_len] = L'\0';
-			return name_len;
+		do
+		{
+			wchar_t tmp_unit = wpPath[ite_unit];
+
+			if (tmp_unit == L'/' || tmp_unit == L'\\')
+			{
+				file_name_len = nChar - (ite_unit + 1);
+				file_name_ptr = wpPath + (ite_unit + 1);
+				break;
+			}
+		} while ((--ite_unit) != -1);
+
+		if (file_name_ptr)
+		{
+			file_name_len ? (void)(memcpy(wpPath, file_name_ptr, file_name_len * sizeof(wchar_t))) : (void)(0);
+			wpPath[file_name_len] = L'\0';
+		}
+		else
+		{
+			file_name_len = nChar;
 		}
 
-		return nChar;
+		return file_name_len;
 	}
 
-	std::string FileName(std::string msPath)
+	std::string GetFileName(std::string msPath)
 	{
-		msPath.resize(FileName(msPath.data(), msPath.size()));
+		size_t bytes = GetFileName(msPath.data(), msPath.size());
+		msPath.resize(bytes);
 		return msPath;
 	}
 
-	std::wstring FileName(std::wstring wsPath)
+	std::wstring GetFileName(std::wstring wsPath)
 	{
-		wsPath.resize(FileName(wsPath.data(), wsPath.size()));
+		size_t chars = GetFileName(wsPath.data(), wsPath.size());
+		wsPath.resize(chars);
 		return wsPath;
 	}
 
 
-	size_t NotFileName(char* cpPath, size_t nChar)
+	size_t RemoveFileName(char* cpPath, size_t nBytes)
 	{
-		for (size_t ite_char = nChar - 1; ite_char > 0; ite_char--)
-		{
-			if (cpPath[ite_char] == '\\')
-			{
-				if (cpPath[ite_char - 1] <= 0x7F)
-				{
-					cpPath[ite_char + 1] = '\0';
-					return ite_char + 1;
-				}
-			}
+		size_t ite_unit = nBytes - 1;
 
-			if (cpPath[ite_char] == '/')
+		do
+		{
+			char tmp_unit = cpPath[ite_unit];
+
+			if (tmp_unit == '/' || tmp_unit == '\\')
 			{
-				cpPath[ite_char + 1] = L'\0';
-				return ite_char + 1;
+				if ((ite_unit > 0) && ((uint8_t)cpPath[ite_unit - 1] > 0x7F)) { continue; } // check is dbcs char
+				cpPath[ite_unit + 1] = '\0';
+				return ite_unit + 1;
 			}
-		}
+		} while ((--ite_unit) != -1);
+
+		return nBytes;
+	}
+
+	size_t RemoveFileName(wchar_t* wpPath, size_t nChar)
+	{
+		size_t ite_unit = nChar - 1;
+
+		do
+		{
+			wchar_t tmp_unit = wpPath[ite_unit];
+
+			if (tmp_unit == L'/' || tmp_unit == L'\\')
+			{
+				wpPath[ite_unit + 1] = L'\0';
+				return ite_unit + 1;
+			}
+		} while ((--ite_unit) != -1);
 
 		return nChar;
 	}
 
-	size_t NotFileName(wchar_t* wpPath, size_t nChar)
+	std::string RemoveFileName(std::string msPath)
 	{
-		for (size_t ite_char = nChar - 1; ite_char > 0; ite_char--)
-		{
-			if (wpPath[ite_char] == L'\\')
-			{
-				wpPath[ite_char + 1] = L'\0';
-				return ite_char + 1;
-			}
-
-			if (wpPath[ite_char] == L'/')
-			{
-				wpPath[ite_char + 1] = L'\0';
-				return ite_char + 1;
-			}
-		}
-
-		return nChar;
-	}
-
-	std::string NotFileName(std::string msPath)
-	{
-		msPath.resize(NotFileName(msPath.data(), msPath.size()));
+		size_t bytes = RemoveFileName(msPath.data(), msPath.size());
+		msPath.resize(bytes);
 		return msPath;
 	}
 
-	std::wstring NotFileName(std::wstring msPath)
+	std::wstring RemoveFileName(std::wstring msPath)
 	{
-		msPath.resize(NotFileName(msPath.data(), msPath.size()));
+		size_t chars = RemoveFileName(msPath.data(), msPath.size());
+		msPath.resize(chars);
 		return msPath;
 	}
 
 
-	size_t Suffix(char* cpPath, size_t nChar)
+	// nBytes exclude null char
+	size_t GetSuffix(char* cpPath, const size_t nBytes)
 	{
-		for (size_t ite_char = nChar - 1; ite_char > 0; ite_char--)
+		size_t ite_byte = nBytes - 1;
+
+		do
 		{
-			if (cpPath[ite_char] == '.')
+			char tmp_unit = cpPath[ite_byte];
+
+			if (tmp_unit == '.')
 			{
-				size_t suffix_len = nChar - ite_char + 1;
-				memcpy(cpPath, cpPath + ite_char, suffix_len);
-				return suffix_len - 1;
+				if ((ite_byte > 0) && ((uint8_t)cpPath[ite_byte - 1] > 0x7F)) { continue; } // check is dbcs char
+				size_t suffix_bytes = nBytes - ite_byte;
+				memcpy(cpPath, cpPath + ite_byte, suffix_bytes * sizeof(char));
+				cpPath[suffix_bytes] = '\0';
+				return suffix_bytes;
 			}
-		}
+			else if (tmp_unit == '/')
+			{
+				if ((ite_byte > 0) && ((uint8_t)cpPath[ite_byte - 1] > 0x7F)) { continue; } // check is dbcs char
+				break;
+			}
+			else if (tmp_unit == '\\')
+			{
+				if ((ite_byte > 0) && ((uint8_t)cpPath[ite_byte - 1] > 0x7F)) { continue; } // check is dbcs char
+				break;
+			}
+		} while ((--ite_byte) != -1);
 
 		cpPath[0] = '\0';
 		return 0;
 	}
 
-	size_t Suffix(wchar_t* wpPath, size_t nChar)
+	// nChar exclude null char
+	size_t GetSuffix(wchar_t* wpPath, const size_t nChar)
 	{
-		for (size_t ite_char = nChar - 1; ite_char > 0; ite_char--)
+		size_t ite_unit = nChar - 1;
+
+		do
 		{
-			if (wpPath[ite_char] == L'.')
+			wchar_t tmp_unit = wpPath[ite_unit];
+
+			if (tmp_unit == L'.')
 			{
-				size_t suffix_len = nChar - ite_char + 1;
-				memcpy(wpPath, wpPath + ite_char, suffix_len * sizeof(wchar_t));
-				return suffix_len - 1;
+				size_t suffix_bytes = nChar - ite_unit;
+				memcpy(wpPath, wpPath + ite_unit, suffix_bytes * sizeof(wchar_t));
+				wpPath[suffix_bytes] = L'\0';
+				return suffix_bytes;
 			}
-		}
+			else if (tmp_unit == L'/')
+			{
+				break;
+			}
+			else if (tmp_unit == L'\\')
+			{
+				break;
+			}
+		} while ((--ite_unit) != -1);
 
 		wpPath[0] = L'\0';
 		return 0;
 	}
 
-	std::string Suffix(std::string msPath)
+	std::string GetSuffix(std::string msPath)
 	{
-		msPath.resize(Suffix(msPath.data(), msPath.size()));
+		size_t suffix_bytes = GetSuffix(msPath.data(), msPath.size());
+		msPath.resize(suffix_bytes);
 		return msPath;
 	}
 
-	std::wstring Suffix(std::wstring wsPath)
+	std::wstring GetSuffix(std::wstring wsPath)
 	{
-		wsPath.resize(Suffix(wsPath.data(), wsPath.size()));
+		size_t suffix_chars = GetSuffix(wsPath.data(), wsPath.size());
+		wsPath.resize(suffix_chars);
 		return wsPath;
 	}
 
 
-	size_t NotSuffix(char* cpPath, size_t nChar)
+	// nBytes exclude null char
+	size_t RemoveSuffix(char* cpPath, size_t nBytes)
 	{
-		for (size_t ite_char = nChar - 1; ite_char > 0; ite_char--)
+		size_t ite_unit = nBytes - 1;
+
+		do
 		{
-			if (cpPath[ite_char] == '.')
+			char tmp_unit = cpPath[ite_unit];
+
+			if (tmp_unit == '.')
 			{
-				cpPath[ite_char] = '\0';
-				return ite_char;
+				if ((ite_unit > 0) && ((uint8_t)cpPath[ite_unit - 1] > 0x7F)) { continue; } // check is dbcs char
+				cpPath[ite_unit] = '\0';
+				return ite_unit;
 			}
-		}
+			else if (tmp_unit == '/')
+			{
+				if ((ite_unit > 0) && ((uint8_t)cpPath[ite_unit - 1] > 0x7F)) { continue; } // check is dbcs char
+				break;
+			}
+			else if (tmp_unit == '\\')
+			{
+				if ((ite_unit > 0) && ((uint8_t)cpPath[ite_unit - 1] > 0x7F)) { continue; } // check is dbcs char
+				break;
+			}
+		} while ((--ite_unit) != -1);
+
+		return nBytes;
+	}
+
+	// nChar exclude null char
+	size_t RemoveSuffix(wchar_t* wpPath, size_t nChar)
+	{
+		size_t ite_unit = nChar - 1;
+
+		do
+		{
+			wchar_t tmp_unit = wpPath[ite_unit];
+
+			if (tmp_unit == L'.')
+			{
+				wpPath[ite_unit] = L'\0';
+				return ite_unit;
+			}
+			else if (tmp_unit == L'/')
+			{
+				break;
+			}
+			else if (tmp_unit == L'\\')
+			{
+				break;
+			}
+		} while ((--ite_unit) != -1);
 
 		return nChar;
 	}
 
-	size_t NotSuffix(wchar_t* wpPath, size_t nChar)
+	std::string RemoveSuffix(std::string msPath)
 	{
-		for (size_t ite_char = nChar - 1; ite_char > 0; ite_char--)
-		{
-			if (wpPath[ite_char] == L'.')
-			{
-				wpPath[ite_char] = L'\0';
-				return ite_char;
-			}
-		}
-
-		return nChar;
-	}
-
-	std::string NotSuffix(std::string msPath)
-	{
-		msPath.resize(NotSuffix(msPath.data(), msPath.size()));
+		size_t bytes = RemoveSuffix(msPath.data(), msPath.size());
+		msPath.resize(bytes);
 		return msPath;
 	}
 
-	std::wstring NotSuffix(std::wstring wsPath)
+	std::wstring RemoveSuffix(std::wstring wsPath)
 	{
-		wsPath.resize(NotSuffix(wsPath.data(), wsPath.size()));
+		size_t chars = RemoveSuffix(wsPath.data(), wsPath.size());
+		wsPath.resize(chars);
 		return wsPath;
 	}
 
@@ -361,12 +447,12 @@ namespace Rut::RxPath
 	}
 
 
-	std::uintmax_t FileSize(std::string_view msPath)
+	std::uintmax_t GetFileSize(std::string_view msPath)
 	{
 		return Platform::GetFileSize(msPath.data());
 	}
 
-	std::uintmax_t FileSize(std::wstring_view wsPath)
+	std::uintmax_t GetFileSize(std::wstring_view wsPath)
 	{
 		return Platform::GetFileSize(wsPath.data());
 	}
@@ -392,14 +478,15 @@ namespace Rut::RxPath
 	std::string ModuleNameA(void* pBase)
 	{
 		std::string name = ModulePathA(pBase);
-		FileName(name.data(), name.size());
+		size_t bytes = GetFileName(name.data(), name.size());
+		name.resize(bytes);
 		return name;
 	}
 
 	std::wstring ModuleNameW(void* pBase)
 	{
 		std::wstring name = ModulePathW(pBase);
-		size_t len = FileName(name.data(), name.size());
+		size_t len = GetFileName(name.data(), name.size());
 		name.resize(len);
 		return name;
 	}

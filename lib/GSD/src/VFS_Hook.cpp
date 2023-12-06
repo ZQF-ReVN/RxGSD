@@ -16,7 +16,6 @@ namespace GSD::VFS
 
 	static bool __fastcall LoadFileViaPack_Hook_Type0(GSD_FS* This, uint32_t uiEDX, GSD_STD_String msPackName, uint32_t uiStrAp0, GSD_STD_String msFileName, uint32_t uiStrAp1, uint32_t uiZLC3Flag)
 	{
-		Rut::RxConsole::PutFormat("%s\n", msFileName.GetRawStr());
 		char full_path[512];
 		strcpy_s(full_path, 512, sg_aHookFolder);
 		strcat_s(full_path, 512, msFileName.GetRawStr());
@@ -56,7 +55,7 @@ namespace GSD::VFS
 		sg_fnSTDStrCtor = (Fn_GSD_STD_Str_Ctor_T0)fnStrCtor;
 		sg_fnLoadFileViaDir = (Fn_FS_LoadFileViaDir)fnLoadFileViaDir;
 		sg_fnLoadFileViaPack_Type0 = (Fn_FS_LoadFileViaPack_Type0)fnLoadFileViaPack;
-		Rut::RxHook::DetourAttachFunc(&sg_fnLoadFileViaPack_Type0, LoadFileViaPack_Hook_Type0);
+		Rut::RxHook::Detours::AttrachDirectly(&sg_fnLoadFileViaPack_Type0, LoadFileViaPack_Hook_Type0);
 	}
 
 	void SetHookType1(size_t fnLoadFileViaPack, size_t fnLoadFileViaDir, size_t fnStrCtor)
@@ -64,6 +63,6 @@ namespace GSD::VFS
 		sg_fnSTDStrCtor = (Fn_GSD_STD_Str_Ctor_T0)fnStrCtor;
 		sg_fnLoadFileViaDir = (Fn_FS_LoadFileViaDir)fnLoadFileViaDir;
 		sg_fnLoadFileViaPack_Type1 = (Fn_FS_LoadFileViaPack_Type1)fnLoadFileViaPack;
-		Rut::RxHook::DetourAttachFunc(&sg_fnLoadFileViaPack_Type1, LoadFileViaPack_Hook_Type1);
+		Rut::RxHook::Detours::AttrachDirectly(&sg_fnLoadFileViaPack_Type1, LoadFileViaPack_Hook_Type1);
 	}
 }

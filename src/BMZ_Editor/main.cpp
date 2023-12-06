@@ -14,14 +14,14 @@ int wmain(int argc, wchar_t* argv[])
 		case 2:
 		{
 			std::wstring path = argv[1];
-			std::wstring stuffix = Rut::RxPath::Suffix(path);
+			std::wstring stuffix = Rut::RxPath::GetSuffix(path);
 			if (stuffix == L".bmz")
 			{
-				GSD::BMZ::Coder::Decode(path, Rut::RxPath::NotSuffix(path) + L".bmp");
+				GSD::BMZ::Coder::Decode(path, Rut::RxPath::RemoveSuffix(path) + L".bmp");
 			}
 			else if (stuffix == L".bmp")
 			{
-				GSD::BMZ::Coder::Encode(path, Rut::RxPath::NotSuffix(path) + L".bmz.new");
+				GSD::BMZ::Coder::Encode(path, Rut::RxPath::RemoveSuffix(path) + L".bmz.new");
 			}
 		}
 		break;

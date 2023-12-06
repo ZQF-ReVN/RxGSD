@@ -5,13 +5,18 @@
 #include "../../lib/Rut/RxFile.h"
 #include "../../lib/Rut/RxMem.h"
 #include "../../lib/Rut/RxJson.h"
-
+#include "../../lib/Rut/RxBench.h"
+#include <format>
 
 int main()
 {
 	//Rut::RxMem::Auto spt{ L"data_dec/0scene_pro003_h.spt" };
 	//GSD::SPT::Parser parser;
 	//parser.Parse(spt.GetPtr());
+
+	Rut::RxBench::Record record;
+
+	record.Beg();
 
 	std::vector<std::wstring> file_list;
 	Rut::RxPath::CurFileNames(L"data_dec/", file_list, false);
@@ -24,11 +29,15 @@ int main()
 			parser.Parse(spt.GetPtr());
 			parser.Dump().SaveData(L"data_dump/" + file_name);
 			GSD::SPT::CheckDumpDataMatched(spt.GetPtr(), parser);
-			//auto json = parser.ToJson();
+			//auto json = parser.ToJson(932);
 			//Rut::RxJson::Parser::Save(json, L"data_json/" + file_name + L".json", true, true);
 		}
 		std::wcout << L"OK" << L'\n';
 	}
+
+	record.End();
+
+	record.Log();
 
 	int a = 0;
 

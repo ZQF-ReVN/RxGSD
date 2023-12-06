@@ -10,7 +10,12 @@ link_libraries(Rut RxHook)
 
 # Add ZLIB
 include_directories("${THIRD_DIR}/zlib/include/")
-link_libraries("${THIRD_DIR}/zlib/lib.X86/zlibstatic.lib")
+if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    link_libraries("${THIRD_DIR}/zlib/lib.X86/zlibstatic.lib")
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    link_libraries("${THIRD_DIR}/zlib/lib.X64/zlibstatic.lib")
+endif()
+
 
 # Set Source File Path
 list(APPEND SRC_FILE 

@@ -5,25 +5,25 @@
 
 namespace Rut::RxPath
 {
-	size_t FileName(char* cpPath, size_t nChar);
-	size_t FileName(wchar_t* wpPath, size_t nChar);
-	std::string FileName(std::string msPath);
-	std::wstring FileName(std::wstring wsPath);
+	size_t GetFileName(char* cpPath, size_t nChar);
+	size_t GetFileName(wchar_t* wpPath, size_t nChar);
+	std::string GetFileName(std::string msPath);
+	std::wstring GetFileName(std::wstring wsPath);
 
-	size_t NotFileName(char* cpPath, size_t nChar);
-	size_t NotFileName(wchar_t* wpPath, size_t nChar);
-	std::string NotFileName(std::string msPath);
-	std::wstring NotFileName(std::wstring wsPath);
+	size_t RemoveFileName(char* cpPath, size_t nChar);
+	size_t RemoveFileName(wchar_t* wpPath, size_t nChar);
+	std::string RemoveFileName(std::string msPath);
+	std::wstring RemoveFileName(std::wstring wsPath);
 
-	size_t Suffix(char* cpPath, size_t nChar);
-	size_t Suffix(wchar_t* wpPath, size_t nChar);
-	std::string Suffix(std::string msPath);
-	std::wstring Suffix(std::wstring wsPath);
+	size_t GetSuffix(char* cpPath, size_t nBytes);
+	size_t GetSuffix(wchar_t* wpPath, size_t nChar);
+	std::string GetSuffix(std::string msPath);
+	std::wstring GetSuffix(std::wstring wsPath);
 
-	size_t NotSuffix(char* cpPath, size_t nChar);
-	size_t NotSuffix(wchar_t* wpPath, size_t nChar);
-	std::string NotSuffix(std::string msPath);
-	std::wstring NotSuffix(std::wstring wsPath);
+	size_t RemoveSuffix(char* cpPath, size_t nBytes);
+	size_t RemoveSuffix(wchar_t* wpPath, size_t nChar);
+	std::string RemoveSuffix(std::string msPath);
+	std::wstring RemoveSuffix(std::wstring wsPath);
 
 	char* FormatSlash(char* cpPath, char cSlash);
 	wchar_t* FormatSlash(wchar_t* wpPath, wchar_t wcSlash);
@@ -45,8 +45,8 @@ namespace Rut::RxPath
 	bool MakeDirViaPath(std::string_view msPath);
 	bool MakeDirViaPath(std::wstring_view wsPath);
 
-	std::uintmax_t FileSize(std::string_view msPath);
-	std::uintmax_t FileSize(std::wstring_view wsPath);
+	std::uintmax_t GetFileSize(std::string_view msPath);
+	std::uintmax_t GetFileSize(std::wstring_view wsPath);
 
 	std::string  ModuleDirA();
 	std::wstring ModuleDirW();

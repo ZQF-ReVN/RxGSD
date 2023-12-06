@@ -39,11 +39,11 @@ namespace GSD
 			Rut::RxPath::CurFileNames(wsFolderPath, file_list, false);
 			if (file_list.empty()) { throw std::runtime_error("GSP::Pack Not Files"); }
 
-			uint32_t foa = 4 + file_list.size() * sizeof(GSP_Entry);
+			uint32_t foa = (uint32_t)(4 + file_list.size() * sizeof(GSP_Entry));
 			for (auto& file_name : file_list)
 			{
 				GSP_Entry entry = { 0 };
-				entry.uiSize = (uint32_t)Rut::RxPath::FileSize(wsFolderPath + file_name);
+				entry.uiSize = (uint32_t)Rut::RxPath::GetFileSize(wsFolderPath + file_name);
 				entry.uiFOA = foa;
 				std::string file_name_dbcs = Rut::RxStr::ToMBCS(file_name, 932);
 				memcpy(entry.aFileName, file_name_dbcs.data(), file_name_dbcs.size() + 1);

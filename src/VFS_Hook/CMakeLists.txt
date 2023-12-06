@@ -1,4 +1,9 @@
-﻿# Value Define
+﻿# Only x32
+if (NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
+	return()
+endif()
+
+# Value Define
 set(PROJECT_NAME VFS_Hook)
 
 # Cpp Standard

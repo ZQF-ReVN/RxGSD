@@ -1,6 +1,8 @@
 ﻿#include <iostream>
+#include <format>
 
 #include "../../lib/GSD/SPT.h"
+#include "../../lib/Rut/RxStr.h"
 #include "../../lib/Rut/RxPath.h"
 #include "../../lib/Rut/RxConsole.h"
 
@@ -12,13 +14,13 @@ bool ExportText(const std::wstring_view wsScriptPath, const std::wstring_view ws
 	spt_parser.Parse(wsScriptPath);
 
 	// Find Code With Text 
-	std::vector<std::vector<GSD::SPT::SPT_Code>::iterator> code_with_text_list;
+	std::vector<std::vector<GSD::SPT::Code>::iterator> code_with_text_list;
 	{
-		std::vector<GSD::SPT::SPT_Code>& code_list = spt_parser.GetCodeList();
+		std::vector<GSD::SPT::Code>& code_list = spt_parser.GetCodeList();
 
 		for (auto ite = code_list.begin(); ite != code_list.end(); ite++)
 		{
-			const GSD::SPT::SPT_Code_Parameter_Type0& type0 = ite->GetParamType0();
+			const GSD::SPT::Code_Parameter_Type0& type0 = ite->GetParamType0();
 			if (type0.GetType0TextLen())
 			{
 				code_with_text_list.push_back(ite);
@@ -27,7 +29,7 @@ bool ExportText(const std::wstring_view wsScriptPath, const std::wstring_view ws
 
 		if (code_with_text_list.empty())
 		{
-			Rut::RxConsole::PutFormat(L"Not Find Text:%s\n", wsScriptPath.data());
+			Rut::RxConsole::Put(std::format(L"Not Find Text:{}\n", wsScriptPath));
 			return false;
 		}
 	}
@@ -53,9 +55,9 @@ bool ImportText(const std::wstring_view wsScriptPath, const std::wstring_view ws
 	spt_parser.Parse(wsScriptPath);
 
 	// Find Code With Text
-	std::vector<std::vector<GSD::SPT::SPT_Code>::iterator> code_with_text_list;
+	std::vector<std::vector<GSD::SPT::Code>::iterator> code_with_text_list;
 	{
-		std::vector<GSD::SPT::SPT_Code>& code_list = spt_parser.GetCodeList();
+		std::vector<GSD::SPT::Code>& code_list = spt_parser.GetCodeList();
 
 		for (auto ite = code_list.begin(); ite != code_list.end(); ite++)
 		{
@@ -67,7 +69,7 @@ bool ImportText(const std::wstring_view wsScriptPath, const std::wstring_view ws
 
 		if (code_with_text_list.empty())
 		{
-			Rut::RxConsole::PutFormat(L"Not Find Text:%s\n", wsScriptPath.data());
+			Rut::RxConsole::Put(std::format(L"Not Find Text: {}\n", wsScriptPath));
 			return false;
 		}
 	}
@@ -79,7 +81,7 @@ bool ImportText(const std::wstring_view wsScriptPath, const std::wstring_view ws
 
 	if (code_with_text_list.size() != msg_list.size())
 	{
-		Rut::RxConsole::PutFormat(L"Text Count Mismatch :%s\n", wsJsonPath.data());
+		Rut::RxConsole::Put(std::format(L"Text Count Mismatch: {}\n", wsJsonPath));
 		return false;
 	}
 

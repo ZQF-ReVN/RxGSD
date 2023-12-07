@@ -105,8 +105,29 @@ int wmain(int argc, wchar_t* argv[])
 	{
 		switch (argc)
 		{
+		case 2:
+		{
+			std::wstring spt_folder = argv[1];
+			if (spt_folder.back() != L'/') { spt_folder.append(1, L'/'); }
+
+			Rut::RxPath::MakeDir(L"spt_json/");
+
+			std::vector<std::wstring> file_list;
+			Rut::RxPath::CurFileNames(spt_folder, file_list, false);
+			for (std::wstring& file_name : file_list)
+			{
+				if (file_name.find(L".spt") == std::wstring::npos) { continue; }
+				ExportText(spt_folder + file_name, L"spt_json/" + file_name + L".json", 932);
+			}
+
+			system("pause");
+		}
+		break;
+
 		case 5:
 		{
+			std::wstring_view commnad = argv[1];
+			if (commnad != L"e") { throw std::runtime_error("Error Commnad!"); }
 			std::wstring_view spt_path = argv[2];
 			std::wstring_view json_path = argv[3];
 			size_t code_page = _wtoi(argv[4]);
@@ -116,6 +137,8 @@ int wmain(int argc, wchar_t* argv[])
 
 		case 6:
 		{
+			std::wstring_view commnad = argv[1];
+			if (commnad != L"i") { throw std::runtime_error("Error Commnad!"); }
 			std::wstring_view spt_path = argv[2];
 			std::wstring_view json_path = argv[3];
 			std::wstring_view spt_new_path = argv[4];

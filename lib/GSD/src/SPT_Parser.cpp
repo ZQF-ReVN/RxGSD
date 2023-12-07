@@ -1,5 +1,6 @@
 #include "SPT_Parser.h"
 #include "../../Rut/RxStr.h"
+#include "../../Rut/RxConsole.h"
 
 #include <format>
 
@@ -28,13 +29,13 @@ namespace GSD::SPT
 				{
 				case 0x7:// normal char flag
 				{
-					char_list.push_back(char_entry.uiChar);
+					char_list.push_back(char_entry.uiParan1);
 				}
 				break;
 
 				case 0x8:// notation beg flag
 				{
-					char_list.insert(char_list.end() - char_entry.uiNotationCount, '<');
+					char_list.insert(char_list.end() - char_entry.uiParam0, '<');
 					char_list.push_back('/');
 				}
 				break;
@@ -53,7 +54,7 @@ namespace GSD::SPT
 
 				default:
 				{
-					throw std::runtime_error("Unknow Char Type!");
+					Rut::RxConsole::Put(std::format(L"\n\tParseSptText: Missing control character[{:#010x},{:#010x},{:#010x}]\n", char_entry.uiType, char_entry.uiParam0, char_entry.uiParan1));
 				}
 				}
 			}
@@ -82,8 +83,8 @@ namespace GSD::SPT
 					uint32_t dbcs_char_h = (msText[ite_char + 1]) & 0xFF;
 					ite_char++;
 					entry.uiType = 0x7;
-					entry.uiNotationCount = 0x0;
-					entry.uiChar = (dbcs_char_l) | (dbcs_char_h << 0x8);
+					entry.uiParam0 = 0x0;
+					entry.uiParan1 = (dbcs_char_l) | (dbcs_char_h << 0x8);
 				}
 				else
 				{
@@ -100,22 +101,22 @@ namespace GSD::SPT
 						}
 
 						entry.uiType = 0x8; // notation beg
-						entry.uiNotationCount = (uint32_t)(char_entry_list.size() - notation_pos_beg);
-						entry.uiChar = 0;
+						entry.uiParam0 = (uint32_t)(char_entry_list.size() - notation_pos_beg);
+						entry.uiParan1 = 0;
 
 						notation_pos_beg = -1;
 					}
 					else if (msText[ite_char] == '>')
 					{
 						entry.uiType = 0x9; // notation end
-						entry.uiNotationCount = 0;
-						entry.uiChar = 0;
+						entry.uiParam0 = 0;
+						entry.uiParan1 = 0;
 					}
 					else
 					{
 						entry.uiType = 0x7; // normal char
-						entry.uiNotationCount = 0x0;
-						entry.uiChar = msText[ite_char];
+						entry.uiParam0 = 0x0;
+						entry.uiParan1 = msText[ite_char];
 					}
 				}
 
@@ -123,8 +124,8 @@ namespace GSD::SPT
 			}
 
 			entry.uiType = 0xD; // end flag
-			entry.uiNotationCount = 0x0;
-			entry.uiChar = 0;
+			entry.uiParam0 = 0x0;
+			entry.uiParan1 = 0;
 			char_entry_list.push_back(entry);
 		}
 		return char_entry_list;
@@ -221,13 +222,13 @@ namespace GSD::SPT
 	{
 		Rut::RxJson::Value json;
 		{
-			json[L"Un0"] = std::format(L"{:#08x}", m_uiUn0);
-			json[L"Un1"] = std::format(L"{:#08x}", m_uiUn1);
-			json[L"Un2"] = std::format(L"{:#08x}", m_uiUn2);
-			json[L"Un3"] = std::format(L"{:#08x}", m_uiUn3);
-			json[L"StrType0Len"] = std::format(L"{:#08x}", m_uiStrType0Len);
-			json[L"StrType1Len"] = std::format(L"{:#08x}", m_uiStrType1Len);
-			json[L"StrType2Len"] = std::format(L"{:#08x}", m_uiStrType2Len);
+			json[L"Un0"] = std::format(L"{:#010x}", m_uiUn0);
+			json[L"Un1"] = std::format(L"{:#010x}", m_uiUn1);
+			json[L"Un2"] = std::format(L"{:#010x}", m_uiUn2);
+			json[L"Un3"] = std::format(L"{:#010x}", m_uiUn3);
+			json[L"StrType0Len"] = std::format(L"{:#010x}", m_uiStrType0Len);
+			json[L"StrType1Len"] = std::format(L"{:#010x}", m_uiStrType1Len);
+			json[L"StrType2Len"] = std::format(L"{:#010x}", m_uiStrType2Len);
 			json[L"StrType0"] = Rut::RxStr::ToWCS(this->GetType0Text(), nCodePage);
 			json[L"StrType1"] = Rut::RxStr::ToWCS(this->m_msStrType1, nCodePage);
 			json[L"StrType2"] = Rut::RxStr::ToWCS(this->m_msStrType2, nCodePage);
@@ -343,14 +344,14 @@ namespace GSD::SPT
 	{
 		Rut::RxJson::Value json;
 		{
-			json[L"Val_0"] = std::format(L"{:#08x}", this->m_uiVal_0);
-			json[L"Val_1"] = std::format(L"{:#08x}", this->m_uiVal_1);
-			json[L"Val_2"] = std::format(L"{:#08x}", this->m_uiVal_2);
-			json[L"Val_3"] = std::format(L"{:#08x}", this->m_uiVal_3);
-			json[L"StrLen"] = std::format(L"{:#08x}", this->m_uiStrLen);
-			json[L"Val_5"] = std::format(L"{:#08x}", this->m_uiVal_5);
-			json[L"Val_6"] = std::format(L"{:#08x}", this->m_uiVal_6);
-			json[L"Val_7"] = std::format(L"{:#08x}", this->m_uiVal_7);
+			json[L"Val_0"] = std::format(L"{:#010x}", this->m_uiVal_0);
+			json[L"Val_1"] = std::format(L"{:#010x}", this->m_uiVal_1);
+			json[L"Val_2"] = std::format(L"{:#010x}", this->m_uiVal_2);
+			json[L"Val_3"] = std::format(L"{:#010x}", this->m_uiVal_3);
+			json[L"StrLen"] = std::format(L"{:#010x}", this->m_uiStrLen);
+			json[L"Val_5"] = std::format(L"{:#010x}", this->m_uiVal_5);
+			json[L"Val_6"] = std::format(L"{:#010x}", this->m_uiVal_6);
+			json[L"Val_7"] = std::format(L"{:#010x}", this->m_uiVal_7);
 			json[L"Str"] = Rut::RxStr::ToWCS(this->m_msStr, nCodePage);
 		}
 		return json;
@@ -414,7 +415,7 @@ namespace GSD::SPT
 	{
 		Rut::RxJson::Value json;
 		{
-			json[L"ParameterType1Count"] = std::format(L"{:#08x}", this->m_uiParameterType1Count);
+			json[L"ParameterType1Count"] = std::format(L"{:#010x}", this->m_uiParameterType1Count);
 			Rut::RxJson::Value& count_arrary = json[L"ParameterType1List"];
 			for (const auto& type1 : this->m_vcParameterType1)
 			{
@@ -469,9 +470,9 @@ namespace GSD::SPT
 	{
 		Rut::RxJson::Value json;
 		{
-			json[L"Val_0"] = std::format(L"{:#08x}", this->m_uiVal_0);
-			json[L"Val_1"] = std::format(L"{:#08x}", this->m_uiVal_1);
-			json[L"Val_2"] = std::format(L"{:#08x}", this->m_uiVal_2);
+			json[L"Val_0"] = std::format(L"{:#010x}", this->m_uiVal_0);
+			json[L"Val_1"] = std::format(L"{:#010x}", this->m_uiVal_1);
+			json[L"Val_2"] = std::format(L"{:#010x}", this->m_uiVal_2);
 		}
 		return json;
 	}
@@ -566,20 +567,20 @@ namespace GSD::SPT
 	{
 		Rut::RxJson::Value json;
 		{
-			json[L"StrLen0"] = std::format(L"{:#08x}", this->m_uiStrLen0);
+			json[L"StrLen0"] = std::format(L"{:#010x}", this->m_uiStrLen0);
 			json[L"Str0"] = Rut::RxStr::ToWCS(this->m_msStr0, nCodePage);
-			json[L"StrLen1"] = std::format(L"{:#08x}", this->m_uiStrLen1);
+			json[L"StrLen1"] = std::format(L"{:#010x}", this->m_uiStrLen1);
 			json[L"Str1"] = Rut::RxStr::ToWCS(this->m_msStr1, nCodePage);
-			json[L"Un0"] = std::format(L"{:#08x}", this->m_uiUn0);
-			json[L"Un1"] = std::format(L"{:#08x}", this->m_uiUn1);
-			json[L"Un2"] = std::format(L"{:#08x}", this->m_uiUn2);
+			json[L"Un0"] = std::format(L"{:#010x}", this->m_uiUn0);
+			json[L"Un1"] = std::format(L"{:#010x}", this->m_uiUn1);
+			json[L"Un2"] = std::format(L"{:#010x}", this->m_uiUn2);
 
 			Rut::RxJson::Value& json_append = json[L"AppendData"];
 			uint32_t append_size = (sizeof(this->m_aAppend) / 4);
 			uint32_t* append_ptr = (uint32_t*)this->m_aAppend;
 			for (size_t ite_append = 0; ite_append < append_size; ite_append++)
 			{
-				json_append.Append(std::format(L"{:#08x}", append_ptr[ite_append]));
+				json_append.Append(std::format(L"{:#010x}", append_ptr[ite_append]));
 			}
 		}
 		return json;
@@ -635,7 +636,7 @@ namespace GSD::SPT
 	{
 		Rut::RxJson::Value json;
 		{
-			json[L"ScriptCount"] = std::format(L"{:#08x}", this->m_uiScriptCount);
+			json[L"ScriptCount"] = std::format(L"{:#010x}", this->m_uiScriptCount);
 
 			Rut::RxJson::Value& json_info = json[L"InfoList"];
 			for (const auto& info : this->m_vcInfo)
@@ -692,10 +693,10 @@ namespace GSD::SPT
 	{
 		Rut::RxJson::Value json;
 		{
-			json[L"DecStartIndex"] = std::format(L"{:#02x}", this->m_ucDecStartIndex);
-			json[L"DecModeType"] = std::format(L"{:#02x}", this->m_ucDecModeType);
-			json[L"Un0"] = std::format(L"{:#02x}", this->m_ucUn0);
-			json[L"Un1"] = std::format(L"{:#02x}", this->m_ucUn1);
+			json[L"DecStartIndex"] = std::format(L"{:#04x}", this->m_ucDecStartIndex);
+			json[L"DecModeType"] = std::format(L"{:#04x}", this->m_ucDecModeType);
+			json[L"Un0"] = std::format(L"{:#04x}", this->m_ucUn0);
+			json[L"Un1"] = std::format(L"{:#04x}", this->m_ucUn1);
 		}
 		return json;
 	}
@@ -740,10 +741,10 @@ namespace GSD::SPT
 	{
 		Rut::RxJson::Value json;
 		{
-			json[L"CodeCount"] = std::format(L"{:#08x}", this->m_uiCodeCount);
-			json[L"Un0"] = std::format(L"{:#08x}", this->m_uiUn0);
-			json[L"Un1"] = std::format(L"{:#08x}", this->m_uiUn1);
-			json[L"Un2"] = std::format(L"{:#08x}", this->m_uiUn2);
+			json[L"CodeCount"] = std::format(L"{:#010x}", this->m_uiCodeCount);
+			json[L"Un0"] = std::format(L"{:#010x}", this->m_uiUn0);
+			json[L"Un1"] = std::format(L"{:#010x}", this->m_uiUn1);
+			json[L"Un2"] = std::format(L"{:#010x}", this->m_uiUn2);
 		}
 		return json;
 	}
@@ -833,8 +834,8 @@ namespace GSD::SPT
 		Rut::RxJson::Value json;
 		{
 			json[L"EncryptorInfo"] = this->m_EncryptorInfo.ToJson(nCodePage);
-			json[L"UnCount"] = std::format(L"{:#08x}", this->m_uiUnCount);
-			json[L"ScriptNameLen"] = std::format(L"{:#08x}", this->m_uiScriptNameLen);
+			json[L"UnCount"] = std::format(L"{:#010x}", this->m_uiUnCount);
+			json[L"ScriptNameLen"] = std::format(L"{:#010x}", this->m_uiScriptNameLen);
 			json[L"ScriptName"] = Rut::RxStr::ToWCS(this->m_msScriptName, 932);
 			json[L"CodesInfo"] = m_CodesInfo.ToJson(nCodePage);
 
@@ -844,7 +845,7 @@ namespace GSD::SPT
 				json_append_script.Append(append_script.ToJson(nCodePage));
 			}
 
-			json[L"Unsize"] = std::format(L"{:#08x}", this->m_uiUnsize);
+			json[L"Unsize"] = std::format(L"{:#010x}", this->m_uiUnsize);
 		}
 		return json;
 	}
@@ -978,15 +979,15 @@ namespace GSD::SPT
 	{
 		Rut::RxJson::Value json;
 		{
-			json[L"Command"] = std::format(L"{:#08x}", this->m_uiCommand);
-			json[L"Val_1"] = std::format(L"{:#08x}", this->m_uiVal_1);
-			json[L"Val_2"] = std::format(L"{:#08x}", this->m_uiVal_2);
-			json[L"Val_3"] = std::format(L"{:#08x}", this->m_uiVal_3);
-			json[L"Val_4"] = std::format(L"{:#08x}", this->m_uiVal_4);
-			json[L"Sequnece"] = std::format(L"{:#08x}", this->m_uiSequnece);
-			json[L"ParameterType1Count"] = std::format(L"{:#08x}", this->m_uiParameterType1Count);
-			json[L"ParameterType2Count"] = std::format(L"{:#08x}", this->m_uiParameterType2Count);
-			json[L"ParameterType3Count"] = std::format(L"{:#08x}", this->m_uiParameterType3Count);
+			json[L"Command"] = std::format(L"{:#010x}", this->m_uiCommand);
+			json[L"Val_1"] = std::format(L"{:#010x}", this->m_uiVal_1);
+			json[L"Val_2"] = std::format(L"{:#010x}", this->m_uiVal_2);
+			json[L"Val_3"] = std::format(L"{:#010x}", this->m_uiVal_3);
+			json[L"Val_4"] = std::format(L"{:#010x}", this->m_uiVal_4);
+			json[L"Sequnece"] = std::format(L"{:#010x}", this->m_uiSequnece);
+			json[L"ParameterType1Count"] = std::format(L"{:#010x}", this->m_uiParameterType1Count);
+			json[L"ParameterType2Count"] = std::format(L"{:#010x}", this->m_uiParameterType2Count);
+			json[L"ParameterType3Count"] = std::format(L"{:#010x}", this->m_uiParameterType3Count);
 
 			Rut::RxJson::Value& json_type0 = json[L"ParameterType0"];
 			if (m_uiCommand == 1) // Proc Text Struct

@@ -83,9 +83,32 @@ namespace GSD
 	struct SPT_Char_Entry
 	{
 		uint32_t uiType; // [0x7](normal char flag), [0xD](end string flag), [0x8](notation beg flag), [0x9](notation end flag)
-		uint32_t uiNotationCount;
-		uint32_t uiChar;
+		uint32_t uiParam0;
+		uint32_t uiParan1;
 	};
+
+	// uiType [1-12]
+	// GSD::VM::Parser::TextStruct [004CECF0]
+	
+	// Set Font Info
+	// 05000000 00000000 00000000
+	// [OP][ColorSlot][FontSize]
+
+	// DBCS Char
+	// 07000000 00000000 00000000
+	// [OP][Unknow][DBCSChar]
+
+	// Beg Notation
+	// 08000000 00000000 00000000
+	// [OP][NotationLenForword][Unknow]
+
+	// End Notation
+	// 09000000 00000000 00000000
+	// [OP][Unknow][Unknow]
+
+	// End of Struct
+	// 0D000000 00000000 00000000
+	// [OP][Unknow][Unknow]
 
 	struct SPT_Text_Entry
 	{
@@ -93,6 +116,7 @@ namespace GSD
 		uint32_t aUn0[2];
 		// SPT_Char aText[uiCharCount];
 	};
+
 
 	typedef GSD_STD_String* (__thiscall* Fn_GSD_STD_Str_Ctor_T0)(GSD_STD_String* This, char* pStr);
 	typedef bool(__thiscall* Fn_FS_LoadFileViaDir)(GSD_FS* This, GSD_STD_String msFileName, uint32_t uiStrPx, uint32_t uiZLC3Flag);

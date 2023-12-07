@@ -13,33 +13,33 @@ int main()
 	//Rut::RxMem::Auto spt{ L"data_dec/0scene_pro003_h.spt" };
 	//GSD::SPT::Parser parser;
 	//parser.Parse(spt.GetPtr());
-
-	Rut::RxBench::Record record;
-
-	record.Beg();
-
-	std::vector<std::wstring> file_list;
-	Rut::RxPath::CurFileNames(L"data_dec/", file_list, false);
-	for (auto& file_name : file_list)
+	try
 	{
-		std::wcout << L"start_parser:" << file_name << L"  ";
+		Rut::RxPath::MakeDir(L"spt_json/");
+		Rut::RxPath::MakeDir(L"spt_dump/");
+
+		std::vector<std::wstring> file_list;
+		Rut::RxPath::CurFileNames(L"spt_dec/", file_list, false);
+		for (auto& file_name : file_list)
 		{
-			Rut::RxMem::Auto spt{ L"data_dec/" + file_name };
-			GSD::SPT::Parser parser;
-			parser.Parse(spt.GetPtr());
-			parser.Dump().SaveData(L"data_dump/" + file_name);
-			GSD::SPT::CheckDumpDataMatched(spt.GetPtr(), parser);
-			//auto json = parser.ToJson(932);
-			//Rut::RxJson::Parser::Save(json, L"data_json/" + file_name + L".json", true, true);
+			std::wcout << L"Parser: " << file_name << L"  ";
+			{
+				Rut::RxMem::Auto spt{ L"spt_dec/" + file_name };
+				GSD::SPT::Parser parser;
+				parser.Parse(spt.GetPtr());
+				parser.Dump().SaveData(L"spt_dump/" + file_name);
+				GSD::SPT::CheckDumpDataMatched(spt.GetPtr(), parser);
+				auto json = parser.ToJson(932);
+				Rut::RxJson::Parser::Save(json, L"spt_json/" + file_name + L".json", true, true);
+			}
+			std::wcout << L"OK" << L'\n';
 		}
-		std::wcout << L"OK" << L'\n';
+	}
+	catch (const std::runtime_error& err)
+	{
+		std::cerr << err.what() << std::endl;
 	}
 
-	record.End();
-
-	record.Log();
-
-	int a = 0;
 
 	//std::vector<std::wstring> file_list;
 	//Rut::RxPath::CurFileNames(L"data_dec/", file_list, false);

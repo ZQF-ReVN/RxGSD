@@ -1,2 +1,2 @@
 #pragma once
-#include "src/BMZ_Coder.h"
+#include "src/BMZ_Cryptor.h"

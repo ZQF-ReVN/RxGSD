@@ -1,4 +1,4 @@
-#include "BMZ_Coder.h"
+#include "BMZ_Cryptor.h"
 #include "GSD_Types.h"
 #include "../../Rut/RxMem.h"
 
@@ -8,7 +8,7 @@
 
 namespace GSD::BMZ
 {
-	void Coder::Decode(const std::wstring_view wsBMZ, const std::wstring_view wsBMP)
+	void Cryptor::Decode(const std::wstring_view wsBMZ, const std::wstring_view wsBMP)
 	{
 		Rut::RxMem::Auto bmz_mem{ wsBMZ };
 		GSD_BMZ_HDR* hdr_ptr = (GSD_BMZ_HDR*)bmz_mem.GetPtr();
@@ -26,7 +26,7 @@ namespace GSD::BMZ
 		bmp_mem.SaveData(wsBMP);
 	}
 
-	void Coder::Encode(const std::wstring_view wsOrgBMZPath, const std::wstring_view wsBMPPath, const std::wstring_view wsNewBMZPath)
+	void Cryptor::Encode(const std::wstring_view wsOrgBMZPath, const std::wstring_view wsBMPPath, const std::wstring_view wsNewBMZPath)
 	{
 		Rut::RxMem::Auto anim_mem{ wsOrgBMZPath };
 		uint8_t* anim_signature_ptr = anim_mem.GetPtr() + anim_mem.GetSize() - 8;

@@ -17,7 +17,7 @@ static void UserMain(int argc, wchar_t* argv[])
 			std::wstring stuffix = Rut::RxPath::GetSuffix(path);
 			if (stuffix == L".bmz")
 			{
-				GSD::BMZ::Coder::Decode(path, Rut::RxPath::RemoveSuffix(path) + L".bmp");
+				GSD::BMZ::Cryptor::Decode(path, Rut::RxPath::RemoveSuffix(path) + L".bmp");
 			}
 		}
 		break;
@@ -30,7 +30,7 @@ static void UserMain(int argc, wchar_t* argv[])
 			{
 				std::wstring_view bmz_path = argv[2];
 				std::wstring_view bmp_path = argv[3];
-				GSD::BMZ::Coder::Decode(bmz_path, bmp_path);
+				GSD::BMZ::Cryptor::Decode(bmz_path, bmp_path);
 				std::cout << "Success\n";
 			}
 		}
@@ -44,7 +44,7 @@ static void UserMain(int argc, wchar_t* argv[])
 				std::wstring_view org_bmz_path = argv[2];
 				std::wstring_view bmp_path = argv[3];
 				std::wstring_view new_bmz_path = argv[4];
-				GSD::BMZ::Coder::Encode(org_bmz_path, bmp_path, new_bmz_path);
+				GSD::BMZ::Cryptor::Encode(org_bmz_path, bmp_path, new_bmz_path);
 				std::cout << "Success\n";
 			}
 		}

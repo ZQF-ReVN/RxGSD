@@ -26,10 +26,10 @@ int main()
 			{
 				Rut::RxMem::Auto spt{ L"spt_dec/" + sdt_path.wstring() };
 				GSD::SPT::Parser parser;
-				parser.Parse(spt.GetPtr());
-				parser.Dump().SaveData(L"spt_dump/" + sdt_path.wstring());
+				parser.Load(spt.GetPtr());
+				parser.Make().SaveData(L"spt_dump/" + sdt_path.wstring());
 				GSD::SPT::CheckDumpDataMatched(spt.GetPtr(), parser);
-				auto json = parser.ToJson(932);
+				auto json = parser.Make(932);
 				Rut::RxJson::Parser::Save(json, L"spt_json/" + sdt_path.wstring() + L".json", true, true);
 			}
 			std::wcout << L"OK" << L'\n';

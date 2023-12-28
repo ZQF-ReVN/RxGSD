@@ -182,19 +182,19 @@ namespace Rut::RxJson
 	void JValue::AddKey(std::wstring_view wsKey)
 	{
 		this->SureObject();
-		(*this->m_Value.ObjPtr)[std::move(std::wstring(wsKey))];
+		(*this->m_Value.ObjPtr)[std::wstring(wsKey)];
 	}
 
 	void JValue::AddKey(std::wstring_view wsKey, const JValue& rfJValue)
 	{
 		this->SureObject();
-		(*this->m_Value.ObjPtr)[std::move(std::wstring(wsKey))] = rfJValue;
+		(*this->m_Value.ObjPtr)[std::wstring(wsKey)] = rfJValue;
 	}
 
 	void JValue::AddKey(std::wstring_view wsKey, JValue&& rfJValue)
 	{
 		this->SureObject();
-		(*this->m_Value.ObjPtr)[std::move(std::wstring(wsKey))] = std::move(rfJValue);
+		(*this->m_Value.ObjPtr)[std::wstring(wsKey)] = std::move(rfJValue);
 	}
 
 	JObject::iterator JValue::FindKey(std::wstring_view wsKey) const

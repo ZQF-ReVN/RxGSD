@@ -11,7 +11,7 @@ static void FindCodeWithText(GSD::SPT::Parser& rfParser, std::vector<std::vector
 	std::vector<GSD::SPT::Code>& code_list = rfParser.GetCodeList();
 	for (auto ite = code_list.begin(); ite != code_list.end(); ite++)
 	{
-		if (ite->GetParamType0().GetType0TextLen()) { vcIterator_Ret.push_back(ite); }
+		if (ite->GetArgType0().GetType0TextLen()) { vcIterator_Ret.push_back(ite); }
 	}
 }
 
@@ -19,7 +19,7 @@ static bool ExportText(const std::wstring_view wsScriptPath, const std::wstring_
 {
 	// Parse SPT Script
 	GSD::SPT::Parser spt_parser;
-	spt_parser.Parse(wsScriptPath);
+	spt_parser.Load(wsScriptPath);
 
 	// Find Code With Text 
 	std::vector<std::vector<GSD::SPT::Code>::iterator> code_with_text_list;
@@ -34,7 +34,7 @@ static bool ExportText(const std::wstring_view wsScriptPath, const std::wstring_
 	Rut::RxJson::JValue json;
 	for (auto& ite : code_with_text_list)
 	{
-		json.Append(Rut::RxStr::ToWCS(ite->GetParamType0().GetType0Text(), nCodePage));
+		json.Append(Rut::RxStr::ToWCS(ite->GetArgType0().GetType0Text(), nCodePage));
 	}
 
 	// Save Json
@@ -47,7 +47,7 @@ static bool ImportText(const std::wstring_view wsScriptPath, const std::wstring_
 {
 	// Parse SPT Script
 	GSD::SPT::Parser spt_parser;
-	spt_parser.Parse(wsScriptPath);
+	spt_parser.Load(wsScriptPath);
 
 	// Find Code With Text
 	std::vector<std::vector<GSD::SPT::Code>::iterator> code_with_text_list;
@@ -74,11 +74,11 @@ static bool ImportText(const std::wstring_view wsScriptPath, const std::wstring_
 	{
 		const std::wstring_view text_w = msg_list[ite];
 		std::string text = Rut::RxStr::ToMBCS(text_w, nCodePage);
-		code_with_text_list[ite]->GetParamType0().SetType0Text(text);
+		code_with_text_list[ite]->GetArgType0().SetType0Text(text);
 	}
 
 	// Save SPT Script
-	spt_parser.Dump().SaveData(wsScriptNewPath);
+	spt_parser.Make().SaveData(wsScriptNewPath);
 
 	return true;
 }

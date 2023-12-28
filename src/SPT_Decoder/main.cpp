@@ -22,7 +22,7 @@ static void UserMain(int argc, wchar_t* argv[])
 				const std::filesystem::path& spt_path = entry.path();
 
 				Rut::RxMem::Auto spt_file{ spt_path.wstring() };
-				GSD::SPT::Coder::Decode(spt_file.GetPtr(), spt_file.GetSize(), true);
+				GSD::SPT::Cryptor::Decode(spt_file.GetPtr(), spt_file.GetSize(), true);
 				spt_file.SaveData(L"spt_dec/" + spt_path.filename().wstring());
 			}
 		}
@@ -37,7 +37,7 @@ static void UserMain(int argc, wchar_t* argv[])
 				std::wstring_view spt_path = argv[2];
 				std::wstring_view spt_new_path = argv[3];
 				Rut::RxMem::Auto spt_file{ spt_path };
-				GSD::SPT::Coder::Decode(spt_file.GetPtr(), spt_file.GetSize(), true);
+				GSD::SPT::Cryptor::Decode(spt_file.GetPtr(), spt_file.GetSize(), true);
 				spt_file.SaveData(spt_new_path);
 				std::cout << "Success\n";
 			}

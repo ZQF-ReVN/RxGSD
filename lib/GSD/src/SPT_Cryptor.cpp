@@ -1,4 +1,4 @@
-#include "SPT_Decoder.h"
+#include "SPT_Cryptor.h"
 
 #include <cmath>
 
@@ -26,7 +26,7 @@ namespace GSD::SPT
 	};
 
 
-	void Coder::DecodeRound0(uint8_t* pData, size_t nSize, size_t nType)
+	void Cryptor::DecodeRound0(uint8_t* pData, size_t nSize, size_t nType)
 	{
 		switch (nType)
 		{
@@ -87,7 +87,7 @@ namespace GSD::SPT
 		}
 	}
 
-	void Coder::DecodeRound1(uint32_t* pTable, uint8_t* pData, size_t nSize, size_t nStart)
+	void Cryptor::DecodeRound1(uint32_t* pTable, uint8_t* pData, size_t nSize, size_t nStart)
 	{
 		if (nStart >= 8) { return; }
 
@@ -112,12 +112,13 @@ namespace GSD::SPT
 	}
 
 
-	void Coder::Decode(uint8_t* pData, size_t nSize, bool isMakeReadable)
+	void Cryptor::Decode(uint8_t* pData, size_t nSize, bool isMakeReadable)
 	{
 		size_t start_index = pData[0] ^ 0xF0;
 		size_t decode_type = pData[1] ^ 0xF0;
 		uint8_t* enc_data_ptr = pData + 0x4;
 		size_t enc_data_size = nSize - 0x4;
+
 		DecodeRound0(enc_data_ptr, enc_data_size, decode_type);
 		DecodeRound1(sg_aTable, enc_data_ptr, enc_data_size, start_index);
 

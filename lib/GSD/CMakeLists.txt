@@ -19,8 +19,12 @@ endif()
 
 # Set Source File Path
 list(APPEND SRC_FILE 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/BMZ_Coder.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Decoder.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/BMZ_Cryptor.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Cryptor.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Str.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_HDR.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Arg.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Code.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Parser.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/GSP_Editor.cpp" )
 

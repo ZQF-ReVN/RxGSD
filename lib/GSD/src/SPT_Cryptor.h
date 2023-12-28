@@ -4,7 +4,7 @@
 
 namespace GSD::SPT
 {
-	class Coder
+	class Cryptor
 	{
 	private:
 		static void DecodeRound0(uint8_t* pData, size_t nSize, size_t nType);

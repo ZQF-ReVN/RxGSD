@@ -4,7 +4,7 @@
 
 namespace GSD::BMZ
 {
-	class Coder
+	class Cryptor
 	{
 	public:
 		static void Decode(const std::wstring_view wsBMZ, const std::wstring_view wsBMP);

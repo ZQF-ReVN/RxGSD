@@ -1,9 +1,17 @@
 #include <iostream>
 
+#include "../../lib/Rut/RxPath.h"
 #include "../../lib/GSD/GSP.h"
 
 
-int wmain(int argc, wchar_t* argv[])
+static std::wstring FormatFolderPath(std::wstring wsPath)
+{
+	Rut::RxPath::Format(wsPath.data(), L'/');
+	if (wsPath.back() != '/') { wsPath.append(1, '/'); }
+	return wsPath;
+}
+
+static void UserMain(int argc, wchar_t* argv[])
 {
 	try
 	{
@@ -16,15 +24,15 @@ int wmain(int argc, wchar_t* argv[])
 			if (command == L"extract")
 			{
 				std::wstring_view gsp_path = argv[2];
-				std::wstring_view file_folder = argv[3];
-				GSD::GSP::Extract(gsp_path, file_folder.data());
+				std::wstring file_folder = ::FormatFolderPath(argv[3]);
+				GSD::GSP::Extract(gsp_path, file_folder);
 				std::cout << "Success\n";
 			}
 			else if (command == L"pack")
 			{
-				std::wstring_view file_folder = argv[2];
 				std::wstring_view new_gsp_path = argv[3];
-				GSD::GSP::Pack(new_gsp_path, file_folder.data());
+				std::wstring file_folder = ::FormatFolderPath(argv[2]);
+				GSD::GSP::Pack(new_gsp_path, file_folder);
 				std::cout << "Success\n";
 			}
 		}
@@ -47,4 +55,14 @@ int wmain(int argc, wchar_t* argv[])
 	{
 		std::cerr << err.what() << std::endl;
 	}
+}
+
+static void DebugMain()
+{
+
+}
+
+int wmain(int argc, wchar_t* argv[])
+{
+	::UserMain(argc, argv);
 }

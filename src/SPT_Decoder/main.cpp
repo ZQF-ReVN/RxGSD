@@ -1,12 +1,13 @@
 ﻿#include <iostream>
 #include <vector>
+#include <filesystem>
 
 #include "../../lib/GSD/SPT.h"
 #include "../../lib/Rut/RxPath.h"
 #include "../../lib/Rut/RxMem.h"
 
 
-int wmain(int argc, wchar_t* argv[])
+static void UserMain(int argc, wchar_t* argv[])
 {
 	try
 	{
@@ -14,16 +15,15 @@ int wmain(int argc, wchar_t* argv[])
 		{
 		case 2:
 		{
-			std::wstring spt_folder = argv[1];
-			if (spt_folder.back() != L'/') { spt_folder.append(1, L'/'); }
-
-			std::vector<std::wstring> file_list;
-			Rut::RxPath::CurFileNames(spt_folder, file_list, false);
-			for (auto& file_name : file_list)
+			for (auto& entry : std::filesystem::directory_iterator(argv[1]))
 			{
-				Rut::RxMem::Auto spt_file{ spt_folder + file_name };
+				if (entry.is_regular_file() == false) { continue; }
+
+				const std::filesystem::path& spt_path = entry.path();
+
+				Rut::RxMem::Auto spt_file{ spt_path.wstring() };
 				GSD::SPT::Coder::Decode(spt_file.GetPtr(), spt_file.GetSize(), true);
-				spt_file.SaveData(L"spt_dec/" + file_name);
+				spt_file.SaveData(L"spt_dec/" + spt_path.filename().wstring());
 			}
 		}
 		break;
@@ -59,4 +59,14 @@ int wmain(int argc, wchar_t* argv[])
 	{
 		std::cerr << err.what() << std::endl;
 	}
+}
+
+static void DebugMain()
+{
+
+}
+
+int wmain(int argc, wchar_t* argv[])
+{
+	UserMain(argc, argv);
 }

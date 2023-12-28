@@ -12,16 +12,17 @@ namespace GSD
 		char aFileName[0x38];
 	};
 
-	//struct GSP_HDR
+	//struct GSP_File
 	//{
 	//	uint32_t uiEntryCount;
 	//	GSP_Entry aEntry[uiEntryCount];
+	//  // data..
 	//};
 
-	struct BMZ_HDR
+	struct GSD_BMZ_HDR
 	{
 		uint8_t aSignature[4]; // ZLC3
-		uint32_t uiBMPSize;
+		uint32_t uiDecompressSize; // BMP
 		// zlib compress data
 	};
 

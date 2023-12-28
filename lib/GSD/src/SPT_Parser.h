@@ -48,7 +48,7 @@ namespace GSD::SPT
 
 		void Parse(uint8_t* pData);
 		Rut::RxMem::Auto Dump() const;
-		Rut::RxJson::Value ToJson(size_t nCodePage) const;
+		Rut::RxJson::JValue ToJson(size_t nCodePage) const;
 
 	public:
 		void SetType0Text(const std::string& msText);
@@ -75,7 +75,7 @@ namespace GSD::SPT
 
 		void Parse(uint8_t* pData);
 		Rut::RxMem::Auto Dump() const;
-		Rut::RxJson::Value ToJson(size_t nCodePage) const;
+		Rut::RxJson::JValue ToJson(size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
@@ -92,7 +92,7 @@ namespace GSD::SPT
 
 		void Parse(uint8_t* pData);
 		Rut::RxMem::Auto Dump() const;
-		Rut::RxJson::Value ToJson(size_t nCodePage) const;
+		Rut::RxJson::JValue ToJson(size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
@@ -111,7 +111,7 @@ namespace GSD::SPT
 
 		void Parse(uint8_t* pData);
 		Rut::RxMem::Auto Dump() const;
-		Rut::RxJson::Value ToJson(size_t nCodePage) const;
+		Rut::RxJson::JValue ToJson(size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
@@ -134,7 +134,7 @@ namespace GSD::SPT
 
 		void Parse(uint8_t* pData);
 		Rut::RxMem::Auto Dump() const;
-		Rut::RxJson::Value ToJson(size_t nCodePage) const;
+		Rut::RxJson::JValue ToJson(size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
@@ -151,7 +151,7 @@ namespace GSD::SPT
 
 		void Parse(uint8_t* pData);
 		Rut::RxMem::Auto Dump() const;
-		Rut::RxJson::Value ToJson(size_t nCodePage) const;
+		Rut::RxJson::JValue ToJson(size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
@@ -170,7 +170,7 @@ namespace GSD::SPT
 
 		void Parse(uint8_t* pData);
 		Rut::RxMem::Auto Dump() const;
-		Rut::RxJson::Value ToJson(size_t nCodePage) const;
+		Rut::RxJson::JValue ToJson(size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
@@ -189,7 +189,7 @@ namespace GSD::SPT
 
 		void Parse(uint8_t* pInfo);
 		Rut::RxMem::Auto Dump() const;
-		Rut::RxJson::Value ToJson(size_t nCodePage) const;
+		Rut::RxJson::JValue ToJson(size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
@@ -212,7 +212,7 @@ namespace GSD::SPT
 
 		void Parse(uint8_t* pData);
 		Rut::RxMem::Auto Dump() const;
-		Rut::RxJson::Value ToJson(size_t nCodePage) const;
+		Rut::RxJson::JValue ToJson(size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
@@ -242,7 +242,7 @@ namespace GSD::SPT
 
 		void Parse(uint8_t* pData);
 		Rut::RxMem::Auto Dump() const;
-		Rut::RxJson::Value ToJson(size_t nCodePage) const;
+		Rut::RxJson::JValue ToJson(size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
@@ -263,7 +263,7 @@ namespace GSD::SPT
 		void Parse(std::wstring_view wsPath);
 		void Parse(uint8_t* pData);
 		Rut::RxMem::Auto Dump() const;
-		Rut::RxJson::Value ToJson(size_t nCodePage) const;
+		Rut::RxJson::JValue ToJson(size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;

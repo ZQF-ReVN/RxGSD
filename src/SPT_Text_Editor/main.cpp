@@ -1,13 +1,21 @@
 ﻿#include <iostream>
-#include <format>
+#include <filesystem>
 
 #include "../../lib/GSD/SPT.h"
 #include "../../lib/Rut/RxStr.h"
-#include "../../lib/Rut/RxPath.h"
 #include "../../lib/Rut/RxConsole.h"
 
 
-bool ExportText(const std::wstring_view wsScriptPath, const std::wstring_view wsJsonPath, size_t nCodePage)
+static void FindCodeWithText(GSD::SPT::Parser& rfParser, std::vector<std::vector<GSD::SPT::Code>::iterator>& vcIterator_Ret)
+{
+	std::vector<GSD::SPT::Code>& code_list = rfParser.GetCodeList();
+	for (auto ite = code_list.begin(); ite != code_list.end(); ite++)
+	{
+		if (ite->GetParamType0().GetType0TextLen()) { vcIterator_Ret.push_back(ite); }
+	}
+}
+
+static bool ExportText(const std::wstring_view wsScriptPath, const std::wstring_view wsJsonPath, size_t nCodePage)
 {
 	// Parse SPT Script
 	GSD::SPT::Parser spt_parser;
@@ -15,31 +23,18 @@ bool ExportText(const std::wstring_view wsScriptPath, const std::wstring_view ws
 
 	// Find Code With Text 
 	std::vector<std::vector<GSD::SPT::Code>::iterator> code_with_text_list;
+	::FindCodeWithText(spt_parser, code_with_text_list);
+	if (code_with_text_list.empty())
 	{
-		std::vector<GSD::SPT::Code>& code_list = spt_parser.GetCodeList();
-
-		for (auto ite = code_list.begin(); ite != code_list.end(); ite++)
-		{
-			const GSD::SPT::Code_Parameter_Type0& type0 = ite->GetParamType0();
-			if (type0.GetType0TextLen())
-			{
-				code_with_text_list.push_back(ite);
-			}
-		}
-
-		if (code_with_text_list.empty())
-		{
-			Rut::RxConsole::Put(std::format(L"Not Find Text:{}\n", wsScriptPath));
-			return false;
-		}
+		Rut::RxConsole::PutFormat(L"Not Find Text: %s\n", wsScriptPath);
+		return false;
 	}
 
 	// Append Text To Json
-	Rut::RxJson::Value json;
+	Rut::RxJson::JValue json;
 	for (auto& ite : code_with_text_list)
 	{
-		std::string text = ite->GetParamType0().GetType0Text();
-		json.Append(Rut::RxStr::ToWCS(text, nCodePage));
+		json.Append(Rut::RxStr::ToWCS(ite->GetParamType0().GetType0Text(), nCodePage));
 	}
 
 	// Save Json
@@ -48,7 +43,7 @@ bool ExportText(const std::wstring_view wsScriptPath, const std::wstring_view ws
 	return true;
 }
 
-bool ImportText(const std::wstring_view wsScriptPath, const std::wstring_view wsJsonPath, const std::wstring_view wsScriptNewPath, size_t nCodePage)
+static bool ImportText(const std::wstring_view wsScriptPath, const std::wstring_view wsJsonPath, const std::wstring_view wsScriptNewPath, size_t nCodePage)
 {
 	// Parse SPT Script
 	GSD::SPT::Parser spt_parser;
@@ -56,39 +51,28 @@ bool ImportText(const std::wstring_view wsScriptPath, const std::wstring_view ws
 
 	// Find Code With Text
 	std::vector<std::vector<GSD::SPT::Code>::iterator> code_with_text_list;
+	::FindCodeWithText(spt_parser, code_with_text_list);
+	if (code_with_text_list.empty())
 	{
-		std::vector<GSD::SPT::Code>& code_list = spt_parser.GetCodeList();
-
-		for (auto ite = code_list.begin(); ite != code_list.end(); ite++)
-		{
-			if (ite->GetParamType0().GetType0TextLen())
-			{
-				code_with_text_list.push_back(ite);
-			}
-		}
-
-		if (code_with_text_list.empty())
-		{
-			Rut::RxConsole::Put(std::format(L"Not Find Text: {}\n", wsScriptPath));
-			return false;
-		}
+		Rut::RxConsole::PutFormat(L"Not Find Text: %s\n", wsScriptPath);
+		return false;
 	}
 
 	// Parse Text Json
-	Rut::RxJson::Value msg_json;
+	Rut::RxJson::JValue msg_json;
 	Rut::RxJson::Parser{}.Load(wsJsonPath, msg_json);
 	Rut::RxJson::JArray& msg_list = msg_json.ToAry();
 
 	if (code_with_text_list.size() != msg_list.size())
 	{
-		Rut::RxConsole::Put(std::format(L"Text Count Mismatch: {}\n", wsJsonPath));
+		Rut::RxConsole::PutFormat(L"Text Count Mismatch: %s\n", wsJsonPath);
 		return false;
 	}
 
 	// Import Text
 	for (size_t ite = 0; ite < msg_list.size(); ite++)
 	{
-		const std::wstring_view text_w = msg_list[ite].ToStringView();
+		const std::wstring_view text_w = msg_list[ite];
 		std::string text = Rut::RxStr::ToMBCS(text_w, nCodePage);
 		code_with_text_list[ite]->GetParamType0().SetType0Text(text);
 	}
@@ -99,7 +83,8 @@ bool ImportText(const std::wstring_view wsScriptPath, const std::wstring_view ws
 	return true;
 }
 
-int wmain(int argc, wchar_t* argv[])
+
+static void UserMain(int argc, wchar_t* argv[])
 {
 	try
 	{
@@ -107,17 +92,16 @@ int wmain(int argc, wchar_t* argv[])
 		{
 		case 2:
 		{
-			std::wstring spt_folder = argv[1];
-			if (spt_folder.back() != L'/') { spt_folder.append(1, L'/'); }
+			std::filesystem::create_directory(L"spt_json/");
 
-			Rut::RxPath::MakeDir(L"spt_json/");
-
-			std::vector<std::wstring> file_list;
-			Rut::RxPath::CurFileNames(spt_folder, file_list, false);
-			for (std::wstring& file_name : file_list)
+			for (auto& entry : std::filesystem::directory_iterator(argv[1]))
 			{
-				if (file_name.find(L".spt") == std::wstring::npos) { continue; }
-				ExportText(spt_folder + file_name, L"spt_json/" + file_name + L".json", 932);
+				if (entry.is_regular_file() == false) { continue; }
+				if (entry.path().extension() != L".spt") { continue; }
+
+				const std::filesystem::path& sdt_path = entry.path();
+				const std::filesystem::path& json_path = L"spt_json" / entry.path().filename().replace_extension(L".json");
+				ExportText(sdt_path.wstring(), json_path.wstring(), 932);
 			}
 
 			system("pause");
@@ -131,7 +115,7 @@ int wmain(int argc, wchar_t* argv[])
 			std::wstring_view spt_path = argv[2];
 			std::wstring_view json_path = argv[3];
 			size_t code_page = _wtoi(argv[4]);
-			ExportText(spt_path, json_path, code_page) ? (std::cout << "Success\n") : (std::cout << "Failed\n");
+			ExportText(spt_path, json_path, code_page) ? (Rut::RxConsole::Put(L"Success\n")) : (Rut::RxConsole::Put("Failed\n"));
 		}
 		break;
 
@@ -143,19 +127,18 @@ int wmain(int argc, wchar_t* argv[])
 			std::wstring_view json_path = argv[3];
 			std::wstring_view spt_new_path = argv[4];
 			size_t code_page = _wtoi(argv[5]);
-			ImportText(spt_path, json_path, spt_new_path, code_page) ? (std::cout << "Success\n") : (std::cout << "Failed\n");
+			ImportText(spt_path, json_path, spt_new_path, code_page) ? (Rut::RxConsole::Put(L"Success\n")) : (Rut::RxConsole::Put("Failed\n"));
 		}
 		break;
 
 		default:
 		{
-			std::cout
-				<< "Command:\n"
-				<< "\tSPT_Text_Editor.exe e [spt_path] [json_path] [codepage]\n"
-				<< "\tSPT_Text_Editor.exe i [spt_path] [json_path] [spt_new_path] [codepage]\n"
-				<< "Example:\n"
-				<< "\tSPT_Text_Editor.exe e 0scene_pro001.spt 0scene_pro001.spt.json 932\n"
-				<< "\tSPT_Text_Editor.exe i 0scene_pro001.spt 0scene_pro001.spt.json 0scene_pro001.spt.new 936\n\n";
+			Rut::RxConsole::Put(L"Command:\n");
+			Rut::RxConsole::Put(L"\tSPT_Text_Editor.exe e [spt_path] [json_path] [codepage]\n");
+			Rut::RxConsole::Put(L"\tSPT_Text_Editor.exe i [spt_path] [json_path] [spt_new_path] [codepage]\n");
+			Rut::RxConsole::Put(L"Example:\n");
+			Rut::RxConsole::Put(L"\tSPT_Text_Editor.exe e 0scene_pro001.spt 0scene_pro001.spt.json 932\n");
+			Rut::RxConsole::Put(L"\tSPT_Text_Editor.exe i 0scene_pro001.spt 0scene_pro001.spt.json 0scene_pro001.spt.new 936\n\n");
 		}
 		}
 
@@ -164,4 +147,23 @@ int wmain(int argc, wchar_t* argv[])
 	{
 		std::cerr << err.what() << std::endl;
 	}
+}
+
+static void DebugMain()
+{
+	for (auto& entry : std::filesystem::directory_iterator(L"spt_dec/"))
+	{
+		if (entry.is_regular_file() == false) { continue; }
+		if (entry.path().extension() != L".spt") { continue; }
+		const std::filesystem::path& sdt_path = entry.path();
+		const std::filesystem::path& sdt_new_path = L"spt_new" / entry.path().filename();
+		const std::filesystem::path& json_path = L"spt_json" / entry.path().filename().replace_extension(L".json");
+		ImportText(sdt_path.wstring(), json_path.wstring(), sdt_new_path.wstring(), 932);
+	}
+}
+
+
+int wmain(int argc, wchar_t* argv[])
+{
+	UserMain(argc, argv);
 }

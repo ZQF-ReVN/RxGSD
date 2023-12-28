@@ -1,8 +1,9 @@
 #include "GSP_Editor.h"
-#include "../../Rut/RxStr.h"
 #include "../../Rut/RxMem.h"
-#include "../../Rut/RxPath.h"
+#include "../../Rut/RxStr.h"
 #include "../../Rut/RxFile.h"
+
+#include <filesystem>
 
 
 namespace GSD
@@ -35,17 +36,27 @@ namespace GSD
 		// Gen Index
 		std::vector<GSP_Entry> entry_list;
 		{
-			std::vector<std::wstring> file_list;
-			Rut::RxPath::CurFileNames(wsFolderPath, file_list, false);
-			if (file_list.empty()) { throw std::runtime_error("GSP::Pack Not Files"); }
-
-			uint32_t foa = (uint32_t)(4 + file_list.size() * sizeof(GSP_Entry));
-			for (auto& file_name : file_list)
+			size_t file_count = 0;
+			for (auto& entry : std::filesystem::directory_iterator(wsFolderPath))
 			{
+				if (entry.is_regular_file() == false) { continue; }
+				file_count++;
+			}
+
+			if (file_count) { throw std::runtime_error("GSP::Pack Not Files"); }
+
+			uint32_t foa = (uint32_t)(4 + file_count * sizeof(GSP_Entry)); //skip hdr
+
+			for (auto& entry : std::filesystem::directory_iterator(wsFolderPath))
+			{
+				if (entry.is_regular_file() == false) { continue; }
+
+				const std::filesystem::path& file_path = entry.path();
+
 				GSP_Entry entry = { 0 };
-				entry.uiSize = (uint32_t)Rut::RxPath::GetFileSize(wsFolderPath + file_name);
+				entry.uiSize = (uint32_t)std::filesystem::file_size(file_path);
 				entry.uiFOA = foa;
-				std::string file_name_dbcs = Rut::RxStr::ToMBCS(file_name, 932);
+				std::string file_name_dbcs = Rut::RxStr::ToMBCS(file_path.filename().wstring(), 932);
 				memcpy(entry.aFileName, file_name_dbcs.data(), file_name_dbcs.size() + 1);
 
 				entry_list.push_back(entry);
@@ -57,20 +68,21 @@ namespace GSD
 		Rut::RxFile::Binary ofs{ wsPackPath, Rut::RIO_WRITE };
 
 		// Write File Count
-		uint32_t file_count = (uint32_t)entry_list.size();
-		ofs.Write(&file_count, 4);
+		uint32_t entry_count = (uint32_t)entry_list.size();
+		ofs << entry_count;
 
 		// Write Index
 		for (auto& entry : entry_list)
 		{
-			ofs.Write(&entry, sizeof(entry));
+			ofs << entry;
 		}
 
 		// Write Data
+		Rut::RxMem::Auto file_buffer;
 		for (auto& entry : entry_list)
 		{
-			Rut::RxMem::Auto file_data(wsFolderPath + Rut::RxStr::ToWCS(entry.aFileName, 932));
-			ofs.Write(file_data.GetPtr(), file_data.GetSize());
+			file_buffer.LoadFile(wsFolderPath + Rut::RxStr::ToWCS(entry.aFileName, 932));
+			ofs.Write(file_buffer.GetPtr(), file_buffer.GetSize());
 		}
 	}
 }

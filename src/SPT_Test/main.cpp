@@ -1,36 +1,36 @@
 ﻿#include <iostream>
+#include <format>
+#include <filesystem>
 
 #include "../../lib/GSD/SPT.h"
-#include "../../lib/Rut/RxPath.h"
 #include "../../lib/Rut/RxFile.h"
 #include "../../lib/Rut/RxMem.h"
 #include "../../lib/Rut/RxJson.h"
 #include "../../lib/Rut/RxBench.h"
-#include <format>
+
 
 int main()
 {
-	//Rut::RxMem::Auto spt{ L"data_dec/0scene_pro003_h.spt" };
-	//GSD::SPT::Parser parser;
-	//parser.Parse(spt.GetPtr());
 	try
 	{
-		Rut::RxPath::MakeDir(L"spt_json/");
-		Rut::RxPath::MakeDir(L"spt_dump/");
+		std::filesystem::create_directory(L"spt_json/");
+		std::filesystem::create_directory(L"spt_dump/");
 
-		std::vector<std::wstring> file_list;
-		Rut::RxPath::CurFileNames(L"spt_dec/", file_list, false);
-		for (auto& file_name : file_list)
+		for (auto& entry : std::filesystem::directory_iterator(L"spt/"))
 		{
-			std::wcout << L"Parser: " << file_name << L"  ";
+			if (entry.is_regular_file() == false) { continue; }
+			if (entry.path().extension() != L".spt") { continue; }
+
+			const std::filesystem::path& sdt_path = entry.path();
+			std::wcout << L"Parser: " << sdt_path.wstring() << L"  ";
 			{
-				Rut::RxMem::Auto spt{ L"spt_dec/" + file_name };
+				Rut::RxMem::Auto spt{ L"spt_dec/" + sdt_path.wstring() };
 				GSD::SPT::Parser parser;
 				parser.Parse(spt.GetPtr());
-				parser.Dump().SaveData(L"spt_dump/" + file_name);
+				parser.Dump().SaveData(L"spt_dump/" + sdt_path.wstring());
 				GSD::SPT::CheckDumpDataMatched(spt.GetPtr(), parser);
 				auto json = parser.ToJson(932);
-				Rut::RxJson::Parser::Save(json, L"spt_json/" + file_name + L".json", true, true);
+				Rut::RxJson::Parser::Save(json, L"spt_json/" + sdt_path.wstring() + L".json", true, true);
 			}
 			std::wcout << L"OK" << L'\n';
 		}
@@ -39,13 +39,4 @@ int main()
 	{
 		std::cerr << err.what() << std::endl;
 	}
-
-
-	//std::vector<std::wstring> file_list;
-	//Rut::RxPath::CurFileNames(L"data_dec/", file_list, false);
-	//for (auto& file_name : file_list)
-	//{
-	//	GSD::SPT::Text_Editor editor{ L"data_dec/" + file_name };
-	//	editor.Extract(L"data_json/" + file_name + L".json", 932);
-	//}
 }

@@ -3,6 +3,7 @@
 #include <sstream>
 #include <functional>
 
+#include "RxMem.h"
 
 namespace Rut
 {
@@ -44,7 +45,7 @@ namespace Rut::RxFile
 
 		size_t GetPos();
 		size_t GetSize();
-		size_t SetPos(size_t nOffset, size_t nMode);
+		size_t SetPos(size_t nOffset, size_t nMode = RIO_BEGIN);
 		size_t Read(void* pBuffer, size_t nSize);
 		size_t Write(void* pData, size_t nSize);
 
@@ -53,9 +54,6 @@ namespace Rut::RxFile
 
 namespace Rut::RxFile
 {
-	void SaveFileViaPath(std::wstring_view wsPath, void* pData, size_t nBytes);
-	void SaveFileViaPath(std::string_view msPath, void* pData, size_t nBytes);
-
 	class Binary : public Basic
 	{
 	public:
@@ -65,26 +63,40 @@ namespace Rut::RxFile
 		Binary(const Binary& refStream) = delete;
 
 	public:
-		template <typename T_TYPE> operator T_TYPE()
+		template <typename TYPE_T> operator TYPE_T()
 		{
-			T_TYPE tmp{ 0 };
-			this->Read((T_TYPE*)&tmp, sizeof(T_TYPE));
+			TYPE_T tmp{ 0 };
+			this->Read((TYPE_T*)&tmp, sizeof(TYPE_T));
 			return tmp;
 		}
 
-		template <typename T_TYPE> Binary& operator >>(T_TYPE& TYPE)
+		template <typename TYPE_T> Binary& operator >>(TYPE_T& TYPE)
 		{
 			this->Read((void*)&TYPE, sizeof(TYPE));
 			return *this;
 		}
 
-		template <typename T_TYPE> Binary& operator <<(T_TYPE& TPYE)
+		template <typename TYPE_T> Binary& operator <<(TYPE_T& TPYE)
 		{
 			this->Write((void*)&TPYE, sizeof(TPYE));
 			return *this;
 		}
+
+		template <> Binary& operator << (RxMem::Auto& amMem)
+		{
+			this->Write(amMem.GetPtr(), amMem.GetSize());
+			return *this;
+		}
+
+		template <> Binary& operator >> (RxMem::Auto& amMem)
+		{
+			this->Read(amMem.GetPtr(), amMem.GetSize());
+			return *this;
+		}
 	};
 
+	void SaveFileViaPath(std::wstring_view wsPath, void* pData, size_t nBytes);
+	void SaveFileViaPath(std::string_view msPath, void* pData, size_t nBytes);
 }
 
 

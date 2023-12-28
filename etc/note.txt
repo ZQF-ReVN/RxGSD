@@ -92,11 +92,34 @@ struct GSD_Script_Decoder
 	GSD_Script_Decoder_One[16];
 };
 
-struct BMZ
+struct GSD_ANIM_Entry
+{
+	uin8_t aUn[0x58];
+};
+
+struct GSD_ANIM_HDR
+{
+	char aSignature[0x8]; // "ANIMV450"
+	uint32_t uiEntryCount;
+	uint32_t uiWidth;
+	uint32_	 uiHeigh;
+};
+
+struct GSD_ANIM
+{
+	GSD_ANIM_Entry EntryList[HDR.uiEntryCount];
+	GSD_ANIM_HDR HDR;
+}
+
+struct GSD_BMZ
 {
   uint8_t aSignature[4]; // ZLC3
-  uint32_t uiBMPSize;
+  uint32_t uiDecompressSize;
   // zlib compress data
+  if(BMZ_Size - 0x8 == "ANIMV450")
+  {
+	GSD_ANIM ANIM
+  }
 };
 
 

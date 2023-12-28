@@ -5,7 +5,7 @@
 
 namespace Rut::RxMem
 {
-	constexpr size_t AutoMem_AutoSize = -1;
+	constexpr size_t AUTO_MEM_AUTO_SIZE = -1;
 
 	class Auto
 	{
@@ -16,31 +16,32 @@ namespace Rut::RxMem
 
 	public:
 		Auto();
+		Auto(std::initializer_list<Auto> lsOBJ);
+		Auto(size_t nSize);
 		Auto(const Auto& buffer);
 		Auto(Auto&& buffer) noexcept;
-		Auto(std::string_view msPath);
-		Auto(std::wstring_view wsPath);
-		Auto(std::string_view msPath, size_t szFile);
-		Auto(std::wstring_view wsPath, size_t szFile);
+		Auto(const std::string_view msPath, size_t szFile = AUTO_MEM_AUTO_SIZE);
+		Auto(const std::wstring_view wsPath, size_t szFile = AUTO_MEM_AUTO_SIZE);
 		~Auto();
 
 		Auto& Copy(const Auto& buffer);
-		Auto& Move(Auto& buffer);
-		Auto& Append(Auto& rfAutoMem);
+		Auto& Move(Auto&& buffer) noexcept;
+		Auto& Append(const Auto& rfMem);
 
-		Auto& operator[] (size_t tSize);
+		uint8_t operator[] (size_t tSize) noexcept;
 		Auto& operator=(Auto&& rfAutoMem) noexcept;
 		Auto& operator=(const Auto& rfAutoMem);
+		Auto& operator+(const Auto& rfAutoMem);
 
 	public:
-		void SaveData(std::string_view msPath);
-		void SaveData(std::wstring_view wsPath);
-		uint8_t* LoadFile(std::string_view msPath, size_t nSize = AutoMem_AutoSize);
-		uint8_t* LoadFile(std::wstring_view wsPath, size_t nSize = AutoMem_AutoSize);
+		void SaveData(const std::string_view msPath);
+		void SaveData(const std::wstring_view wsPath);
+		void LoadFile(const std::string_view msPath, size_t nSize = AUTO_MEM_AUTO_SIZE);
+		void LoadFile(const std::wstring_view wsPath, size_t nSize = AUTO_MEM_AUTO_SIZE);
 
 	public:
-		size_t GetSize() const;
-		uint8_t* GetPtr();
-		uint8_t* SetSize(size_t uiNewSize, bool isCopy = false);
+		uint8_t* GetPtr() const noexcept;
+		constexpr size_t GetSize() const noexcept;
+		void SetSize(size_t uiNewSize, bool isCopy = false);
 	};
 }

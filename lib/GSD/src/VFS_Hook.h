@@ -2,8 +2,12 @@
 #include <cstdint>
 
 
-namespace GSD::VFS
+namespace GSD::VFS::T0
 {
-	void SetHookType0(size_t fnLoadFileViaPack, size_t fnLoadFileViaDir, size_t fnStrCtor);
-	void SetHookType1(size_t fnLoadFileViaPack, size_t fnLoadFileViaDir, size_t fnStrCtor);
+	void SetHook(size_t fnLoadFileViaPack, size_t fnLoadFileViaDir, size_t fnStrCtor);
+}
+
+namespace GSD::VFS::T1
+{
+	void SetHook(size_t fnLoadFileViaPack, size_t fnLoadFileViaDir, size_t fnStrCtor);
 }

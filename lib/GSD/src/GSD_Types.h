@@ -26,8 +26,28 @@ namespace GSD
 		// zlib compress data
 	};
 
-	struct GSD_STD_String
+	// version 3.0.2.9
+	struct GSD_STD_String_T0
 	{
+		union
+		{
+			char* cpStr;
+			char aStr[16];
+		};
+		uint32_t uiLen;
+		uint32_t uiReserve;
+		uint32_t uiAlig;
+
+		char* GetRawStr()
+		{
+			return this->uiLen >= 16 ? this->cpStr : this->aStr;
+		}
+	};
+
+	// version 3.0.1.8
+	struct GSD_STD_String_T1
+	{
+		uint32_t uiAlig;
 		union
 		{
 			char* cpStr;
@@ -119,12 +139,13 @@ namespace GSD
 	};
 
 
-	typedef GSD_STD_String* (__thiscall* Fn_GSD_STD_Str_Ctor_T0)(GSD_STD_String* This, char* pStr);
-	typedef bool(__thiscall* Fn_FS_LoadFileViaDir)(GSD_FS* This, GSD_STD_String msFileName, uint32_t uiStrPx, uint32_t uiZLC3Flag);
-
 	// version 3.0.2.9
-	typedef bool(__thiscall* Fn_FS_LoadFileViaPack_Type0)(GSD_FS* This, GSD_STD_String msPackName, uint32_t uiStrAp0, GSD_STD_String msFileName, uint32_t uiStrAp1, uint32_t uiZLC3Flag);
+	typedef GSD_STD_String_T0* (__thiscall* Fn_GSD_STD_Str_Ctor_T0)(GSD_STD_String_T0* This, char* pStr);
+	typedef bool(__thiscall* Fn_FS_LoadFileViaDir_T0)(GSD_FS* This, GSD_STD_String_T0 msFileName, uint32_t uiZLC3Flag);
+	typedef bool(__thiscall* Fn_FS_LoadFileViaPack_T0)(GSD_FS* This, GSD_STD_String_T0 msPackName, GSD_STD_String_T0 msFileName, uint8_t uiZLC3Flag);
 
 	// version 3.0.1.8
-	typedef bool(__thiscall* Fn_FS_LoadFileViaPack_Type1)(GSD_FS* This, uint32_t uiStrAp0, GSD_STD_String msPackName, uint32_t uiStrAp1, GSD_STD_String msFileName, uint32_t uiZLC3Flag);
+	typedef GSD_STD_String_T1* (__thiscall* Fn_GSD_STD_Str_Ctor_T1)(GSD_STD_String_T1* This, char* pStr);
+	typedef bool(__thiscall* Fn_FS_LoadFileViaDir_T1)(GSD_FS* This, GSD_STD_String_T1 msFileName, uint32_t uiZLC3Flag);
+	typedef bool(__thiscall* Fn_FS_LoadFileViaPack_T1)(GSD_FS* This, GSD_STD_String_T1 msPackName, GSD_STD_String_T1 msFileName, uint8_t uiZLC3Flag);
 }

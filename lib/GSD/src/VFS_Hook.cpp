@@ -1,7 +1,7 @@
 #include "VFS_Hook.h"
 #include "GSD_Types.h"
 
-#include "../../Rut/RxConsole.h"
+#include "../../Rut/RxCmd.h"
 #include "../../RxHook/RxHook.h"
 
 namespace GSD::VFS

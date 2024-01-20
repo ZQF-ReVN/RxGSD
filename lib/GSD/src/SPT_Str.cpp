@@ -1,6 +1,6 @@
 #include "SPT_Str.h"
 #include "../../Rut/RxStr.h"
-#include "../../Rut/RxConsole.h"
+#include "../../Rut/RxCmd.h"
 
 #include <stdexcept>
 
@@ -116,7 +116,7 @@ namespace GSD::SPT
 
 				default:
 				{
-					Rut::RxConsole::PutFormat(L"\n\tParseSptText: Missing control character[Type:0x%08x, Param0:0x%08x, Param1:0x%08x]\n", char_entry.uiType, char_entry.uiParam0, char_entry.uiParan1);
+					Rut::RxCmd::PutFormat(L"\n\tParseSptText: Missing control character[Type:0x%08x, Param0:0x%08x, Param1:0x%08x]\n", char_entry.uiType, char_entry.uiParam0, char_entry.uiParan1);
 				}
 				}
 			}

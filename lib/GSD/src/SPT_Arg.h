@@ -12,8 +12,8 @@ namespace GSD::SPT
 	class Arg_Type0
 	{
 	private:
-		uint32_t m_uiUn0 = 0;
-		uint32_t m_uiUn1 = 0;
+		uint32_t m_uiNameSeq0 = 0;
+		uint32_t m_uiNameSeq1 = 0;
 		uint32_t m_uiUn2 = 0;
 		uint32_t m_uiUn3 = 0;
 		uint32_t m_uiStrType0Len = 0; // dbcs char count
@@ -35,6 +35,8 @@ namespace GSD::SPT
 		void SetType0Text(const std::string& msText);
 		size_t GetType0TextLen()const;
 		std::string GetType0Text() const;
+		std::wstring GetType0Text(size_t nCodePage) const;
+		size_t GetNameSeq() const;
 		size_t GetSize() const;
 	};
 

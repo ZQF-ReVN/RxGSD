@@ -43,7 +43,7 @@ namespace Rut::RxJson
 		m_Value.StrPtr = new JString(sValue);
 	}
 
-	JValue::JValue(std::wstring&& sValue) : m_Type(JVALUE_STR)
+	JValue::JValue(std::wstring&& sValue) noexcept: m_Type(JVALUE_STR)
 	{
 		m_Value.StrPtr = new JString(std::move(sValue));
 	}
@@ -53,7 +53,7 @@ namespace Rut::RxJson
 		m_Value.AryPtr = new JArray(aValue);
 	}
 
-	JValue::JValue(JArray&& aValue) : m_Type(JVALUE_ARY)
+	JValue::JValue(JArray&& aValue) noexcept: m_Type(JVALUE_ARY)
 	{
 		m_Value.AryPtr = new JArray(std::move(aValue));
 	}
@@ -63,7 +63,7 @@ namespace Rut::RxJson
 		m_Value.ObjPtr = new JObject(oValue);
 	}
 
-	JValue::JValue(JObject&& oValue) : m_Type(JVALUE_OBJ)
+	JValue::JValue(JObject&& oValue) noexcept: m_Type(JVALUE_OBJ)
 	{
 		m_Value.ObjPtr = new JObject(std::move(oValue));
 	}
@@ -82,9 +82,9 @@ namespace Rut::RxJson
 	{
 		switch (m_Type)
 		{
-		case Value_Type_T::JVALUE_STR: { delete m_Value.StrPtr; }break;
-		case Value_Type_T::JVALUE_ARY: { delete m_Value.AryPtr; }break;
-		case Value_Type_T::JVALUE_OBJ: { delete m_Value.ObjPtr; }break;
+		case JValueType::JVALUE_STR: { delete m_Value.StrPtr; }break;
+		case JValueType::JVALUE_ARY: { delete m_Value.AryPtr; }break;
+		case JValueType::JVALUE_OBJ: { delete m_Value.ObjPtr; }break;
 		}
 	}
 
@@ -96,15 +96,15 @@ namespace Rut::RxJson
 
 		switch (m_Type)
 		{
-		case Value_Type_T::JVALUE_STR: this->m_Value.StrPtr = new JString(*(rfJValue.m_Value.StrPtr)); break;
-		case Value_Type_T::JVALUE_ARY: this->m_Value.AryPtr = new JArray(*(rfJValue.m_Value.AryPtr)); break;
-		case Value_Type_T::JVALUE_OBJ: this->m_Value.ObjPtr = new JObject(*(rfJValue.m_Value.ObjPtr)); break;
+		case JValueType::JVALUE_STR: this->m_Value.StrPtr = new JString(*(rfJValue.m_Value.StrPtr)); break;
+		case JValueType::JVALUE_ARY: this->m_Value.AryPtr = new JArray(*(rfJValue.m_Value.AryPtr)); break;
+		case JValueType::JVALUE_OBJ: this->m_Value.ObjPtr = new JObject(*(rfJValue.m_Value.ObjPtr)); break;
 		}
 
 		return *this;
 	}
 
-	JValue& JValue::Move(JValue& rfJValue)
+	JValue& JValue::Move(JValue& rfJValue) noexcept
 	{
 		this->m_Type = rfJValue.m_Type;
 		this->m_Value = rfJValue.m_Value;
@@ -212,29 +212,24 @@ namespace Rut::RxJson
 		return (*itObj).second;
 	}
 
-	Value_Type_T JValue::GetType() const noexcept
+	JValueType JValue::GetType() const noexcept
 	{
 		return m_Type;
 	}
 
-	JValue::operator bool() const
-	{
-		if (m_Type == JVALUE_BOL) { return m_Value.Bool; }
-		throw std::runtime_error("Error Json Type!");
-	}
-
-	JValue::operator size_t() const
-	{
-		return (size_t)this->operator int();
-	}
-
-	JValue::operator int() const
+	JValue::operator JInt() const
 	{
 		if (m_Type == JVALUE_INT) { return m_Value.Int; }
 		throw std::runtime_error("Error Json Type!");
 	}
 
-	JValue::operator double() const
+	JValue::operator JBool() const
+	{
+		if (m_Type == JVALUE_BOL) { return m_Value.Bool; }
+		throw std::runtime_error("Error Json Type!");
+	}
+
+	JValue::operator JDouble() const
 	{
 		if (m_Type == JVALUE_DBL) { return m_Value.Double; }
 		throw std::runtime_error("Error Json Type!");
@@ -258,6 +253,11 @@ namespace Rut::RxJson
 		throw std::runtime_error("Error Json Type!");
 	}
 
+	JValue::operator size_t() const
+	{
+		return (size_t)this->operator JInt();
+	}
+
 	JValue::operator std::wstring_view() const
 	{
 		return this->operator JString & ();
@@ -278,17 +278,17 @@ namespace Rut::RxJson
 
 	int JValue::ToInt() const
 	{
-		return this->operator int();
+		return this->operator JInt();
 	}
 
 	bool JValue::ToBool() const
 	{
-		return this->operator bool();
+		return this->operator JBool();
 	}
 
 	double JValue::ToDouble() const
 	{
-		return this->operator double();
+		return this->operator JDouble();
 	}
 
 	const wchar_t* JValue::ToStrPtr() const
@@ -301,19 +301,18 @@ namespace Rut::RxJson
 		return this->operator std::wstring_view();
 	}
 
-
 	void JValue::Dump(std::wstring& wsText, bool isFormat, bool isOrder) const
 	{
 		static size_t count = 0;
 
 		switch (m_Type)
 		{
-		case Value_Type_T::JVALUE_NUL: { wsText.append(L"null"); } break;
-		case Value_Type_T::JVALUE_BOL: { wsText.append((m_Value.Bool) ? L"true" : L"false"); } break;
-		case Value_Type_T::JVALUE_INT: { wsText.append(std::to_wstring(m_Value.Int)); } break;
-		case Value_Type_T::JVALUE_DBL: { wsText.append(std::to_wstring(m_Value.Double)); } break;
+		case JValueType::JVALUE_NUL: { wsText.append(L"null"); } break;
+		case JValueType::JVALUE_BOL: { wsText.append((m_Value.Bool) ? L"true" : L"false"); } break;
+		case JValueType::JVALUE_INT: { wsText.append(std::to_wstring(m_Value.Int)); } break;
+		case JValueType::JVALUE_DBL: { wsText.append(std::to_wstring(m_Value.Double)); } break;
 
-		case Value_Type_T::JVALUE_STR:
+		case JValueType::JVALUE_STR:
 		{
 			wsText.append(1, L'\"');
 			for (auto ch : *(m_Value.StrPtr))
@@ -341,7 +340,7 @@ namespace Rut::RxJson
 		}
 		break;
 
-		case Value_Type_T::JVALUE_ARY:
+		case JValueType::JVALUE_ARY:
 		{
 			wsText.append(1, L'[');
 
@@ -375,7 +374,7 @@ namespace Rut::RxJson
 		}
 		break;
 
-		case Value_Type_T::JVALUE_OBJ:
+		case JValueType::JVALUE_OBJ:
 		{
 			wsText.append(1, L'{');
 
@@ -453,14 +452,10 @@ namespace Rut::RxJson
 		m_nReadCCH = 0;
 	}
 
-	Parser::Parser(std::wstring_view wsJson) : Parser()
-	{
-		this->Open(wsJson);
-	}
 
-	Parser::Parser(std::wstring_view wsJson, JValue& rfJValue) : Parser(wsJson)
+	Parser::Parser(std::wstring_view wsJson, JValue& rfJValue)
 	{
-		this->Read(rfJValue);
+		this->Load(wsJson, rfJValue);
 	}
 
 	Parser::~Parser()
@@ -726,42 +721,33 @@ namespace Rut::RxJson
 	}
 
 
-	void Parser::Open(std::wstring_view wsJsonPath)
+	JValue Parser::Load(const std::filesystem::path& phJson)
+	{
+		JValue json;
+		this->Load(phJson, json);
+		return json;
+	}
+
+	bool Parser::Load(const std::filesystem::path& phJson, JValue& rfJValue)
 	{
 		std::wstring json_text;
-		RxFile::Text{ wsJsonPath, RIO_READ, RFM_UTF8 }.ReadRawText(json_text);
+		RxFile::Text{ phJson, RIO_READ, RFM_UTF8 }.ReadRawText(json_text);
 
 		this->m_nJsonCCH = json_text.size();
 		this->m_nReadCCH = 0;
 		this->m_uqJson = std::make_unique_for_overwrite<wchar_t[]>(m_nJsonCCH + 1);
 		wcsncpy_s(this->m_uqJson.get(), m_nJsonCCH + 1, json_text.data(), this->m_nJsonCCH);
 		this->m_uqJson[this->m_nJsonCCH] = L'\0';
-	}
 
-	bool Parser::Read(JValue& rfJValue)
-	{
 		this->ParseValue(rfJValue);
 		this->SkipWhite();
 		return (this->GeReadCCH() >= this->GetJsonCCH()) ? (true) : (false);
 	}
 
-	bool Parser::Load(std::wstring_view wsJsonPath, JValue& rfJValue)
-	{
-		this->Open(wsJsonPath);
-		return this->Read(rfJValue);
-	}
-
-	JValue Parser::Load(std::wstring_view wsJsonPath)
-	{
-		JValue json;
-		this->Load(wsJsonPath, json);
-		return json;
-	}
-
-	void Parser::Save(const JValue& rfJVaue, std::wstring_view wsFileName, bool isFormat, bool isOrder)
+	void Parser::Save(const JValue& rfJVaue, const std::filesystem::path& phJson, bool isFormat, bool isOrder)
 	{
 		std::wstring text;
 		rfJVaue.Dump(text, isFormat, isOrder);
-		RxFile::Text{ wsFileName ,RIO_WRITE, RFM_UTF8 }.WriteLine(text);
+		RxFile::Text{ phJson ,RIO_WRITE, RFM_UTF8 }.WriteLine(text);
 	}
 }

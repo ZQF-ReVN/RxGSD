@@ -18,14 +18,14 @@ namespace GSD::SPT
 	}
 
 
-	class Parser
+	class File
 	{
 	private:
 		HDR m_HDR;
 		std::vector<Code> m_vcCode;
 
 	public:
-		Parser();
+		File();
 
 		void Load(std::wstring_view wsPath);
 		void Load(uint8_t* pData);

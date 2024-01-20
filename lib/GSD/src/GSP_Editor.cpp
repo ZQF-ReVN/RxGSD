@@ -14,19 +14,17 @@ namespace GSD
 
 		std::vector<GSP_Entry> entry_list;
 		{
-			uint32_t entry_count = ifs;
+			uint32_t entry_count = ifs.Get<uint32_t>();
 			for (size_t ite_entry = 0; ite_entry < entry_count; ite_entry++)
 			{
-				entry_list.push_back(ifs);
+				entry_list.push_back(ifs.Get<GSP_Entry>());
 			}
 		}
 
 		Rut::RxMem::Auto buffer;
 		for (auto& entry : entry_list)
 		{
-			buffer.SetSize(entry.uiSize);
-			ifs.SetPos(entry.uiFOA, Rut::RIO_BEGIN);
-			ifs.Read(buffer.GetPtr(), entry.uiSize);
+			buffer.ReadData(ifs, entry.uiSize, entry.uiFOA);
 			buffer.SaveData(wsFolderPath + Rut::RxStr::ToWCS(entry.aFileName, 932));
 		}
 	}
@@ -82,7 +80,7 @@ namespace GSD
 		for (auto& entry : entry_list)
 		{
 			file_buffer.LoadFile(wsFolderPath + Rut::RxStr::ToWCS(entry.aFileName, 932));
-			ofs.Write(file_buffer.GetPtr(), file_buffer.GetSize());
+			file_buffer.WriteData(ofs);
 		}
 	}
 }

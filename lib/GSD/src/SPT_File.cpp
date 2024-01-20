@@ -1,20 +1,20 @@
-#include "SPT_Parser.h"
+#include "SPT_File.h"
 
 
 namespace GSD::SPT
 {
-	Parser::Parser()
+	File::File()
 	{
 
 	}
 
-	void Parser::Load(std::wstring_view wsPath)
+	void File::Load(std::wstring_view wsPath)
 	{
 		Rut::RxMem::Auto spt{ wsPath };
 		this->Load(spt.GetPtr());
 	}
 
-	void Parser::Load(uint8_t* pData)
+	void File::Load(uint8_t* pData)
 	{
 		uint8_t* cur_ptr = pData;
 
@@ -31,7 +31,7 @@ namespace GSD::SPT
 		}
 	}
 
-	Rut::RxMem::Auto Parser::Make() const
+	Rut::RxMem::Auto File::Make() const
 	{
 		Rut::RxMem::Auto mem_data;
 		mem_data.SetSize(this->GetSize());
@@ -51,7 +51,7 @@ namespace GSD::SPT
 		return mem_data;
 	}
 
-	Rut::RxJson::JValue Parser::Make(size_t nCodePage) const
+	Rut::RxJson::JValue File::Make(size_t nCodePage) const
 	{
 		Rut::RxJson::JValue json;
 		{
@@ -68,12 +68,12 @@ namespace GSD::SPT
 		return json;
 	}
 
-	std::vector<Code>& Parser::GetCodeList()
+	std::vector<Code>& File::GetCodeList()
 	{
 		return m_vcCode;
 	}
 
-	size_t Parser::GetSize() const
+	size_t File::GetSize() const
 	{
 		size_t size = 0;
 		{

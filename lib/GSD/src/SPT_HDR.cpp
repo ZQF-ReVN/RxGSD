@@ -286,6 +286,7 @@ namespace GSD::SPT
 		cur_ptr += m_EncryptorInfo.GetSize();
 
 		m_uiUnCount = *((uint32_t*)(cur_ptr));
+		if (m_uiUnCount != 0) { throw std::runtime_error("SPT_HDR: Unknow Format"); }
 		cur_ptr += 4;
 
 		m_uiScriptNameLen = *(uint32_t*)(cur_ptr);

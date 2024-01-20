@@ -44,14 +44,9 @@ namespace Rut::RxMem
 		this->Move(std::move(buffer));
 	}
 
-	Auto::Auto(const std::string_view msPath, size_t szFile) : Auto()
+	Auto::Auto(const std::filesystem::path& phPath, size_t szFile) : Auto()
 	{
-		this->LoadFile(msPath, szFile);
-	}
-
-	Auto::Auto(const std::wstring_view wsPath, size_t szFile) : Auto()
-	{
-		this->LoadFile(wsPath, szFile);
+		this->LoadFile(phPath, szFile);
 	}
 
 	Auto::~Auto()
@@ -129,41 +124,31 @@ namespace Rut::RxMem
 		return *this;
 	}
 
-	void Auto::SaveData(const std::string_view msPath)
+	uint8_t* Auto::begin() const noexcept
 	{
-		RxFile::SaveFileViaPath(msPath, m_upMemData.get(), m_uiMemSize);
+		return this->GetPtr();
 	}
 
-	void Auto::SaveData(const std::wstring_view wsPath)
+	uint8_t* Auto::end() const noexcept
 	{
-		RxFile::SaveFileViaPath(wsPath, m_upMemData.get(), m_uiMemSize);
+		return this->GetPtr() + this->GetSize();
 	}
 
-	void Auto::LoadFile(const std::string_view msPath, size_t nSize)
+	void Auto::SaveData(const std::filesystem::path& phPath)
 	{
-		RxFile::Binary ifs{ msPath, RIO_READ };
+		RxFile::SaveFileViaPath(phPath, m_upMemData.get(), m_uiMemSize);
+	}
+
+
+	void Auto::LoadFile(const std::filesystem::path& phPath, size_t nSize)
+	{
+		RxFile::Binary ifs{ phPath, RIO_READ };
 		nSize == AUTO_MEM_AUTO_SIZE ? (void)(nSize = ifs.GetSize()) : (void)(0);
 		this->SetSize(nSize);
 		ifs.Read(this->GetPtr(), nSize);
 	}
 
-	void Auto::LoadFile(const std::wstring_view wsPath, size_t nSize)
-	{
-		RxFile::Binary ifs{ wsPath, RIO_READ };
-		nSize == AUTO_MEM_AUTO_SIZE ? (void)(nSize = ifs.GetSize()) : (void)(0);
-		this->SetSize(nSize);
-		ifs.Read(this->GetPtr(), nSize);
-	}
 
-	uint8_t* Auto::GetPtr() const noexcept
-	{
-		return m_upMemData.get();
-	}
-
-	constexpr size_t Auto::GetSize() const noexcept
-	{
-		return m_uiMemSize;
-	}
 
 	void Auto::SetSize(size_t uiNewSize, bool isCopy)
 	{

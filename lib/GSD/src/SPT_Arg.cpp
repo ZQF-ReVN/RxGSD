@@ -17,8 +17,8 @@ namespace GSD::SPT
 
 		{
 			uint32_t* tmp_ptr = (uint32_t*)pData;
-			m_uiUn0 = tmp_ptr[0];
-			m_uiUn1 = tmp_ptr[1];
+			m_uiNameSeq0 = tmp_ptr[0];
+			m_uiNameSeq1 = tmp_ptr[1];
 			m_uiUn2 = tmp_ptr[2];
 			m_uiUn3 = tmp_ptr[3];
 			m_uiStrType0Len = tmp_ptr[4];
@@ -57,8 +57,8 @@ namespace GSD::SPT
 
 		{
 			uint32_t* tmp_ptr = (uint32_t*)cur_prt;
-			tmp_ptr[0] = m_uiUn0;
-			tmp_ptr[1] = m_uiUn1;
+			tmp_ptr[0] = m_uiNameSeq0;
+			tmp_ptr[1] = m_uiNameSeq1;
 			tmp_ptr[2] = m_uiUn2;
 			tmp_ptr[3] = m_uiUn3;
 			tmp_ptr[4] = m_uiStrType0Len;
@@ -94,8 +94,8 @@ namespace GSD::SPT
 	Rut::RxJson::JValue Arg_Type0::Make(size_t nCodePage) const
 	{
 		Rut::RxJson::JValue json;
-		json[L"Un0"] = Str::NumToStr(L"0x%08x", m_uiUn0);
-		json[L"Un1"] = Str::NumToStr(L"0x%08x", m_uiUn1);
+		json[L"NameSeq0"] = Str::NumToStr(L"0x%08x", m_uiNameSeq0);
+		json[L"NameSeq1"] = Str::NumToStr(L"0x%08x", m_uiNameSeq1);
 		json[L"Un2"] = Str::NumToStr(L"0x%08x", m_uiUn2);
 		json[L"Un3"] = Str::NumToStr(L"0x%08x", m_uiUn3);
 		json[L"StrType0Len"] = Str::NumToStr(L"0x%08x", m_uiStrType0Len);
@@ -124,11 +124,21 @@ namespace GSD::SPT
 		return Str::ParseCharTable(m_vcStrType0CharList);
 	}
 
+	std::wstring Arg_Type0::GetType0Text(size_t nCodePage) const
+	{
+		return Str::LoadANSI(this->GetType0Text(), nCodePage);
+	}
+
+	size_t Arg_Type0::GetNameSeq() const
+	{
+		return (size_t)m_uiNameSeq0;
+	}
+
 	size_t Arg_Type0::GetSize() const
 	{
 		size_t size = 0;
 
-		size += sizeof(m_uiUn0) + sizeof(m_uiUn1) + sizeof(m_uiUn2) + sizeof(m_uiUn3);
+		size += sizeof(m_uiNameSeq0) + sizeof(m_uiNameSeq1) + sizeof(m_uiUn2) + sizeof(m_uiUn3);
 		size += sizeof(m_uiStrType0Len) + sizeof(m_uiStrType1Len) + sizeof(m_uiStrType2Len);
 		size += m_vcStrType0CharList.size() * sizeof(SPT_Char_Entry);
 

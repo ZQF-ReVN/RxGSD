@@ -1,5 +1,5 @@
-﻿# Library Name
-set(USER_PROJECT_NAME Rut)
+﻿# Project Name
+project(Rut)
 
 # Cpp Standard
 set(CMAKE_CXX_STANDARD 23)
@@ -21,6 +21,6 @@ list(APPEND SRC_FILE
     "${CMAKE_CURRENT_SOURCE_DIR}/RxStr.cpp" )
 
 # Set Library
-add_library("${USER_PROJECT_NAME}" "${SRC_FILE}")
+add_library("${PROJECT_NAME}" "${SRC_FILE}")
 
 

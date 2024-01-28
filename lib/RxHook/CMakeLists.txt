@@ -1,5 +1,5 @@
-﻿# Library Name
-set(USER_PROJECT_NAME RxHook)
+﻿# Project Name
+project(RxHook)
 
 # Cpp Standard
 set(CMAKE_CXX_STANDARD 20)
@@ -14,13 +14,13 @@ list(APPEND SRC_FILE
 )
 
 # Set Current Library
-add_library("${USER_PROJECT_NAME}" "${SRC_FILE}")
+add_library("${PROJECT_NAME}" "${SRC_FILE}")
 
 # Add Library
 # Detours
 include_directories("${ROOT_DIR}/third/detours/include/")
 if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-    target_link_libraries("${USER_PROJECT_NAME}" PRIVATE "${ROOT_DIR}/third/detours/lib.X86/detours.lib")
+    target_link_libraries("${PROJECT_NAME}" PRIVATE "${ROOT_DIR}/third/detours/lib.X86/detours.lib")
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    target_link_libraries("${USER_PROJECT_NAME}" PRIVATE "${ROOT_DIR}/third/detours/lib.X64/detours.lib")
+    target_link_libraries("${PROJECT_NAME}" PRIVATE "${ROOT_DIR}/third/detours/lib.X64/detours.lib")
 endif()

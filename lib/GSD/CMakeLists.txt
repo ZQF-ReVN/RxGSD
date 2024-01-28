@@ -1,5 +1,5 @@
-﻿# Library Name
-set(USER_PROJECT_NAME GSD)
+﻿# Project
+project(GSD)
 
 # Cpp Standard
 set(CMAKE_CXX_STANDARD 23)
@@ -23,8 +23,8 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 4)
 endif()
 
 # Set Library
-add_library("${USER_PROJECT_NAME}" "${SRC_FILE}")
+add_library("${PROJECT_NAME}" "${SRC_FILE}")
 
 # Add Library
-target_link_libraries("${USER_PROJECT_NAME}" PRIVATE Rut RxHook zlibstatic)
+target_link_libraries("${PROJECT_NAME}" PRIVATE Rut RxHook zlibstatic)
 

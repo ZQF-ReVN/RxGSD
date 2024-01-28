@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.15)
 project(GSD_Tools)
 
 # Option
-set(STATIC_MSVC_RUNTIME OFF)
+option(STATIC_MSVC_RUNTIME "MSVC STATIC Runtime" OFF)
 
 # Value Define
 set(ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}")
@@ -31,6 +31,7 @@ endif()
 if(MSVC)
     # Macro
     add_definitions(-DUNICODE -D_UNICODE)
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/source-charset:utf-8>")
 
     # Runtime
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -49,12 +50,12 @@ if(MSVC)
 
     # Compiler
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        #set(CMAKE_CXX_FLAGS_DEBUG)
+        # set(CMAKE_CXX_FLAGS_DEBUG)
     else()
         add_link_options(/LTCG:INCREMENTAL /OPT:REF)
-        set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /source-charset:utf-8 /GL /Gy /GS /Zc:inline /Zc:forScope")
-        #set(CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-        #set(CMAKE_CXX_FLAGS_MINSIZEREL)
+        set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /GL /Gy /GS /Zc:inline /Zc:forScope")
+        # set(CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+        # set(CMAKE_CXX_FLAGS_MINSIZEREL)
     endif()
 endif()
 

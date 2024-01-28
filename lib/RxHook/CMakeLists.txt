@@ -7,10 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Set Source File Path
 list(APPEND SRC_FILE 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/API.cpp" 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/Mem.cpp" 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/Hook.cpp" 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/ErrorMsg.cpp" 
+    "src/API.cpp" 
+    "src/Mem.cpp" 
+    "src/Hook.cpp" 
+    "src/ErrorMsg.cpp" 
 )
 
 # Set Current Library

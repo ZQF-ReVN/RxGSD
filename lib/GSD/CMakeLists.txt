@@ -7,15 +7,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Set Source File Path
 list(APPEND SRC_FILE 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/BMZ_Cryptor.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Global.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Cryptor.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Str.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_HDR.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Arg.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_Code.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/SPT_File.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/GSP_Editor.cpp" )
+    "src/BMZ_Cryptor.cpp"
+    "src/SPT_Global.cpp"
+    "src/SPT_Cryptor.cpp"
+    "src/SPT_Str.cpp"
+    "src/SPT_HDR.cpp"
+    "src/SPT_Arg.cpp"
+    "src/SPT_Code.cpp"
+    "src/SPT_File.cpp"
+    "src/GSP_Editor.cpp" )
 
 # Source File Only x32
 if (CMAKE_SIZEOF_VOID_P EQUAL 4)

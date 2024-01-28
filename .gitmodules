@@ -1,3 +1,6 @@
 [submodule "lib/Rut"]
 	path = lib/Rut
 	url = https://github.com/Dir-A/Rut.git
+[submodule "third/zlib"]
+	path = third/zlib
+	url = https://github.com/madler/zlib.git

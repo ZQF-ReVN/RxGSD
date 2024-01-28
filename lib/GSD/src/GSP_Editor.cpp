@@ -1,7 +1,7 @@
 #include "GSP_Editor.h"
-#include "lib/Rut/RxMem.h"
-#include "lib/Rut/RxStr.h"
-#include "lib/Rut/RxFile.h"
+#include "RxMem.h"
+#include "RxStr.h"
+#include "RxFile.h"
 
 #include <filesystem>
 

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "lib/Rut/RxPath.h"
+#include "RxPath.h"
 #include "lib/GSD/GSP.h"
 
 

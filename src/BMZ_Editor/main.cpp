@@ -1,8 +1,8 @@
 ﻿#include <iostream>
 
 #include "lib/GSD/BMZ.h"
-#include "lib/Rut/RxPath.h"
-#include "lib/Rut/RxMem.h"
+#include "RxPath.h"
+#include "RxMem.h"
 
 
 static void UserMain(int argc, wchar_t* argv[])

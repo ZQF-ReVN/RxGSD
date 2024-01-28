@@ -5,8 +5,8 @@
 #include "GSD_Types.h"
 #include "SPT_Arg.h"
 
-#include "lib/Rut/RxMem.h"
-#include "lib/Rut/RxJson.h"
+#include "RxMem.h"
+#include "RxJson.h"
 
 
 namespace GSD::SPT

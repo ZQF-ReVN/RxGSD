@@ -9,4 +9,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_executable(${PROJECT_NAME} "main.cpp")
 
 # Add Library
+target_link_libraries("${PROJECT_NAME}" PRIVATE Rut)
 target_link_libraries("${PROJECT_NAME}" PRIVATE GSD)

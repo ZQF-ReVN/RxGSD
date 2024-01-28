@@ -3,10 +3,10 @@
 #include <filesystem>
 
 #include "lib/GSD/SPT.h"
-#include "lib/Rut/RxFile.h"
-#include "lib/Rut/RxMem.h"
-#include "lib/Rut/RxJson.h"
-#include "lib/Rut/RxBench.h"
+#include "RxFile.h"
+#include "RxMem.h"
+#include "RxJson.h"
+#include "RxBench.h"
 
 
 int main()

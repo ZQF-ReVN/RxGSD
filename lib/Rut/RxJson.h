@@ -67,12 +67,10 @@ namespace Rut::RxJson
 		JValue& operator = (JValue&& rfJValue) noexcept;
 
 		//Array
-		void SureArray();
 		void Append(const JValue& rfJValue);
 		void Append(JValue&& rfJValue);
 
 		// Obj
-		void SureObject();
 		JValue& operator[](bool) = delete;
 		JValue& operator[](size_t) = delete;
 		JValue& operator[](const wchar_t* wpKey);

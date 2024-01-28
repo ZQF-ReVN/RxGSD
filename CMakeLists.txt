@@ -1,36 +1,67 @@
 # Main CMakeLists
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 
 # Project Name
-project(GSDTools)
+project(GSD_Tools)
 
-# Tool Chain
-set(CMAKE_TOOLCHAIN_FILE "toolchain.cmake")
+# Option
+set(STATIC_MSVC_RUNTIME OFF)
+
+# Value Define
+set(ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}")
+
+# Out Path
+if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    set(EXECUTABLE_OUTPUT_PATH "${ROOT_DIR}/.bin/x32")
+    set(LIBRARY_OUTPUT_PATH "${ROOT_DIR}/.bin/x32")
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(EXECUTABLE_OUTPUT_PATH "${ROOT_DIR}/.bin/x64")
+    set(LIBRARY_OUTPUT_PATH "${ROOT_DIR}/.bin/x64")
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(EXECUTABLE_OUTPUT_PATH "${EXECUTABLE_OUTPUT_PATH}/debug")
+    set(LIBRARY_OUTPUT_PATH "${LIBRARY_OUTPUT_PATH}/debug")
+else()
+    set(EXECUTABLE_OUTPUT_PATH "${EXECUTABLE_OUTPUT_PATH}/release")
+    set(LIBRARY_OUTPUT_PATH "${LIBRARY_OUTPUT_PATH}/release")
+endif()
 
 # MSVC Setting
 if(MSVC)
-    add_compile_options("$<$<CONFIG:Release>:/source-charset:utf-8>;$<$<CONFIG:Release>:/GL>;$<$<CONFIG:Release>:/Gy>;$<$<CONFIG:Release>:/GS>;$<$<CONFIG:Release>:/Zc:inline>;$<$<CONFIG:Release>:/Zc:forScope>")
-    add_link_options("$<$<CONFIG:Release>:/LTCG:INCREMENTAL>;$<$<CONFIG:Release>:/OPT:REF>")
+    # Macro
     add_definitions(-DUNICODE -D_UNICODE)
+
+    # Runtime
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        if (STATIC_MSVC_RUNTIME)
+            set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreadedDebug)
+        else()
+            set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreadedDebugDLL)
+        endif()
+    else()
+        if (STATIC_MSVC_RUNTIME)
+            set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
+        else()
+            set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
+        endif()
+    endif()
+
+    # Compiler
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        #set(CMAKE_CXX_FLAGS_DEBUG)
+    else()
+        add_link_options(/LTCG:INCREMENTAL /OPT:REF)
+        set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /source-charset:utf-8 /GL /Gy /GS /Zc:inline /Zc:forScope")
+        #set(CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+        #set(CMAKE_CXX_FLAGS_MINSIZEREL)
+    endif()
 endif()
 
-# Value Define
-set(LIB_DIR "${CMAKE_CURRENT_LIST_DIR}/lib")
-set(THIRD_DIR "${CMAKE_CURRENT_LIST_DIR}/third")
-
-# Out Path
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_LIST_DIR}/.out/exe)
-set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_LIST_DIR}/.out/lib)
+# Include
+include_directories("${ROOT_DIR}")
 
 # Library
-    add_subdirectory("lib/Rut")
-    add_subdirectory("lib/RxHook")
-    add_subdirectory("lib/GSD")
-
-# Project
-    add_subdirectory("src/SPT_Decoder")
-    add_subdirectory("src/SPT_Test")
-    add_subdirectory("src/SPT_Text_Editor")
-    add_subdirectory("src/GSP_Editor")
-    add_subdirectory("src/BMZ_Editor")
-    add_subdirectory("src/VFS_Hook")
+add_subdirectory("third")
+add_subdirectory("lib")
+add_subdirectory("src")

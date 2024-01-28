@@ -1,21 +1,9 @@
 ﻿# Library Name
-set(PROJECT_NAME GSD)
+set(USER_PROJECT_NAME GSD)
 
 # Cpp Standard
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-# Add Library
-link_libraries(Rut RxHook)
-
-# Add ZLIB
-include_directories("${THIRD_DIR}/zlib/include/")
-if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-    link_libraries("${THIRD_DIR}/zlib/lib.X86/zlibstatic.lib")
-elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    link_libraries("${THIRD_DIR}/zlib/lib.X64/zlibstatic.lib")
-endif()
-
 
 # Set Source File Path
 list(APPEND SRC_FILE 
@@ -35,4 +23,8 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 4)
 endif()
 
 # Set Library
-add_library(${PROJECT_NAME} "${SRC_FILE}")
+add_library("${USER_PROJECT_NAME}" "${SRC_FILE}")
+
+# Add Library
+target_link_libraries("${USER_PROJECT_NAME}" PRIVATE Rut RxHook zlibstatic)
+

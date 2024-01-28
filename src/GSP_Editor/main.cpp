@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "../../lib/Rut/RxPath.h"
-#include "../../lib/GSD/GSP.h"
+#include "lib/Rut/RxPath.h"
+#include "lib/GSD/GSP.h"
 
 
 static std::wstring FormatFolderPath(std::wstring wsPath)

@@ -1,8 +1,8 @@
 ﻿#include <Windows.h>
 #include <stdexcept>
 
-#include "../../lib/RxHook/RxHook.h"
-#include "../../lib/GSD/VFS.h"
+#include "lib/GSD/VFS.h"
+#include "lib/RxHook/RxHook.h"
 
 
 static void StartHook(HMODULE hDllBase)

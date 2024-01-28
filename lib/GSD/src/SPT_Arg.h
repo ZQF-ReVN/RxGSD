@@ -3,8 +3,8 @@
 #include <vector>
 
 #include "GSD_Types.h"
-#include "../../Rut/RxMem.h"
-#include "../../Rut/RxJson.h"
+#include "lib/Rut/RxMem.h"
+#include "lib/Rut/RxJson.h"
 
 
 namespace GSD::SPT
@@ -28,11 +28,14 @@ namespace GSD::SPT
 		Arg_Type0();
 
 		void Load(uint8_t* pData);
+		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;
 
 	public:
 		void SetType0Text(const std::string& msText);
+		void SetType1Text(const std::string& msText);
+		void SetType2Text(const std::string& msText);
 		size_t GetType0TextLen()const;
 		std::string GetType0Text() const;
 		std::wstring GetType0Text(size_t nCodePage) const;
@@ -57,11 +60,13 @@ namespace GSD::SPT
 		Arg_Type1();
 
 		void Load(uint8_t* pData);
+		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
+		void SetStr(std::string_view msStr);
 	};
 
 	class Arg_Type2

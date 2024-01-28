@@ -127,52 +127,20 @@ namespace Rut::RxJson
 	}
 
 	//Array
-	void JValue::SureArray()
-	{
-		if (m_Type != JVALUE_ARY)
-		{
-			if (m_Type == JVALUE_NUL)
-			{
-				m_Type = JVALUE_ARY;
-				m_Value.AryPtr = new JArray();
-			}
-			else
-			{
-				throw std::runtime_error("JValue::SureArray: Json Value Not Array!");
-			}
-		}
-	}
-
 	void JValue::Append(const JValue& rfJValue)
 	{
-		this->SureArray();
+		assert(m_Type == JVALUE_ARY);
 		m_Value.AryPtr->emplace_back(rfJValue);
 	}
 
 	void JValue::Append(JValue&& rfJValue)
 	{
-		this->SureArray();
+		assert(m_Type == JVALUE_ARY);
 		m_Value.AryPtr->emplace_back(std::move(rfJValue));
 	}
 
 
 	// Obj
-	void JValue::SureObject()
-	{
-		if (m_Type != JVALUE_OBJ)
-		{
-			if (m_Type == JVALUE_NUL)
-			{
-				m_Type = JVALUE_OBJ;
-				m_Value.ObjPtr = new JObject();
-			}
-			else
-			{
-				throw std::runtime_error("JValue::SureObject: Json Value Not Object!");
-			}
-		}
-	}
-
 	JValue& JValue::operator[](const wchar_t* wpKey)
 	{
 		JObject& obj = this->ToOBJ();
@@ -181,19 +149,19 @@ namespace Rut::RxJson
 
 	void JValue::AddKey(std::wstring_view wsKey)
 	{
-		this->SureObject();
+		assert(m_Type == JVALUE_OBJ);
 		(*this->m_Value.ObjPtr)[std::wstring(wsKey)];
 	}
 
 	void JValue::AddKey(std::wstring_view wsKey, const JValue& rfJValue)
 	{
-		this->SureObject();
+		assert(m_Type == JVALUE_OBJ);
 		(*this->m_Value.ObjPtr)[std::wstring(wsKey)] = rfJValue;
 	}
 
 	void JValue::AddKey(std::wstring_view wsKey, JValue&& rfJValue)
 	{
-		this->SureObject();
+		assert(m_Type == JVALUE_OBJ);
 		(*this->m_Value.ObjPtr)[std::wstring(wsKey)] = std::move(rfJValue);
 	}
 
@@ -266,13 +234,35 @@ namespace Rut::RxJson
 
 	JArray& JValue::ToAry()
 	{
-		this->SureArray();
+		if (m_Type != JVALUE_ARY)
+		{
+			if (m_Type == JVALUE_NUL)
+			{
+				m_Type = JVALUE_ARY;
+				m_Value.AryPtr = new JArray();
+			}
+			else
+			{
+				throw std::runtime_error("JValue::SureArray: Json Value Not Array!");
+			}
+		}
 		return *m_Value.AryPtr;
 	}
 
 	JObject& JValue::ToOBJ()
 	{
-		this->SureObject();
+		if (m_Type != JVALUE_OBJ)
+		{
+			if (m_Type == JVALUE_NUL)
+			{
+				m_Type = JVALUE_OBJ;
+				m_Value.ObjPtr = new JObject();
+			}
+			else
+			{
+				throw std::runtime_error("JValue::SureObject: Json Value Not Object!");
+			}
+		}
 		return *(m_Value.ObjPtr);
 	}
 
@@ -528,6 +518,7 @@ namespace Rut::RxJson
 	{
 		assert(this->GetCurChar() == L'[');
 
+		rfJValue.ToAry();
 		this->AddReadCCH();
 
 		while (this->GetToken() != L']')
@@ -538,8 +529,6 @@ namespace Rut::RxJson
 		}
 
 		this->AddReadCCH();
-
-		rfJValue.SureArray();
 		return;
 	}
 
@@ -547,6 +536,7 @@ namespace Rut::RxJson
 	{
 		assert(this->GetCurChar() == L'{');
 
+		rfJValue.ToOBJ();
 		this->AddReadCCH();
 
 		std::wstring_view key;
@@ -580,7 +570,6 @@ namespace Rut::RxJson
 			case L'}': // end of object
 			{
 				this->AddReadCCH();
-				rfJValue.SureObject();
 				return;
 			}
 			break;

@@ -4,15 +4,15 @@ if (NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
 endif()
 
 # Value Define
-set(PROJECT_NAME VFS_Hook)
+set(USER_PROJECT_NAME VFS_Hook)
 
 # Cpp Standard
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Add Library
-link_libraries(GSD)
-
 # Current Project
-project("${PROJECT_NAME}")
-add_library(${PROJECT_NAME} MODULE "dllmain.cpp")
+project("${USER_PROJECT_NAME}")
+add_library(${USER_PROJECT_NAME} MODULE "dllmain.cpp")
+
+# Add Library
+target_link_libraries("${USER_PROJECT_NAME}" PRIVATE GSD)

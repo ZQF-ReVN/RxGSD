@@ -2,10 +2,10 @@
 #include <vector>
 #include <filesystem>
 
-#include "../../lib/GSD/SPT.h"
-#include "../../lib/Rut/RxMem.h"
-#include "../../lib/Rut/RxCmd.h"
-#include "../../lib/Rut/RxPath.h"
+#include "lib/GSD/SPT.h"
+#include "lib/Rut/RxMem.h"
+#include "lib/Rut/RxCmd.h"
+#include "lib/Rut/RxPath.h"
 
 
 static void UserMain(int argc, wchar_t* argv[])

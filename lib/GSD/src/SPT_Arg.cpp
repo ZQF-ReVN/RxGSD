@@ -50,6 +50,17 @@ namespace GSD::SPT
 		}
 	}
 
+	void Arg_Type0::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
+	{
+		m_uiNameSeq0 = Str::StrToNum(L"0x%08x", rfJson[L"NameSeq0"]);
+		m_uiNameSeq1 = Str::StrToNum(L"0x%08x", rfJson[L"NameSeq1"]);
+		m_uiUn2 = Str::StrToNum(L"0x%08x", rfJson[L"Un2"]);
+		m_uiUn3 = Str::StrToNum(L"0x%08x", rfJson[L"Un3"]);
+		this->SetType0Text(Str::MakeANSI(rfJson[L"StrType0"],nCodePage));
+		this->SetType1Text(Str::MakeANSI(rfJson[L"StrType1"], nCodePage));
+		this->SetType2Text(Str::MakeANSI(rfJson[L"StrType2"], nCodePage));
+	}
+
 	Rut::RxMem::Auto Arg_Type0::Make() const
 	{
 		Rut::RxMem::Auto make_mem(this->GetSize());
@@ -98,9 +109,6 @@ namespace GSD::SPT
 		json[L"NameSeq1"] = Str::NumToStr(L"0x%08x", m_uiNameSeq1);
 		json[L"Un2"] = Str::NumToStr(L"0x%08x", m_uiUn2);
 		json[L"Un3"] = Str::NumToStr(L"0x%08x", m_uiUn3);
-		json[L"StrType0Len"] = Str::NumToStr(L"0x%08x", m_uiStrType0Len);
-		json[L"StrType1Len"] = Str::NumToStr(L"0x%08x", m_uiStrType1Len);
-		json[L"StrType2Len"] = Str::NumToStr(L"0x%08x", m_uiStrType2Len);
 		json[L"StrType0"] = Str::LoadANSI(this->GetType0Text(), nCodePage);
 		json[L"StrType1"] = Str::LoadANSI(m_msStrType1, nCodePage);
 		json[L"StrType2"] = Str::LoadANSI(m_msStrType2, nCodePage);
@@ -112,6 +120,18 @@ namespace GSD::SPT
 		m_vcStrType0CharList.clear();
 		m_vcStrType0CharList = Str::MakeCharTable(msText);
 		m_uiStrType0Len = (uint32_t)m_vcStrType0CharList.size();
+	}
+
+	void Arg_Type0::SetType1Text(const std::string& msText)
+	{
+		m_msStrType1 = msText;
+		m_uiStrType1Len = msText.size();
+	}
+
+	void Arg_Type0::SetType2Text(const std::string& msText)
+	{
+		m_msStrType2 = msText;
+		m_uiStrType2Len = msText.size();
 	}
 
 	size_t Arg_Type0::GetType0TextLen()const
@@ -188,6 +208,18 @@ namespace GSD::SPT
 		}
 	}
 
+	void Arg_Type1::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
+	{
+		m_uiVal_0 = Str::StrToNum(L"0x%08x", rfJson[L"Val_0"]);
+		m_uiVal_1 = Str::StrToNum(L"0x%08x", rfJson[L"Val_1"]);
+		m_uiVal_2 = Str::StrToNum(L"0x%08x", rfJson[L"Val_2"]);
+		m_uiVal_3 = Str::StrToNum(L"0x%08x", rfJson[L"Val_3"]);
+		m_uiVal_5 = Str::StrToNum(L"0x%08x", rfJson[L"Val_5"]);
+		m_uiVal_6 = Str::StrToNum(L"0x%08x", rfJson[L"Val_6"]);
+		m_uiVal_7 = Str::StrToNum(L"0x%08x", rfJson[L"Val_7"]);
+		this->SetStr(Str::MakeANSI(rfJson[L"Str"], nCodePage));
+	}
+
 	Rut::RxMem::Auto Arg_Type1::Make() const
 	{
 		Rut::RxMem::Auto mem_data(this->GetSize());
@@ -226,7 +258,6 @@ namespace GSD::SPT
 		json[L"Val_1"] = Str::NumToStr(L"0x%08x", m_uiVal_1);
 		json[L"Val_2"] = Str::NumToStr(L"0x%08x", m_uiVal_2);
 		json[L"Val_3"] = Str::NumToStr(L"0x%08x", m_uiVal_3);
-		json[L"StrLen"] = Str::NumToStr(L"0x%08x", m_uiStrLen);
 		json[L"Val_5"] = Str::NumToStr(L"0x%08x", m_uiVal_5);
 		json[L"Val_6"] = Str::NumToStr(L"0x%08x", m_uiVal_6);
 		json[L"Val_7"] = Str::NumToStr(L"0x%08x", m_uiVal_7);
@@ -246,6 +277,12 @@ namespace GSD::SPT
 		}
 
 		return size;
+	}
+
+	void Arg_Type1::SetStr(std::string_view msStr)
+	{
+		m_msStr = msStr;
+		m_uiStrLen = msStr.size();
 	}
 
 

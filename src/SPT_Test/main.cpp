@@ -2,13 +2,11 @@
 #include <format>
 #include <filesystem>
 
-#include "../../lib/GSD/SPT.h"
-#include "../../lib/Rut/RxFile.h"
-#include "../../lib/Rut/RxMem.h"
-#include "../../lib/Rut/RxJson.h"
-#include "../../lib/Rut/RxBench.h"
-
-
+#include "lib/GSD/SPT.h"
+#include "lib/Rut/RxFile.h"
+#include "lib/Rut/RxMem.h"
+#include "lib/Rut/RxJson.h"
+#include "lib/Rut/RxBench.h"
 
 
 int main()

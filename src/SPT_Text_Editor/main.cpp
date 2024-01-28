@@ -1,9 +1,9 @@
 ﻿#include <iostream>
 #include <filesystem>
 
-#include "../../lib/GSD/SPT.h"
-#include "../../lib/Rut/RxStr.h"
-#include "../../lib/Rut/RxCmd.h"
+#include "lib/GSD/SPT.h"
+#include "lib/Rut/RxStr.h"
+#include "lib/Rut/RxCmd.h"
 
 GSD::SPT::Global sg_Global;
 

@@ -1,8 +1,8 @@
 ﻿#include <iostream>
 
-#include "../../lib/GSD/BMZ.h"
-#include "../../lib/Rut/RxPath.h"
-#include "../../lib/Rut/RxMem.h"
+#include "lib/GSD/BMZ.h"
+#include "lib/Rut/RxPath.h"
+#include "lib/Rut/RxMem.h"
 
 
 static void UserMain(int argc, wchar_t* argv[])
@@ -76,5 +76,5 @@ static void DebugMain()
 
 int wmain(int argc, wchar_t* argv[])
 {
-	UserMain(argc, argv);
+	::UserMain(argc, argv);
 }

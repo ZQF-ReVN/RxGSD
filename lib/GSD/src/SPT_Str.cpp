@@ -1,6 +1,6 @@
 #include "SPT_Str.h"
-#include "../../Rut/RxStr.h"
-#include "../../Rut/RxCmd.h"
+#include "lib/Rut/RxStr.h"
+#include "lib/Rut/RxCmd.h"
 
 #include <stdexcept>
 
@@ -14,9 +14,21 @@ namespace GSD::SPT
 		return { buf, len };
 	}
 
+	size_t Str::StrToNum(const wchar_t* wpFormat, std::wstring_view wsStr)
+	{
+		size_t value = 0;
+		size_t len = (size_t)swscanf_s(wsStr.data(), wpFormat, &value);
+		return value;
+	}
+
 	std::wstring Str::LoadANSI(const std::string_view msStr, size_t uCodePage)
 	{
 		return Rut::RxStr::ToWCS(msStr, uCodePage);
+	}
+
+	std::string Str::MakeANSI(const std::wstring_view wsStr, size_t uCodePage)
+	{
+		return Rut::RxStr::ToMBCS(wsStr, uCodePage);
 	}
 
 	std::vector<SPT_Char_Entry> Str::MakeCharTable(const std::string& msText)

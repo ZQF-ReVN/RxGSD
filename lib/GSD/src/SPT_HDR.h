@@ -3,8 +3,8 @@
 #include <vector>
 
 #include "GSD_Types.h"
-#include "../../Rut/RxMem.h"
-#include "../../Rut/RxJson.h"
+#include "lib/Rut/RxMem.h"
+#include "lib/Rut/RxJson.h"
 
 
 namespace GSD::SPT

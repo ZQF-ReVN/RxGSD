@@ -58,6 +58,50 @@ namespace GSD::SPT
 		}
 	}
 
+	void Code::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
+	{
+		m_uiCommand = Str::StrToNum(L"0x%08x", rfJson[L"Command"]);
+		m_uiVal_1 = Str::StrToNum(L"0x%08x", rfJson[L"Val_1"]);
+		m_uiVal_2 = Str::StrToNum(L"0x%08x", rfJson[L"Val_2"]);
+		m_uiVal_3 = Str::StrToNum(L"0x%08x", rfJson[L"Val_3"]);
+		m_uiVal_4 = Str::StrToNum(L"0x%08x", rfJson[L"Val_4"]);
+		m_uiSequnece = Str::StrToNum(L"0x%08x", rfJson[L"Sequnece"]);
+		m_uiArgType1Count = Str::StrToNum(L"0x%08x", rfJson[L"ArgType1Count"]);
+		m_uiArgType2Count = Str::StrToNum(L"0x%08x", rfJson[L"ArgType2Count"]);
+		m_uiArgType3Count = Str::StrToNum(L"0x%08x", rfJson[L"ArgType3Count"]);
+
+		Rut::RxJson::JValue& json_type0 = rfJson[L"ArgType0"];
+		Rut::RxJson::JArray& json_type1 = rfJson[L"ArgType1"].ToAry();
+		Rut::RxJson::JArray& json_type2 = rfJson[L"ArgType2"].ToAry();
+		Rut::RxJson::JArray& json_type3 = rfJson[L"ArgType3"].ToAry();
+
+		if (m_uiCommand == 1) // Proc Text Struct
+		{
+			m_ArgType0.Load(json_type0, nCodePage);
+		}
+
+		for (auto& type1_json : json_type1)
+		{
+			Arg_Type1 type1;
+			type1.Load(type1_json, nCodePage);
+			m_vcArgType1.push_back(std::move(type1));
+		}
+
+		for (auto& type2_json : json_type2)
+		{
+			Arg_Type2 type2;
+			type2.Load(type2_json, nCodePage);
+			m_vcArgType2.push_back(std::move(type2));
+		}
+
+		for (auto& type3_json : json_type3)
+		{
+			Arg_Type3 type3;
+			type3.Load(type3_json, nCodePage);
+			m_vcArgType3.push_back(std::move(type3));
+		}
+	}
+
 	Rut::RxMem::Auto Code::Make() const
 	{
 		Rut::RxMem::Auto mem_data(this->GetSize());
@@ -124,9 +168,9 @@ namespace GSD::SPT
 		json[L"ArgType3Count"] = Str::NumToStr(L"0x%08x", m_uiArgType3Count);
 
 		Rut::RxJson::JValue& json_type0 = json[L"ArgType0"];
-		Rut::RxJson::JValue& json_type1 = json[L"ArgType1"];
-		Rut::RxJson::JValue& json_type2 = json[L"ArgType2"];
-		Rut::RxJson::JValue& json_type3 = json[L"ArgType3"];
+		Rut::RxJson::JArray& json_type1 = json[L"ArgType1"].ToAry();
+		Rut::RxJson::JArray& json_type2 = json[L"ArgType2"].ToAry();
+		Rut::RxJson::JArray& json_type3 = json[L"ArgType3"].ToAry();
 
 		if (m_uiCommand == 1) // Proc Text Struct
 		{
@@ -135,17 +179,17 @@ namespace GSD::SPT
 
 		for (auto& type1 : m_vcArgType1)
 		{
-			json_type1.Append(type1.Make(nCodePage));
+			json_type1.emplace_back(type1.Make(nCodePage));
 		}
 
 		for (auto& type2 : m_vcArgType2)
 		{
-			json_type2.Append(type2.Make(nCodePage));
+			json_type2.emplace_back(type2.Make(nCodePage));
 		}
 
 		for (auto& type3 : m_vcArgType3)
 		{
-			json_type3.Append(type3.Make(nCodePage));
+			json_type3.emplace_back(type3.Make(nCodePage));
 		}
 
 		return json;

@@ -1,9 +1,11 @@
 ﻿#include <iostream>
 #include <filesystem>
 
-#include "lib/GSD/SPT.h"
 #include "Rut/RxStr.h"
 #include "Rut/RxCmd.h"
+#include "GSD/SPT_File.h"
+#include "GSD/SPT_Global.h"
+
 
 GSD::SPT::Global sg_Global;
 
@@ -182,6 +184,6 @@ static void DebugMain()
 
 int wmain(int argc, wchar_t* argv[])
 {
-	//::UserMain(argc, argv);
-	::DebugMain();
+	::UserMain(argc, argv);
+	//::DebugMain();
 }

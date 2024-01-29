@@ -37,7 +37,7 @@ namespace GSD::SPT
 			cur_ptr += m_EncryptorInfo.GetSize();
 
 			m_uiUnFlag = *((uint32_t*)(cur_ptr));
-			if (m_uiUnFlag != 0) { throw std::runtime_error("SPT_HDR: Unknow Format"); }
+			if (m_uiUnFlag != 0) { throw std::runtime_error("SPT_Global: Unknow Format"); }
 			cur_ptr += 4;
 
 			for (auto& append_script : m_aAppendScript)

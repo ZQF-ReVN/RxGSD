@@ -305,6 +305,19 @@ namespace GSD::SPT
 		}
 	}
 
+	void Arg_Type2::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
+	{
+		m_uiParameterType1Count = Str::StrToNum(L"0x%08x", rfJson[L"ArgType1Count"]);
+
+		Rut::RxJson::JArray& count_arrary = rfJson[L"ArgType1List"].ToAry();
+		for (auto& type1_json : count_arrary)
+		{
+			Arg_Type1 type1_obj;
+			type1_obj.Load(type1_json, nCodePage);
+			m_vcParameterType1.push_back(std::move(type1_obj));
+		}
+	}
+
 	Rut::RxMem::Auto Arg_Type2::Make() const
 	{
 		Rut::RxMem::Auto mem_data(this->GetSize());
@@ -327,10 +340,10 @@ namespace GSD::SPT
 	{
 		Rut::RxJson::JValue json;
 		json[L"ArgType1Count"] = Str::NumToStr(L"0x%08x", m_uiParameterType1Count);
-		Rut::RxJson::JValue& count_arrary = json[L"ArgType1List"];
+		Rut::RxJson::JArray& count_arrary = json[L"ArgType1List"].ToAry();
 		for (const auto& type1 : m_vcParameterType1)
 		{
-			count_arrary.Append(type1.Make(nCodePage));
+			count_arrary.emplace_back(type1.Make(nCodePage));
 		}
 		return json;
 	}
@@ -361,6 +374,13 @@ namespace GSD::SPT
 		m_uiVal_0 = data_ptr[0];
 		m_uiVal_1 = data_ptr[1];
 		m_uiVal_2 = data_ptr[2];
+	}
+
+	void Arg_Type3::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
+	{
+		m_uiVal_0 = Str::StrToNum(L"0x%08x", rfJson[L"Val_0"]);
+		m_uiVal_1 = Str::StrToNum(L"0x%08x", rfJson[L"Val_1"]);
+		m_uiVal_2 = Str::StrToNum(L"0x%08x", rfJson[L"Val_2"]);
 	}
 
 	Rut::RxMem::Auto Arg_Type3::Make() const

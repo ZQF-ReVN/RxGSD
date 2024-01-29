@@ -79,6 +79,7 @@ namespace GSD::SPT
 		Arg_Type2();
 
 		void Load(uint8_t* pData);
+		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;
 
@@ -98,6 +99,7 @@ namespace GSD::SPT
 		Arg_Type3();
 
 		void Load(uint8_t* pData);
+		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;
 

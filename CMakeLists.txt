@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.15)
 project(GSD_Tools)
 
 # Option
+set(USER_CONFIG_BUILD_TEST TRUE)
 set(USER_CONFIG_IPO_OPTIMIZATION TRUE)
 set(USER_CONFIG_STATIC_MSVC_RUNTIME TRUE)
 
@@ -80,3 +81,8 @@ include_directories("${ROOT_DIR}")
 add_subdirectory("third")
 add_subdirectory("lib")
 add_subdirectory("src")
+
+# Test
+if(USER_CONFIG_BUILD_TEST)
+    add_subdirectory("test")
+endif()

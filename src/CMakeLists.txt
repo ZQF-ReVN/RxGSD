@@ -1,6 +1,6 @@
 add_subdirectory("BMZ_Editor")
 add_subdirectory("SPT_Decoder")
-add_subdirectory("SPT_Test")
+add_subdirectory("SPT_Parser")
 add_subdirectory("SPT_Text_Editor")
 add_subdirectory("GSP_Editor")
 add_subdirectory("VFS_Hook")

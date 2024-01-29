@@ -2,7 +2,8 @@
 #include <vector>
 #include <filesystem>
 
-#include "lib/GSD/SPT.h"
+#include "GSD/SPT_File.h"
+#include "GSD/SPT_Cryptor.h"
 #include "Rut/RxMem.h"
 #include "Rut/RxCmd.h"
 #include "Rut/RxPath.h"

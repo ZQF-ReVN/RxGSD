@@ -25,6 +25,7 @@ namespace GSD::SPT
 		Append_Script_Entry();
 
 		void Load(uint8_t* pData);
+		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;
 
@@ -42,6 +43,7 @@ namespace GSD::SPT
 		Append_Script();
 
 		void Load(uint8_t* pData);
+		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;
 
@@ -61,6 +63,7 @@ namespace GSD::SPT
 		Encryptor_Info();
 
 		void Load(uint8_t* pData);
+		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;
 
@@ -80,6 +83,7 @@ namespace GSD::SPT
 		Codes_Info();
 
 		void Load(uint8_t* pInfo);
+		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;
 
@@ -103,6 +107,8 @@ namespace GSD::SPT
 		HDR();
 
 		void Load(uint8_t* pData);
+		void Load(const std::filesystem::path& phSpt);
+		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;
 

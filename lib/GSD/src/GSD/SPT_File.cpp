@@ -31,6 +31,19 @@ namespace GSD::SPT
 		}
 	}
 
+	void File::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
+	{
+		m_HDR.Load(rfJson[L"Header"], nCodePage);
+
+		Rut::RxJson::JArray& code_list = rfJson[L"Codes"];
+		for (auto& code_json : code_list)
+		{
+			Code code;
+			code.Load(code_json, nCodePage);
+			m_vcCode.push_back(std::move(code));
+		}
+	}
+
 	Rut::RxMem::Auto File::Make() const
 	{
 		Rut::RxMem::Auto mem_data;
@@ -57,11 +70,11 @@ namespace GSD::SPT
 		{
 			json[L"Header"] = m_HDR.Make(nCodePage);
 
-			auto& code_list = json[L"Codes"];
+			Rut::RxJson::JArray& code_list = json[L"Codes"].ToAry();
 			{
 				for (const auto& code : m_vcCode)
 				{
-					code_list.Append(code.Make(nCodePage));
+					code_list.emplace_back(code.Make(nCodePage));
 				}
 			}
 		}

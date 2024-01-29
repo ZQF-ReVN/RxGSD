@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 
-#include "lib/GSD/BMZ.h"
+#include "GSD/BMZ_Cryptor.h"
 #include "Rut/RxPath.h"
 #include "Rut/RxMem.h"
 

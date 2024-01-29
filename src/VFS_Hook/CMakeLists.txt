@@ -14,4 +14,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_library(${PROJECT_NAME} MODULE "dllmain.cpp")
 
 # Add Library
-target_link_libraries("${PROJECT_NAME}" PRIVATE GSD)
+target_link_libraries("${PROJECT_NAME}" PRIVATE GSD RxHook)

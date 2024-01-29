@@ -2,7 +2,7 @@
 #include <stdexcept>
 
 #include "lib/GSD/VFS.h"
-#include "lib/RxHook/RxHook.h"
+#include "RxHook/API.h"
 
 
 static void StartHook(HMODULE hDllBase)

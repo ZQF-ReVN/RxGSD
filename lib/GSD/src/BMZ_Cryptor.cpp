@@ -1,6 +1,6 @@
 #include "BMZ_Cryptor.h"
 #include "GSD_Types.h"
-#include "RxMem.h"
+#include "Rut/RxMem.h"
 
 #include <zlib.h>
 #include <stdexcept>

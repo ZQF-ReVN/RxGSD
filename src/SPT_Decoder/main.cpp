@@ -3,9 +3,9 @@
 #include <filesystem>
 
 #include "lib/GSD/SPT.h"
-#include "RxMem.h"
-#include "RxCmd.h"
-#include "RxPath.h"
+#include "Rut/RxMem.h"
+#include "Rut/RxCmd.h"
+#include "Rut/RxPath.h"
 
 
 static void UserMain(int argc, wchar_t* argv[])

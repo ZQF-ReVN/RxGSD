@@ -2,7 +2,7 @@
 Tools For Atelier Sakura's GSD Engine. Filename Extension `.gsp` `.spt` `.bmz`
 
 ## GSP_Editor
-extract `.gsp` pack, pack files to `.gsp`  
+extract `.gsp`, pack files to `.gsp`  
 
 ## BMZ_Editor
 convert `bmz to bmp` or `bmp to bmz`  

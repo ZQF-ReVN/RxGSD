@@ -7,95 +7,80 @@
 #include "GSD/SPT_Global.h"
 
 
-GSD::SPT::Global sg_Global;
-
-
-static void FindCodeWithText(GSD::SPT::File& rfParser, std::vector<std::vector<GSD::SPT::Code>::iterator>& vcIterator_Ret)
+static bool Export(std::vector<std::wstring>& vcName, const std::filesystem::path& phSpt, const std::filesystem::path& phJson, size_t nCodePage)
 {
-	std::vector<GSD::SPT::Code>& code_list = rfParser.GetCodeList();
-	for (auto ite = code_list.begin(); ite != code_list.end(); ite++)
+	GSD::SPT::File spt(phSpt);
+
+	// Append Text To Json
+	Rut::RxJson::JArray msg_json;
+	for (auto& code : spt.GetCodeList())
 	{
-		if (ite->GetArgType0().GetType0TextLen()) { vcIterator_Ret.push_back(ite); }
+		if (code.GetArgType0().GetType0TextLen() == 0) { continue; };
+
+		Rut::RxJson::JValue msg_obj;
+
+		size_t char_name_seq = code.GetArgType0().GetNameSeq();
+		if (char_name_seq != -1)
+		{
+			std::wstring_view char_name = vcName[char_name_seq];
+			msg_obj[L"chr_raw"] = char_name;
+			msg_obj[L"chr_tra"] = char_name;
+		}
+
+		std::wstring msg_text = code.GetArgType0().GetType0Text(nCodePage);
+		msg_obj[L"msg_raw"] = msg_text;
+		msg_obj[L"msg_tra"] = std::move(msg_text);
+
+		msg_json.emplace_back(std::move(msg_obj));
 	}
-}
 
-static bool ExportText(const std::wstring_view wsScriptPath, const std::wstring_view wsJsonPath, size_t nCodePage)
-{
-	// Parse SPT Script
-	GSD::SPT::File spt_parser;
-	spt_parser.Load(wsScriptPath);
-
-	// Find Code With Text 
-	std::vector<std::vector<GSD::SPT::Code>::iterator> code_with_text_list;
-	::FindCodeWithText(spt_parser, code_with_text_list);
-	if (code_with_text_list.empty())
+	// Check Msg
+	if (msg_json.empty())
 	{
-		Rut::RxCmd::PutFormat(L"Not Find Text: %s\n", wsScriptPath);
+		Rut::RxCmd::PutFormat(L"Not Find Text: %s\n", phSpt.wstring().c_str());
 		return false;
 	}
 
-	// Append Text To Json
-
-	Rut::RxJson::JArray json;
-	for (auto& ite : code_with_text_list)
-	{
-		Rut::RxJson::JValue msg;
-
-		size_t char_name_seq = ite->GetArgType0().GetNameSeq();
-		if (char_name_seq != -1)
-		{
-			msg[L"chr"] = sg_Global.GetName(char_name_seq);
-		}
-
-		std::wstring msg_text = ite->GetArgType0().GetType0Text(nCodePage);
-		msg[L"msg_raw"] = msg_text;
-		msg[L"msg_tra"] = std::move(msg_text);
-
-		json.emplace_back(std::move(msg));
-	}
-
 	// Save Json
-	Rut::RxJson::Parser::Save(json, wsJsonPath, true);
+	Rut::RxJson::Parser::Save(msg_json, phJson, true);
 
 	return true;
 }
 
-static bool ImportText(const std::wstring_view wsScriptPath, const std::wstring_view wsJsonPath, const std::wstring_view wsScriptNewPath, size_t nCodePage)
+static bool Import(std::vector<std::wstring>& vcName, const std::filesystem::path& phSpt, const std::filesystem::path& phJson, const std::filesystem::path& phSptNew, size_t nCodePage)
 {
-	// Parse SPT Script
-	GSD::SPT::File spt_parser;
-	spt_parser.Load(wsScriptPath);
-
-	// Find Code With Text
-	std::vector<std::vector<GSD::SPT::Code>::iterator> code_with_text_list;
-	::FindCodeWithText(spt_parser, code_with_text_list);
-	if (code_with_text_list.empty())
-	{
-		Rut::RxCmd::PutFormat(L"Not Find Text: %s\n", wsScriptPath);
-		return false;
-	}
+	GSD::SPT::File spt(phSpt);
 
 	// Parse Text Json
-	Rut::RxJson::JArray& msg_list = Rut::RxJson::Parser{}.Load(wsJsonPath);
+	Rut::RxJson::JValue msg_json_doc = Rut::RxJson::Parser{}.Load(phJson);
+	Rut::RxJson::JArray& msg_list = msg_json_doc.ToAry();
+	Rut::RxJson::JArray::iterator ite_msg_obj = msg_list.begin();
 
-	if (code_with_text_list.size() != msg_list.size())
+	// Import Text
+	for (auto& code : spt.GetCodeList())
 	{
-		Rut::RxCmd::PutFormat(L"Text Count Mismatch: %s\n", wsJsonPath);
+		if (code.GetArgType0().GetType0TextLen() == 0) { continue; };
+
+		std::wstring_view text_wide = (*ite_msg_obj)[L"msg_tra"];
+		std::string text_ansi = GSD::SPT::Str::MakeANSI(text_wide, nCodePage);
+		code.GetArgType0().SetType0Text(text_ansi);
+		ite_msg_obj++;
+	}
+
+	if (ite_msg_obj == msg_list.begin())
+	{
+		Rut::RxCmd::PutFormat(L"Not Find Text: %s\n", phSpt.wstring().c_str());
 		return false;
 	}
 
-	// Import Text
-	size_t ite_msg = 0;
-	for (auto& msg : msg_list)
+	if (ite_msg_obj != msg_list.end())
 	{
-		const std::wstring_view text_w = msg[L"msg_tra"];
-		std::string text = Rut::RxStr::ToMBCS(text_w, nCodePage);
-		code_with_text_list[ite_msg]->GetArgType0().SetType0Text(text);
-		ite_msg++;
+		Rut::RxCmd::PutFormat(L"Text Count Mismatch: %s\n", phJson.wstring().c_str());
+		return false;
 	}
 
 	// Save SPT Script
-	spt_parser.Make().SaveData(wsScriptNewPath);
+	spt.Make().SaveData(phSptNew);
 
 	return true;
 }
@@ -105,60 +90,63 @@ static void UserMain(int argc, wchar_t* argv[])
 {
 	try
 	{
-		switch (argc)
-		{
-		case 2:
-		{
-			std::filesystem::create_directory(L"spt_json/");
+		Rut::RxCmd::Arg arg;
+		arg.AddCmd(L"-spt", L"spt file path");
+		arg.AddCmd(L"-new", L"new spt file path");
+		arg.AddCmd(L"-txt", L"json file path");
+		arg.AddCmd(L"-global", L"global.dat file path");
+		arg.AddCmd(L"-code", L"codepage");
+		arg.AddCmd(L"-mode", L"mode [single_export] [single_import] [batch_export] [batch_import]");
+		arg.AddExample(L"-mode single_export -global global.dat -spt 0scene_pro001.spt -txt 0scene_pro001.json -code 932");
+		arg.AddExample(L"-mode single_import -global global.dat -spt 0scene_pro001.spt -txt 0scene_pro001.json -new 0scene_pro001.spt.new -code 932");
+		arg.AddExample(L"-mode batch_export -global global.dat -spt spt/ -txt spt_txt/ -code 932");
+		arg.AddExample(L"-mode batch_import -global global.dat -spt spt/ -txt spt_txt/ -new spt_new/ -code 932");
+		if (arg.Load(argc, argv) == false) { return; }
 
-			for (auto& entry : std::filesystem::directory_iterator(argv[1]))
+		std::wstring_view mode = arg[L"-mode"].ToWStrView();
+		size_t code_page = arg[L"-code"];
+		std::filesystem::path spt_path = arg[L"-spt"];
+		std::filesystem::path txt_path = arg[L"-txt"];
+
+		GSD::SPT::Global global;
+		global.Load(arg[L"-global"]);
+		std::vector<std::wstring> name_list = global.GetStrTable(code_page);
+
+		if (mode == L"single_export")
+		{
+			::Export(name_list, spt_path, txt_path, code_page);
+		}
+		else if (mode == L"single_import")
+		{
+			::Import(name_list, spt_path, txt_path, arg[L"-new"], code_page);
+		}
+		else if (mode == L"batch_export")
+		{
+			std::filesystem::create_directories(txt_path);
+			for (auto& spt_entry : std::filesystem::directory_iterator(spt_path))
 			{
-				if (entry.is_regular_file() == false) { continue; }
-				if (entry.path().extension() != L".spt") { continue; }
-
-				const std::filesystem::path& sdt_path = entry.path();
-				const std::filesystem::path& json_path = L"spt_json" / entry.path().filename().replace_extension(L".json");
-				ExportText(sdt_path.wstring(), json_path.wstring(), 932);
+				if (spt_entry.is_regular_file() == false) { continue; }
+				if (spt_entry.path().extension() != L".spt") { continue; }
+				std::filesystem::path txt_name = spt_entry.path().stem().replace_extension(L".json");
+				::Export(name_list, spt_entry, txt_path / txt_name, code_page);
 			}
-
-			system("pause");
 		}
-		break;
-
-		case 5:
+		else if (mode == L"batch_import")
 		{
-			std::wstring_view commnad = argv[1];
-			if (commnad != L"e") { throw std::runtime_error("Error Commnad!"); }
-			std::wstring_view spt_path = argv[2];
-			std::wstring_view json_path = argv[3];
-			size_t code_page = _wtoi(argv[4]);
-			ExportText(spt_path, json_path, code_page) ? (Rut::RxCmd::Put(L"Success\n")) : (Rut::RxCmd::Put("Failed\n"));
+			std::filesystem::path spt_new_folder = arg[L"-new"];
+			std::filesystem::create_directories(spt_new_folder);
+			for (auto& txt_entry : std::filesystem::directory_iterator(txt_path))
+			{
+				if (txt_entry.is_regular_file() == false) { continue; }
+				if (txt_entry.path().extension() != L".json") { continue; }
+				std::filesystem::path spt_name = txt_entry.path().stem().replace_extension(L".spt");
+				::Import(name_list, spt_path / spt_name, txt_entry, spt_new_folder / spt_name, code_page);
+			}
 		}
-		break;
-
-		case 6:
+		else
 		{
-			std::wstring_view commnad = argv[1];
-			if (commnad != L"i") { throw std::runtime_error("Error Commnad!"); }
-			std::wstring_view spt_path = argv[2];
-			std::wstring_view json_path = argv[3];
-			std::wstring_view spt_new_path = argv[4];
-			size_t code_page = _wtoi(argv[5]);
-			ImportText(spt_path, json_path, spt_new_path, code_page) ? (Rut::RxCmd::Put(L"Success\n")) : (Rut::RxCmd::Put("Failed\n"));
+			throw std::runtime_error("Command Error!");
 		}
-		break;
-
-		default:
-		{
-			Rut::RxCmd::Put(L"Command:\n");
-			Rut::RxCmd::Put(L"\tSPT_Text_Editor.exe e [spt_path] [json_path] [codepage]\n");
-			Rut::RxCmd::Put(L"\tSPT_Text_Editor.exe i [spt_path] [json_path] [spt_new_path] [codepage]\n");
-			Rut::RxCmd::Put(L"Example:\n");
-			Rut::RxCmd::Put(L"\tSPT_Text_Editor.exe e 0scene_pro001.spt 0scene_pro001.spt.json 932\n");
-			Rut::RxCmd::Put(L"\tSPT_Text_Editor.exe i 0scene_pro001.spt 0scene_pro001.spt.json 0scene_pro001.spt.new 936\n\n");
-		}
-		}
-
 	}
 	catch (const std::runtime_error& err)
 	{
@@ -168,16 +156,32 @@ static void UserMain(int argc, wchar_t* argv[])
 
 static void DebugMain()
 {
-	sg_Global.Load(L"spt_dec/global.dat", 932);
+	GSD::SPT::Global global;
+	global.Load(L"global.dat");
+	std::vector<std::wstring> name_list = global.GetStrTable(932);
 
-	for (auto& entry : std::filesystem::directory_iterator(L"spt_dec/"))
+	std::filesystem::path spt_folder = L"spt_dec/";
+	std::filesystem::path json_folder = L"spt_txt/";
+	std::filesystem::path spt_new_folder = L"spt_new/";
+	std::filesystem::create_directories(json_folder);
+	//for (auto& entry : std::filesystem::directory_iterator(spt_folder))
+	//{
+	//	if (entry.is_regular_file() == false) { continue; }
+	//	if (entry.path().extension() != L".spt") { continue; }
+	//	const std::filesystem::path& spt_path = entry.path();
+	//	const std::filesystem::path& json_path = json_folder / entry.path().filename().replace_extension(L".json");
+	//	::Export(name_list, spt_path, json_path, 932);
+	//}
+
+	std::filesystem::create_directories(spt_new_folder);
+	for (auto& entry : std::filesystem::directory_iterator(json_folder))
 	{
 		if (entry.is_regular_file() == false) { continue; }
-		if (entry.path().extension() != L".spt") { continue; }
-		const std::filesystem::path& sdt_path = entry.path();
-		const std::filesystem::path& sdt_new_path = L"spt_new" / entry.path().filename();
-		const std::filesystem::path& json_path = L"spt_json_txt" / entry.path().filename().replace_extension(L".json");
-		::ExportText(sdt_path.wstring(), json_path.wstring(), 932);
+		if (entry.path().extension() != L".json") { continue; }
+		std::filesystem::path spt_name = entry.path().filename().replace_extension(L".spt");
+		const std::filesystem::path& spt_path = spt_folder / spt_name;
+		const std::filesystem::path& spt_save_path = spt_new_folder / spt_name;
+		::Import(name_list, spt_path, entry, spt_save_path, 932);
 	}
 }
 

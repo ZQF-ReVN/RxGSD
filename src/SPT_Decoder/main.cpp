@@ -1,12 +1,9 @@
 ﻿#include <iostream>
-#include <vector>
-#include <filesystem>
 
-#include "GSD/SPT_File.h"
-#include "GSD/SPT_Cryptor.h"
 #include "Rut/RxMem.h"
 #include "Rut/RxCmd.h"
-#include "Rut/RxPath.h"
+#include "GSD/SPT_File.h"
+#include "GSD/SPT_Cryptor.h"
 
 
 static void UserMain(int argc, wchar_t* argv[])
@@ -18,7 +15,7 @@ static void UserMain(int argc, wchar_t* argv[])
 		arg.AddCmd(L"-folder", L"spt folder path");
 		arg.AddCmd(L"-save", L"save path");
 		arg.AddCmd(L"-able", L"make the engine read spt without encryption");
-		arg.AddCmd(L"-mode", L"mode [single]:decode file, [batch]: ");
+		arg.AddCmd(L"-mode", L"mode: [single] [batch] ");
 		arg.AddExample(L"-mode single -able true -spt 0scene_pro001.spt -save 0scene_pro001.spt.dec");
 		arg.AddExample(L"-mode batch -able true -folder spt/ -save spt_dec/");
 		if (arg.Load(argc, argv) == false) { return; }
@@ -36,10 +33,9 @@ static void UserMain(int argc, wchar_t* argv[])
 			for (auto& entry : std::filesystem::directory_iterator(arg[L"-folder"]))
 			{
 				if (entry.is_regular_file() == false) { continue; }
-				const std::filesystem::path& spt_path = entry.path();
-				Rut::RxMem::Auto spt_file{ spt_path.wstring() };
+				Rut::RxMem::Auto spt_file{ entry };
 				GSD::SPT::Cryptor::Decode(spt_file, is_readbale);
-				spt_file.SaveData(save_path / spt_path.filename());
+				spt_file.SaveData(save_path / entry.path().filename());
 			}
 		}
 	}

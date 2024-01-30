@@ -1,55 +1,29 @@
 #include <iostream>
 
-#include "Rut/RxPath.h"
+#include "Rut/RxCmd.h"
 #include "GSD/GSP_Editor.h"
 
-
-static std::wstring FormatFolderPath(std::wstring wsPath)
-{
-	Rut::RxPath::Format(wsPath.data(), L'/');
-	if (wsPath.back() != '/') { wsPath.append(1, '/'); }
-	return wsPath;
-}
 
 static void UserMain(int argc, wchar_t* argv[])
 {
 	try
 	{
-		switch (argc)
-		{
-		case 4:
-		{
-			std::wstring_view command = argv[1];
+		Rut::RxCmd::Arg arg;
+		arg.AddCmd(L"-gsp", L"gsp file path");
+		arg.AddCmd(L"-folder", L"files folder path");
+		arg.AddCmd(L"-mode", L"mode: [extract] [pack]");
+		arg.AddExample(L"-mode extract -gsp data.gsp -folder data/");
+		arg.AddExample(L"-mode pack -folder data/ -gsp data.gsp.new");
+		if (arg.Load(argc, argv) == false) { return; }
 
-			if (command == L"extract")
-			{
-				std::wstring_view gsp_path = argv[2];
-				std::wstring file_folder = ::FormatFolderPath(argv[3]);
-				GSD::GSP::Extract(gsp_path, file_folder);
-				std::cout << "Success\n";
-			}
-			else if (command == L"pack")
-			{
-				std::wstring_view new_gsp_path = argv[3];
-				std::wstring file_folder = ::FormatFolderPath(argv[2]);
-				GSD::GSP::Pack(new_gsp_path, file_folder);
-				std::cout << "Success\n";
-			}
-		}
-		break;
-
-		default:
+		if (arg[L"-mode"] == L"extract")
 		{
-			std::cout
-				<< "Command:\n"
-				<< "\tGSP_Editor.exe extract [gsp_path] [file_out_folder]\n"
-				<< "\tGSP_Editor.exe pack [file_folder] [gsp_out_path]\n"
-				<< "Example:\n"
-				<< "\tGSP_Editor.exe extract image.gsp image/\n"
-				<< "\tGSP_Editor.exe pack image/ image.gsp\n\n";
+			GSD::GSP::Extract(arg[L"-gsp"], arg[L"-folder"]);
 		}
+		else if (arg[L"-mode"] == L"pack")
+		{
+			GSD::GSP::Pack(arg[L"-folder"], arg[L"-gsp"]);
 		}
-
 	}
 	catch (const std::runtime_error& err)
 	{
@@ -59,10 +33,11 @@ static void UserMain(int argc, wchar_t* argv[])
 
 static void DebugMain()
 {
-
+	GSD::GSP::Pack(L"data/", L"data1.gsp");
 }
 
 int wmain(int argc, wchar_t* argv[])
 {
 	::UserMain(argc, argv);
+	//::DebugMain();
 }

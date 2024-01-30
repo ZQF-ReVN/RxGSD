@@ -14,7 +14,7 @@ namespace GSD::SPT
 		uint32_t m_uiUnFlag = 0;
 		Append_Script m_aAppendScript[0xF];
 		uint32_t m_uiGlobalStrCount = 0;
-		std::vector<std::wstring> m_vcGlobalStr;
+		std::vector<std::string> m_vcGlobalStr;
 		uint8_t m_aUnData[0x60] = { 0 };
 
 	public:
@@ -23,13 +23,13 @@ namespace GSD::SPT
 
 		}
 
-		void Load(std::wstring_view wsPath, size_t nCodePage)
+		void Load(const std::filesystem::path& phGlobal)
 		{
-			Rut::RxMem::Auto global_mem(wsPath);
-			this->Load(global_mem.GetPtr(), nCodePage);
+			Rut::RxMem::Auto global_mem(phGlobal);
+			this->Load(global_mem.GetPtr());
 		}
 
-		void Load(uint8_t* pData, size_t nCodePage)
+		void Load(uint8_t* pData)
 		{
 			uint8_t* cur_ptr = pData;
 
@@ -51,17 +51,21 @@ namespace GSD::SPT
 
 			for (auto ite_str : std::views::iota(0u, m_uiGlobalStrCount))
 			{
-				m_vcGlobalStr.emplace_back(SPT::Str::LoadANSI((char*)cur_ptr, nCodePage));
+				m_vcGlobalStr.emplace_back((char*)cur_ptr);
 				cur_ptr += 260;
 			}
 
 			memcpy(m_aUnData, cur_ptr, 0x60);
 		}
 
-		const std::wstring& GetName(size_t nIndex) const
+		std::vector<std::wstring> GetStrTable(size_t nCodePage) const
 		{
-			return m_vcGlobalStr.operator[](nIndex);
+			std::vector<std::wstring> str_table;
+			for (const auto& str : m_vcGlobalStr)
+			{
+				str_table.emplace_back(Str::LoadANSI(str, nCodePage));
+			}
+			return str_table;
 		}
-
 	};
 }

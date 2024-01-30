@@ -134,12 +134,12 @@ struct GSD_BMZ
 ### SPT
 
 ```C
-struct SPT_Code_Append_Data_Type0
+struct SPT_Code_Append_Data_Type0 // Test / Msg / Voice
 {
-  uint32_t uiNameSeq0; // char name seq in global.dat
-  uint32_t uiNameSeq1; // char name seq in global.dat
+  uint32_t uiNameReallySeq; // char name seq in global.dat. seq str -> "歩未"
+  uint32_t uiNameDisplaySeq; // char name seq in global.dat. seq str -> "???" (show this txt)
   uint32_t uiUn2;
-  uint32_t uiUn3;
+  uint32_t m_uiVoiceFileSeq; // 0x00002711 -> 10001.ogg
   uint32_t uiCharCount;
   uint32_t uiStrType0Len;
   uint32_t uiStrType1Len;
@@ -162,7 +162,7 @@ struct SPT_Code_Append_Data_Type1_Ele
   char aStr[uiStrLen + 1];
 };
 
-struct SPT_Code_Append_Data_Type2_Ele
+struct SPT_Code_Append_Data_Type2_Ele // Call Spt Function.like call load image or free.
 {
   uint32_t uiType1Count;
   SPT_Code_Append_Type1 aAppendType1[uiType1Count];
@@ -177,7 +177,7 @@ struct SPT_Code_Append_Data_Type3_Ele
 
 struct SPT_Code
 {
-  uint32_t uiCommand;
+  uint32_t uiCommand; // 0x00000022:Call Script, 0x00000001:Push Str, 
   uint32_t uiVal_1;
   uint32_t uiVal_2;
   uint32_t uiVal_3;
@@ -348,5 +348,12 @@ zib压缩数据解密后其实就是个bmp图片（完整的bmp文件结构）�
 所以直接把bmz解密后的bmp图片后缀改成bmz就可以了
 
 spt脚本目前看来，很像是按照块来读取的，不过里面的结构很奇葩，有可能是直接从vector里拷贝出来的数据，其中有些数据看起来像是乱码的
-估计是它这个加密的锅，但不影响正常读取，文本似乎可以直接按照结构变长，随便测了一下，没什么问题，暂时先这样用着把吧。
+估计是它这个加密的锅，但不影响正常读取，文本似乎可以直接按照结构变长，写了个序列化和反序化spt，不过重新序列化回去可以发现spt文件的大小都不一样了
+观察发现，重新生成的spt文件和原始的spt文件数据是一样的，但原始的spt文件还多出来了一节数据，调试后发现，引擎其实也根本没用这些末尾的数据，看起来这些数据和垃圾数据一样，
+反正随便测了一下，没什么问题，暂时先这样用着吧。
 
+人物名在spt里不存储，spt里的文本结构里只存储人物名在global.dat中的字符串表的下标，所以改人物名要改global.dat，
+这步做完人物名确实可以显示了，不过还会出现两个文件，第一个是原先不同人物对话的时候，字体会改变颜色，现在颜色变成了默认的
+这个需要在color_font.spt里找到人物名的字符串改掉就好了，还有个问题是语音没了，
+所以得在spt里搜索原先的人物名，全部改掉(text_init.spt,text_queue_wait.spt,text_second.spt)。
+还有一些游戏内的字符串也得从spt文件里改，SPT_Text_Editor只提取文本框和选项框的文本

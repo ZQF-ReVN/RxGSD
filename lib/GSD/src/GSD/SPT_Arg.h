@@ -12,10 +12,10 @@ namespace GSD::SPT
 	class Arg_Type0
 	{
 	private:
-		uint32_t m_uiNameSeq0 = 0;
-		uint32_t m_uiNameSeq1 = 0;
+		uint32_t m_uiNameReallySeq = 0;
+		uint32_t m_uiNameDisplaySeq = 0;
 		uint32_t m_uiUn2 = 0;
-		uint32_t m_uiUn3 = 0;
+		uint32_t m_uiVoiceFileSeq = 0;
 		uint32_t m_uiStrType0Len = 0; // dbcs char count
 		uint32_t m_uiStrType1Len = 0;
 		uint32_t m_uiStrType2Len = 0;

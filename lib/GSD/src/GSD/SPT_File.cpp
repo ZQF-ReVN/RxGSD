@@ -8,9 +8,14 @@ namespace GSD::SPT
 
 	}
 
-	void File::Load(std::wstring_view wsPath)
+	File::File(const std::filesystem::path& phSpt)
 	{
-		Rut::RxMem::Auto spt{ wsPath };
+		this->Load(phSpt);
+	}
+
+	void File::Load(const std::filesystem::path& phSpt)
+	{
+		Rut::RxMem::Auto spt{ phSpt };
 		this->Load(spt.GetPtr());
 	}
 

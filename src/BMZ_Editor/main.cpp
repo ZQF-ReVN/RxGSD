@@ -1,67 +1,30 @@
 ﻿#include <iostream>
 
+#include "Rut/RxCmd.h"
 #include "GSD/BMZ_Cryptor.h"
-#include "Rut/RxPath.h"
-#include "Rut/RxMem.h"
 
 
 static void UserMain(int argc, wchar_t* argv[])
 {
 	try
 	{
-		switch (argc)
-		{
-		case 2:
-		{
-			std::wstring path = argv[1];
-			std::wstring stuffix = Rut::RxPath::GetSuffix(path);
-			if (stuffix == L".bmz")
-			{
-				GSD::BMZ::Cryptor::Decode(path, Rut::RxPath::RemoveSuffix(path) + L".bmp");
-			}
-		}
-		break;
+		Rut::RxCmd::Arg arg;
+		arg.AddCmd(L"-bmz", L"bmz file path");
+		arg.AddCmd(L"-bmp", L"bmp file path");
+		arg.AddCmd(L"-new", L"new bmz file path");
+		arg.AddCmd(L"-mode", L"mode: [bmz2bmp] [bmp2bmz]");
+		arg.AddExample(L"-mode bmz2bmp -bmz im106.bmz -bmp im106.bmp");
+		arg.AddExample(L"-mode bmp2bmz -bmz im106.bmz -bmp im106.bmp -new im106.bmz.new");
+		if (arg.Load(argc, argv) == false) { return; }
 
-		case 4:
+		if (arg[L"-mode"] == L"bmz2bmp")
 		{
-			std::wstring_view command = argv[1];
-
-			if (command == L"decode")
-			{
-				std::wstring_view bmz_path = argv[2];
-				std::wstring_view bmp_path = argv[3];
-				GSD::BMZ::Cryptor::Decode(bmz_path, bmp_path);
-				std::cout << "Success\n";
-			}
+			GSD::BMZ::Cryptor::Decode(arg[L"-bmz"], arg[L"-bmp"]);
 		}
-		break;
-
-		case 5:
+		else if (arg[L"-mode"] == L"bmp2bmz")
 		{
-			std::wstring_view command = argv[1];
-			if (command == L"encode")
-			{
-				std::wstring_view org_bmz_path = argv[2];
-				std::wstring_view bmp_path = argv[3];
-				std::wstring_view new_bmz_path = argv[4];
-				GSD::BMZ::Cryptor::Encode(org_bmz_path, bmp_path, new_bmz_path);
-				std::cout << "Success\n";
-			}
+			GSD::BMZ::Cryptor::Encode(arg[L"-bmz"], arg[L"-bmp"], arg[L"-new"]);
 		}
-		break;
-
-		default:
-		{
-			std::cout
-				<< "Command:\n"
-				<< "\tBMZ_Editor.exe decode [bmz_path] [bmp_path]\n"
-				<< "\tBMZ_Editor.exe encode [org_bmz_path] [bmp_path] [new_bmz_path]\n"
-				<< "Example:\n"
-				<< "\tBMZ_Editor.exe decode cg101_01.bmz cg101_01.bmz.bmp\n"
-				<< "\tBMZ_Editor.exe encode cg101_01.bmz cg101_01.bmz.bmp cg101_01.bmz.new\n\n";
-		}
-		}
-
 	}
 	catch (const std::runtime_error& err)
 	{

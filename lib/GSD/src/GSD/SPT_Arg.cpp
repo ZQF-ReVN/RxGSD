@@ -17,10 +17,10 @@ namespace GSD::SPT
 
 		{
 			uint32_t* tmp_ptr = (uint32_t*)pData;
-			m_uiNameSeq0 = tmp_ptr[0];
-			m_uiNameSeq1 = tmp_ptr[1];
+			m_uiNameReallySeq = tmp_ptr[0];
+			m_uiNameDisplaySeq = tmp_ptr[1];
 			m_uiUn2 = tmp_ptr[2];
-			m_uiUn3 = tmp_ptr[3];
+			m_uiVoiceFileSeq = tmp_ptr[3];
 			m_uiStrType0Len = tmp_ptr[4];
 			m_uiStrType1Len = tmp_ptr[5];
 			m_uiStrType2Len = tmp_ptr[6];
@@ -52,11 +52,11 @@ namespace GSD::SPT
 
 	void Arg_Type0::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
 	{
-		m_uiNameSeq0 = Str::StrToNum(L"0x%08x", rfJson[L"NameSeq0"]);
-		m_uiNameSeq1 = Str::StrToNum(L"0x%08x", rfJson[L"NameSeq1"]);
+		m_uiNameReallySeq = Str::StrToNum(L"0x%08x", rfJson[L"NameReallySeq"]);
+		m_uiNameDisplaySeq = Str::StrToNum(L"0x%08x", rfJson[L"NameDisplaySeq"]);
 		m_uiUn2 = Str::StrToNum(L"0x%08x", rfJson[L"Un2"]);
-		m_uiUn3 = Str::StrToNum(L"0x%08x", rfJson[L"Un3"]);
-		this->SetType0Text(Str::MakeANSI(rfJson[L"StrType0"],nCodePage));
+		m_uiVoiceFileSeq = Str::StrToNum(L"0x%08x", rfJson[L"VoiceFileSeq"]);
+		this->SetType0Text(Str::MakeANSI(rfJson[L"StrType0"], nCodePage));
 		this->SetType1Text(Str::MakeANSI(rfJson[L"StrType1"], nCodePage));
 		this->SetType2Text(Str::MakeANSI(rfJson[L"StrType2"], nCodePage));
 	}
@@ -68,10 +68,10 @@ namespace GSD::SPT
 
 		{
 			uint32_t* tmp_ptr = (uint32_t*)cur_prt;
-			tmp_ptr[0] = m_uiNameSeq0;
-			tmp_ptr[1] = m_uiNameSeq1;
+			tmp_ptr[0] = m_uiNameReallySeq;
+			tmp_ptr[1] = m_uiNameDisplaySeq;
 			tmp_ptr[2] = m_uiUn2;
-			tmp_ptr[3] = m_uiUn3;
+			tmp_ptr[3] = m_uiVoiceFileSeq;
 			tmp_ptr[4] = m_uiStrType0Len;
 			tmp_ptr[5] = m_uiStrType1Len;
 			tmp_ptr[6] = m_uiStrType2Len;
@@ -105,10 +105,10 @@ namespace GSD::SPT
 	Rut::RxJson::JValue Arg_Type0::Make(size_t nCodePage) const
 	{
 		Rut::RxJson::JValue json;
-		json[L"NameSeq0"] = Str::NumToStr(L"0x%08x", m_uiNameSeq0);
-		json[L"NameSeq1"] = Str::NumToStr(L"0x%08x", m_uiNameSeq1);
+		json[L"NameReallySeq"] = Str::NumToStr(L"0x%08x", m_uiNameReallySeq);
+		json[L"NameDisplaySeq"] = Str::NumToStr(L"0x%08x", m_uiNameDisplaySeq);
 		json[L"Un2"] = Str::NumToStr(L"0x%08x", m_uiUn2);
-		json[L"Un3"] = Str::NumToStr(L"0x%08x", m_uiUn3);
+		json[L"VoiceFileSeq"] = Str::NumToStr(L"0x%08x", m_uiVoiceFileSeq);
 		json[L"StrType0"] = Str::LoadANSI(this->GetType0Text(), nCodePage);
 		json[L"StrType1"] = Str::LoadANSI(m_msStrType1, nCodePage);
 		json[L"StrType2"] = Str::LoadANSI(m_msStrType2, nCodePage);
@@ -151,14 +151,14 @@ namespace GSD::SPT
 
 	size_t Arg_Type0::GetNameSeq() const
 	{
-		return (size_t)m_uiNameSeq0;
+		return (size_t)m_uiNameReallySeq;
 	}
 
 	size_t Arg_Type0::GetSize() const
 	{
 		size_t size = 0;
 
-		size += sizeof(m_uiNameSeq0) + sizeof(m_uiNameSeq1) + sizeof(m_uiUn2) + sizeof(m_uiUn3);
+		size += sizeof(m_uiNameReallySeq) + sizeof(m_uiNameDisplaySeq) + sizeof(m_uiUn2) + sizeof(m_uiVoiceFileSeq);
 		size += sizeof(m_uiStrType0Len) + sizeof(m_uiStrType1Len) + sizeof(m_uiStrType2Len);
 		size += m_vcStrType0CharList.size() * sizeof(SPT_Char_Entry);
 
@@ -210,13 +210,13 @@ namespace GSD::SPT
 
 	void Arg_Type1::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
 	{
-		m_uiVal_0 = Str::StrToNum(L"0x%08x", rfJson[L"Val_0"]);
-		m_uiVal_1 = Str::StrToNum(L"0x%08x", rfJson[L"Val_1"]);
-		m_uiVal_2 = Str::StrToNum(L"0x%08x", rfJson[L"Val_2"]);
-		m_uiVal_3 = Str::StrToNum(L"0x%08x", rfJson[L"Val_3"]);
-		m_uiVal_5 = Str::StrToNum(L"0x%08x", rfJson[L"Val_5"]);
-		m_uiVal_6 = Str::StrToNum(L"0x%08x", rfJson[L"Val_6"]);
-		m_uiVal_7 = Str::StrToNum(L"0x%08x", rfJson[L"Val_7"]);
+		m_uiVal_0 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_0"]);
+		m_uiVal_1 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_1"]);
+		m_uiVal_2 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_2"]);
+		m_uiVal_3 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_3"]);
+		m_uiVal_5 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_5"]);
+		m_uiVal_6 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_6"]);
+		m_uiVal_7 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_7"]);
 		this->SetStr(Str::MakeANSI(rfJson[L"Str"], nCodePage));
 	}
 
@@ -307,7 +307,7 @@ namespace GSD::SPT
 
 	void Arg_Type2::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
 	{
-		m_uiParameterType1Count = Str::StrToNum(L"0x%08x", rfJson[L"ArgType1Count"]);
+		m_uiParameterType1Count = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"ArgType1Count"]);
 
 		Rut::RxJson::JArray& count_arrary = rfJson[L"ArgType1List"].ToAry();
 		for (auto& type1_json : count_arrary)
@@ -378,9 +378,9 @@ namespace GSD::SPT
 
 	void Arg_Type3::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
 	{
-		m_uiVal_0 = Str::StrToNum(L"0x%08x", rfJson[L"Val_0"]);
-		m_uiVal_1 = Str::StrToNum(L"0x%08x", rfJson[L"Val_1"]);
-		m_uiVal_2 = Str::StrToNum(L"0x%08x", rfJson[L"Val_2"]);
+		m_uiVal_0 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_0"]);
+		m_uiVal_1 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_1"]);
+		m_uiVal_2 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_2"]);
 	}
 
 	Rut::RxMem::Auto Arg_Type3::Make() const

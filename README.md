@@ -1,5 +1,5 @@
 # GSDTools
-Tools For Atelier Sakura's GSD Engine. Filename Extension .gsp .spt .bmz
+Tools For Atelier Sakura's GSD Engine. Filename Extension `.gsp` `.spt` `.bmz`
 
 ## GSP_Editor
 extract `.gsp` pack, pack files to `.gsp`  

@@ -1,25 +1,29 @@
 # GSDTools
 Tools For Atelier Sakura's GSD Engine. Filename Extension `.gsp` `.spt` `.bmz`
 
-## GSP_Editor
+## Tools
+### GSP_Editor
 - extract `.gsp`
 - pack files to `.gsp`  
 
-## BMZ_Editor
+### BMZ_Editor
 - convert `bmz to bmp`
 - `bmp to bmz`  
 
-## SPT_Decoder
+### SPT_Decoder
 - decrypt `.spt` script
 - make `.spt` script can be read without encryption
 
-## SPT_Parser
+### SPT_Parser
 - serialize from `.spt` to json
 - deserialize from json to `.spt`  
 
-## SPT_Text_Editor
+### SPT_Text_Editor
 - export msg text from `.spt`
 - import msg text to `.spt`
 
-## VFS_Hook
+### VFS_Hook
 replace files as a patch instead of repack a large `.gsp`
+
+## More
+- [the analytical report](/etc)

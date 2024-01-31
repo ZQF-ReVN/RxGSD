@@ -25,7 +25,7 @@ static void UserMain(int argc, wchar_t* argv[])
 			GSD::GSP::Pack(arg[L"-folder"], arg[L"-gsp"]);
 		}
 	}
-	catch (const std::runtime_error& err)
+	catch (const std::exception& err)
 	{
 		std::cerr << err.what() << std::endl;
 	}

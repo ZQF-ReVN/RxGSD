@@ -77,7 +77,7 @@ static void UserMain(int argc, wchar_t* argv[])
 			}
 		}
 	}
-	catch (const std::runtime_error& err)
+	catch (const std::exception& err)
 	{
 		std::cerr << err.what() << std::endl;
 	}

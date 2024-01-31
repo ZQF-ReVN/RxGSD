@@ -148,7 +148,7 @@ static void UserMain(int argc, wchar_t* argv[])
 			throw std::runtime_error("Command Error!");
 		}
 	}
-	catch (const std::runtime_error& err)
+	catch (const std::exception& err)
 	{
 		std::cerr << err.what() << std::endl;
 	}

@@ -26,7 +26,7 @@ static void UserMain(int argc, wchar_t* argv[])
 			GSD::BMZ::Cryptor::Encode(arg[L"-bmz"], arg[L"-bmp"], arg[L"-new"]);
 		}
 	}
-	catch (const std::runtime_error& err)
+	catch (const std::exception& err)
 	{
 		std::cerr << err.what() << std::endl;
 	}

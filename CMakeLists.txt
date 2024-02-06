@@ -66,11 +66,8 @@ if(MSVC)
 
     # Compile Flags
     if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_link_options(/Gy)
-        add_link_options(/GL)
-        add_link_options(/GS)
-        add_link_options(/OPT:REF)
-        add_link_options(/Zc:inline)
+        add_compile_options(/Gy)
+        add_compile_options(/Zc:inline)
     endif()
 endif()
 

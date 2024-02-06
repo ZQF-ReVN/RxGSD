@@ -1,39 +1,41 @@
 # Main CMakeLists
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.20)
 
 # Project Name
 project(GSD_Tools)
 
 # Option
-set(USER_CONFIG_BUILD_TEST TRUE)
-set(USER_CONFIG_IPO_OPTIMIZATION TRUE)
-set(USER_CONFIG_STATIC_MSVC_RUNTIME TRUE)
+set(UVAR_BUILD_TEST TRUE)
+set(UVAR_IPO_OPTIMIZATION TRUE)
+set(UVAR_STATIC_MSVC_RUNTIME TRUE)
 
 # Value Define
 set(ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 # Out Path
 if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-    set(EXECUTABLE_OUTPUT_PATH "${ROOT_DIR}/.bin/x32")
-    set(LIBRARY_OUTPUT_PATH "${ROOT_DIR}/.bin/x32")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(EXECUTABLE_OUTPUT_PATH "${ROOT_DIR}/.bin/x32/debug")
+        set(LIBRARY_OUTPUT_PATH "${ROOT_DIR}/.bin/x32/debug")
+    else()
+        set(EXECUTABLE_OUTPUT_PATH "${ROOT_DIR}/.bin/x32/release")
+        set(LIBRARY_OUTPUT_PATH "${ROOT_DIR}/.bin/x32/release")
+    endif()
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(EXECUTABLE_OUTPUT_PATH "${ROOT_DIR}/.bin/x64")
-    set(LIBRARY_OUTPUT_PATH "${ROOT_DIR}/.bin/x64")
-endif()
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(EXECUTABLE_OUTPUT_PATH "${EXECUTABLE_OUTPUT_PATH}/debug")
-    set(LIBRARY_OUTPUT_PATH "${LIBRARY_OUTPUT_PATH}/debug")
-else()
-    set(EXECUTABLE_OUTPUT_PATH "${EXECUTABLE_OUTPUT_PATH}/release")
-    set(LIBRARY_OUTPUT_PATH "${LIBRARY_OUTPUT_PATH}/release")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(EXECUTABLE_OUTPUT_PATH "${ROOT_DIR}/.bin/x64/debug")
+        set(LIBRARY_OUTPUT_PATH "${ROOT_DIR}/.bin/x64/debug")
+    else()
+        set(EXECUTABLE_OUTPUT_PATH "${ROOT_DIR}/.bin/x64/release")
+        set(LIBRARY_OUTPUT_PATH "${ROOT_DIR}/.bin/x64/release")
+    endif()
 endif()
 
 # IPO
-if(USER_CONFIG_IPO_OPTIMIZATION)
+if(UVAR_IPO_OPTIMIZATION)
     include(CheckIPOSupported)
-    check_ipo_supported(RESULT ipo_check_result OUTPUT output)
-    if(ipo_check_result)
+    check_ipo_supported(RESULT IPO_CHECK_RESULT OUTPUT output)
+    if(IPO_CHECK_RESULT)
         set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
         set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO TRUE)
         set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL TRUE)
@@ -44,45 +46,43 @@ endif()
 
 # MSVC Setting
 if(MSVC)
-    # Macro
-    add_definitions(-DUNICODE -D_UNICODE)
-    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/source-charset:utf-8>")
-
     # Runtime
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        if (USER_CONFIG_STATIC_MSVC_RUNTIME)
+        if (UVAR_STATIC_MSVC_RUNTIME)
             set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreadedDebug)
         else()
             set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreadedDebugDLL)
         endif()
     else()
-        if (USER_CONFIG_STATIC_MSVC_RUNTIME)
+        if (UVAR_STATIC_MSVC_RUNTIME)
             set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
         else()
             set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
         endif()
     endif()
 
-    # Compiler
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        # set(CMAKE_CXX_FLAGS_DEBUG)
-    else()
+    # Macro
+    add_definitions(-DUNICODE -D_UNICODE)
+
+    # Compile Flags
+    if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_link_options(/Gy)
+        add_link_options(/GL)
+        add_link_options(/GS)
         add_link_options(/OPT:REF)
-        set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /GL /Gy /GS /Zc:inline /Zc:forScope")
-        # set(CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-        # set(CMAKE_CXX_FLAGS_MINSIZEREL)
+        add_link_options(/Zc:inline)
     endif()
 endif()
 
 # Include
 include_directories("${ROOT_DIR}")
 
-# Library
+# Subdirectory
 add_subdirectory("third")
 add_subdirectory("lib")
 add_subdirectory("src")
 
 # Test
-if(USER_CONFIG_BUILD_TEST)
+if(UVAR_BUILD_TEST)
     add_subdirectory("test")
 endif()

@@ -1,12 +1,8 @@
 ﻿# Project
 project(GSD)
 
-# Cpp Standard
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-
 # Set Source File Path
-list(APPEND ${PROJECT_NAME}_SRC_FILE 
+list(APPEND "${PROJECT_NAME}_SRC_FILE" 
     "src/GSD/BMZ_Cryptor.cpp"
     "src/GSD/SPT_Global.cpp"
     "src/GSD/SPT_Cryptor.cpp"
@@ -19,11 +15,13 @@ list(APPEND ${PROJECT_NAME}_SRC_FILE
 
 # Source File Only x32
 if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-    list(APPEND ${PROJECT_NAME}_SRC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/GSD/VFS_Hook.cpp")
+    list(APPEND "${PROJECT_NAME}_SRC_FILE" "${CMAKE_CURRENT_SOURCE_DIR}/src/GSD/VFS_Hook.cpp")
 endif()
 
 # Set Library
 add_library("${PROJECT_NAME}" "${${PROJECT_NAME}_SRC_FILE}")
+target_compile_features("${PROJECT_NAME}" PRIVATE cxx_std_23)
+target_compile_options("${PROJECT_NAME}" PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/source-charset:utf-8>")
 target_include_directories("${PROJECT_NAME}" INTERFACE "src")
 
 # Add Library

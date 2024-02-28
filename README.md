@@ -31,4 +31,4 @@ Tools For Atelier Sakura's GSD Engine. Filename Extension `.gsp` `.spt` `.bmz`
 replace files as a patch instead of repack a large `.gsp`
 
 ## More
-- [the note](/etc)
+Check the details of reverse analysis [note](/etc)

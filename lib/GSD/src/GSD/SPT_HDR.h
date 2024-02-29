@@ -24,6 +24,7 @@ namespace GSD::SPT
 	public:
 		Append_Script_Entry();
 		Append_Script_Entry(Rut::RxMem::View& vMem);
+		Append_Script_Entry(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 
 		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);

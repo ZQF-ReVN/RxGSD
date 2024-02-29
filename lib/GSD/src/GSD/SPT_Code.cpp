@@ -1,6 +1,7 @@
 #include "SPT_Code.h"
 #include "SPT_Str.h"
 
+#include <ranges>
 #include <stdexcept>
 
 
@@ -25,23 +26,20 @@ namespace GSD::SPT
 	{
 		vMem >> m_uiCommand >> m_uiVal_1 >> m_uiVal_2 >> m_uiVal_3 >> m_uiVal_4 >> m_uiSequnece >> m_uiArgType1Count >> m_uiArgType2Count >> m_uiArgType3Count;
 
-		if (m_uiCommand == 1) // Proc Text Struct
-		{
-			m_ArgType0.Load(vMem);
-		}
+		m_uiCommand == 1 ? (void)m_ArgType0.Load(vMem) : void(0);// Proc Text Struct
 
-		for (size_t ite_type1 = 0; ite_type1 < m_uiArgType1Count; ite_type1++)
-		{
+		for (auto i : std::views::iota(0u, m_uiArgType1Count)) 
+		{ 
 			m_vcArgType1.emplace_back(vMem);
 		}
 
-		for (size_t ite_type2 = 0; ite_type2 < m_uiArgType2Count; ite_type2++)
-		{
+		for (auto i : std::views::iota(0u, m_uiArgType2Count)) 
+		{ 
 			m_vcArgType2.emplace_back(vMem);
 		}
 
-		for (size_t ite_type3 = 0; ite_type3 < m_uiArgType3Count; ite_type3++)
-		{
+		for (auto i : std::views::iota(0u, m_uiArgType3Count)) 
+		{ 
 			m_vcArgType3.emplace_back(vMem);
 		}
 	}
@@ -58,84 +56,46 @@ namespace GSD::SPT
 		m_uiArgType2Count = Str::StrToNum(L"0x%08x", rfJson[L"ArgType2Count"]);
 		m_uiArgType3Count = Str::StrToNum(L"0x%08x", rfJson[L"ArgType3Count"]);
 
-		Rut::RxJson::JValue& json_type0 = rfJson[L"ArgType0"];
-		Rut::RxJson::JArray& json_type1 = rfJson[L"ArgType1"].ToAry();
-		Rut::RxJson::JArray& json_type2 = rfJson[L"ArgType2"].ToAry();
-		Rut::RxJson::JArray& json_type3 = rfJson[L"ArgType3"].ToAry();
+		m_uiCommand == 1 ? (void)m_ArgType0.Load(rfJson[L"ArgType0"], nCodePage) : void(0); // Proc Text Struct
 
-		if (m_uiCommand == 1) // Proc Text Struct
-		{
-			m_ArgType0.Load(json_type0, nCodePage);
+		for (auto& type1_json : rfJson[L"ArgType1"].ToAry()) 
+		{ 
+			m_vcArgType1.emplace_back(type1_json, nCodePage);
 		}
 
-		for (auto& type1_json : json_type1)
-		{
-			Arg_Type1 type1;
-			type1.Load(type1_json, nCodePage);
-			m_vcArgType1.push_back(std::move(type1));
+		for (auto& type2_json : rfJson[L"ArgType2"].ToAry()) 
+		{ 
+			m_vcArgType2.emplace_back(type2_json, nCodePage);
 		}
 
-		for (auto& type2_json : json_type2)
-		{
-			Arg_Type2 type2;
-			type2.Load(type2_json, nCodePage);
-			m_vcArgType2.push_back(std::move(type2));
-		}
-
-		for (auto& type3_json : json_type3)
-		{
-			Arg_Type3 type3;
-			type3.Load(type3_json, nCodePage);
-			m_vcArgType3.push_back(std::move(type3));
+		for (auto& type3_json : rfJson[L"ArgType3"].ToAry()) 
+		{ 
+			m_vcArgType3.emplace_back(type3_json, nCodePage);
 		}
 	}
 
 	Rut::RxMem::Auto Code::Make() const
 	{
 		Rut::RxMem::Auto mem_data(this->GetSize());
-		uint8_t* cur_ptr = mem_data.GetPtr();
+		Rut::RxMem::View view = mem_data.GetView();
 
-		{
-			uint32_t* tmp_ptr = (uint32_t*)cur_ptr;
-			tmp_ptr[0] = m_uiCommand;
-			tmp_ptr[1] = m_uiVal_1;
-			tmp_ptr[2] = m_uiVal_2;
-			tmp_ptr[3] = m_uiVal_3;
-			tmp_ptr[4] = m_uiVal_4;
-			tmp_ptr[5] = m_uiSequnece;
-			tmp_ptr[6] = m_uiArgType1Count;
-			tmp_ptr[7] = m_uiArgType2Count;
-			tmp_ptr[8] = m_uiArgType3Count;
-		}
-		cur_ptr += 9 * 4;
+		view << m_uiCommand << m_uiVal_1 << m_uiVal_2 << m_uiVal_3 << m_uiVal_4 << m_uiSequnece << m_uiArgType1Count << m_uiArgType2Count << m_uiArgType3Count;
 
+		m_uiCommand == 1 ? (void)(view << m_ArgType0.Make()) : void(0); // Proc Text Struct
 
-		if (m_uiCommand == 1) // Proc Text Struct
-		{
-			Rut::RxMem::Auto type0_mem = m_ArgType0.Make();
-			memcpy(cur_ptr, type0_mem.GetPtr(), type0_mem.GetSize());
-			cur_ptr += type0_mem.GetSize();
+		for (auto& type1 : m_vcArgType1) 
+		{ 
+			view << type1.Make();
 		}
 
-		for (auto& type1 : m_vcArgType1)
-		{
-			Rut::RxMem::Auto type1_mem = type1.Make();
-			memcpy(cur_ptr, type1_mem.GetPtr(), type1_mem.GetSize());
-			cur_ptr += type1_mem.GetSize();
+		for (auto& type2 : m_vcArgType2) 
+		{ 
+			view << type2.Make();
 		}
 
-		for (auto& type2 : m_vcArgType2)
-		{
-			Rut::RxMem::Auto type2_mem = type2.Make();
-			memcpy(cur_ptr, type2_mem.GetPtr(), type2_mem.GetSize());
-			cur_ptr += type2_mem.GetSize();
-		}
-
-		for (auto& type3 : m_vcArgType3)
-		{
-			Rut::RxMem::Auto type3_mem = type3.Make();
-			memcpy(cur_ptr, type3_mem.GetPtr(), type3_mem.GetSize());
-			cur_ptr += type3_mem.GetSize();
+		for (auto& type3 : m_vcArgType3) 
+		{ 
+			view << type3.Make();
 		}
 
 		return mem_data;
@@ -155,29 +115,36 @@ namespace GSD::SPT
 		json[L"ArgType2Count"] = Str::NumToStr(L"0x%08x", m_uiArgType2Count);
 		json[L"ArgType3Count"] = Str::NumToStr(L"0x%08x", m_uiArgType3Count);
 
-		Rut::RxJson::JValue& json_type0 = json[L"ArgType0"];
-		Rut::RxJson::JArray& json_type1 = json[L"ArgType1"].ToAry();
-		Rut::RxJson::JArray& json_type2 = json[L"ArgType2"].ToAry();
-		Rut::RxJson::JArray& json_type3 = json[L"ArgType3"].ToAry();
-
-		if (m_uiCommand == 1) // Proc Text Struct
+		if (m_uiCommand == 1)// Proc Text Struct
 		{
-			json_type0 = m_ArgType0.Make(nCodePage);
+			json[L"ArgType0"] = m_ArgType0.Make(nCodePage);
 		}
 
-		for (auto& type1 : m_vcArgType1)
+		if (m_vcArgType1.size())
 		{
-			json_type1.emplace_back(type1.Make(nCodePage));
+			Rut::RxJson::JArray& json_type1 = json[L"ArgType1"].ToAry();
+			for (auto& type1 : m_vcArgType1)
+			{
+				json_type1.emplace_back(type1.Make(nCodePage));
+			}
 		}
 
-		for (auto& type2 : m_vcArgType2)
+		if (m_vcArgType2.size())
 		{
-			json_type2.emplace_back(type2.Make(nCodePage));
+			Rut::RxJson::JArray& json_type2 = json[L"ArgType2"].ToAry();
+			for (auto& type2 : m_vcArgType2)
+			{
+				json_type2.emplace_back(type2.Make(nCodePage));
+			}
 		}
 
-		for (auto& type3 : m_vcArgType3)
+		if (m_vcArgType3.size())
 		{
-			json_type3.emplace_back(type3.Make(nCodePage));
+			Rut::RxJson::JArray& json_type3 = json[L"ArgType3"].ToAry();
+			for (auto& type3 : m_vcArgType3)
+			{
+				json_type3.emplace_back(type3.Make(nCodePage));
+			}
 		}
 
 		return json;
@@ -187,33 +154,22 @@ namespace GSD::SPT
 	{
 		size_t code_size = 0;
 
-		code_size += sizeof(m_uiCommand);
-		code_size += sizeof(m_uiVal_1);
-		code_size += sizeof(m_uiVal_2);
-		code_size += sizeof(m_uiVal_3);
-		code_size += sizeof(m_uiVal_4);
-		code_size += sizeof(m_uiSequnece);
-		code_size += sizeof(m_uiArgType1Count);
-		code_size += sizeof(m_uiArgType2Count);
-		code_size += sizeof(m_uiArgType3Count);
+		code_size += sizeof(m_uiCommand) + sizeof(m_uiVal_1) + sizeof(m_uiVal_2) + sizeof(m_uiVal_3) + sizeof(m_uiVal_4);
+		code_size += sizeof(m_uiSequnece) + sizeof(m_uiArgType1Count) + sizeof(m_uiArgType2Count) + sizeof(m_uiArgType3Count);
+		code_size += m_uiCommand == 1 ? m_ArgType0.GetSize() : 0;
 
-		if (m_uiCommand == 1)
-		{
-			code_size += m_ArgType0.GetSize();
-		}
-
-		for (auto& type1 : m_vcArgType1)
-		{
+		for (auto& type1 : m_vcArgType1) 
+		{ 
 			code_size += type1.GetSize();
 		}
 
-		for (auto& type2 : m_vcArgType2)
-		{
+		for (auto& type2 : m_vcArgType2) 
+		{ 
 			code_size += type2.GetSize();
 		}
 
-		for (auto& type3 : m_vcArgType3)
-		{
+		for (auto& type3 : m_vcArgType3) 
+		{ 
 			code_size += type3.GetSize();
 		}
 

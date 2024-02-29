@@ -45,9 +45,77 @@ static void TestMake()
 
 static void TestHdrParse()
 {
+	std::cout << "[test]: TestHdrParse\n";
+
 	size_t success_count = 0;
-	std::filesystem::create_directory(L"spt_hdr_json/");
-	for (auto& entry : std::filesystem::directory_iterator(L"spt_dec/"))
+	for (auto& entry : std::filesystem::directory_iterator(L"spt/"))
+	{
+		if (entry.is_regular_file() == false) { continue; }
+		if (entry.path().extension() != L".spt") { continue; }
+
+		Rut::RxMem::Auto spt_org_mem(entry);
+		Rut::RxMem::View spt_org_viw = spt_org_mem.GetView();
+		size_t spt_real_size = 0;
+
+		GSD::SPT::HDR spt_file1;
+		spt_file1.Load(spt_org_viw);
+		Rut::RxJson::JValue spt_file1_json = spt_file1.Make(932);
+
+		spt_real_size = spt_file1.GetSize();
+
+		GSD::SPT::HDR spt_file2;
+		spt_file2.Load(spt_file1_json, 932);
+
+		Rut::RxMem::Auto spt_file1_mem = spt_file1.Make();
+		Rut::RxMem::Auto spt_file2_mem = spt_file2.Make();
+
+		GSD::SPT::HDR spt_file3;
+		Rut::RxMem::View spt_file1_view = spt_file1_mem.GetView();
+		spt_file3.Load(spt_file1_view);
+
+		// Check Reload Data
+		if (spt_file1_mem.GetSize() == spt_file2_mem.GetSize())
+		{
+			if (memcmp(spt_file1_mem.GetPtr(), spt_file2_mem.GetPtr(), spt_file1_mem.GetSize()) != 0)
+			{
+				Rut::RxCmd::PutFormat(L"FAILED:%s\n", entry.path().wstring().data());
+				continue;
+			}
+		}
+		else
+		{
+			Rut::RxCmd::PutFormat(L"FAILED:%s\n", entry.path().wstring().data());
+			continue;
+		}
+
+		// Check Org Data
+		if (spt_file1_mem.GetSize() == spt_real_size)
+		{
+			if (memcmp(spt_file1_mem.GetPtr(), spt_org_mem.GetPtr(), spt_real_size) != 0)
+			{
+				Rut::RxCmd::PutFormat(L"FAILED:%s\n", entry.path().wstring().data());
+				continue;
+			}
+		}
+		else
+		{
+			Rut::RxCmd::PutFormat(L"FAILED:%s\n", entry.path().wstring().data());
+			continue;
+		}
+
+		std::cout << entry << std::endl;
+		success_count += 1;
+	}
+
+	Rut::RxCmd::PutFormat(L"SUCCESS:%d\n", success_count);
+}
+
+static void TestSptParse()
+{
+	std::cout << "[test]: TestSptParse\n";
+
+	size_t success_count = 0;
+	for (auto& entry : std::filesystem::directory_iterator(L"spt/"))
 	{
 		if (entry.is_regular_file() == false) { continue; }
 		if (entry.path().extension() != L".spt") { continue; }
@@ -102,6 +170,7 @@ static void TestHdrParse()
 			continue;
 		}
 
+		std::cout << entry << std::endl;
 		success_count += 1;
 	}
 
@@ -111,4 +180,5 @@ static void TestHdrParse()
 int main()
 {
 	TestHdrParse();
+	TestSptParse();
 }

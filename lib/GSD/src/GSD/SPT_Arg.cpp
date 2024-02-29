@@ -17,13 +17,21 @@ namespace GSD::SPT
 		this->Load(vMem);
 	}
 
+	Arg_Type0::Arg_Type0(Rut::RxJson::JValue& rfJson, size_t nCodePage)
+	{
+		this->Load(rfJson, nCodePage);
+	}
+
 	void Arg_Type0::Load(Rut::RxMem::View& vMem)
 	{
 		vMem >> m_uiNameReallySeq >> m_uiNameDisplaySeq >> m_uiUn2 >> m_uiVoiceFileSeq >> m_uiStrType0Len >> m_uiStrType1Len >> m_uiStrType2Len;
 
 		if (m_uiStrType0Len)
 		{
-			m_vcStrType0CharList.append_range(std::views::repeat(vMem.Read<SPT_Char_Entry>(), m_uiStrType0Len));
+			for (auto i : std::views::iota(0u, m_uiStrType0Len)) 
+			{ 
+				m_vcStrType0CharList.emplace_back(vMem.Read<SPT_Char_Entry>());
+			}
 		}
 
 		if (m_uiStrType1Len)
@@ -59,7 +67,10 @@ namespace GSD::SPT
 
 		if (m_uiStrType0Len)
 		{
-			std::ranges::for_each(m_vcStrType0CharList, [&view](auto& entry) { view << entry; });
+			for (auto& entry : m_vcStrType0CharList)
+			{
+				view << entry;
+			}
 		}
 
 		if (m_uiStrType1Len)
@@ -78,6 +89,7 @@ namespace GSD::SPT
 	Rut::RxJson::JValue Arg_Type0::Make(size_t nCodePage) const
 	{
 		Rut::RxJson::JValue json;
+
 		json[L"NameReallySeq"] = Str::NumToStr(L"0x%08x", m_uiNameReallySeq);
 		json[L"NameDisplaySeq"] = Str::NumToStr(L"0x%08x", m_uiNameDisplaySeq);
 		json[L"Un2"] = Str::NumToStr(L"0x%08x", m_uiUn2);
@@ -85,6 +97,7 @@ namespace GSD::SPT
 		json[L"StrType0"] = Str::LoadANSI(this->GetType0Text(), nCodePage);
 		json[L"StrType1"] = Str::LoadANSI(m_msStrType1, nCodePage);
 		json[L"StrType2"] = Str::LoadANSI(m_msStrType2, nCodePage);
+
 		return json;
 	}
 
@@ -130,21 +143,11 @@ namespace GSD::SPT
 	size_t Arg_Type0::GetSize() const
 	{
 		size_t size = 0;
-
 		size += sizeof(m_uiNameReallySeq) + sizeof(m_uiNameDisplaySeq) + sizeof(m_uiUn2) + sizeof(m_uiVoiceFileSeq);
 		size += sizeof(m_uiStrType0Len) + sizeof(m_uiStrType1Len) + sizeof(m_uiStrType2Len);
 		size += m_vcStrType0CharList.size() * sizeof(SPT_Char_Entry);
-
-		if (m_uiStrType1Len)
-		{
-			size += m_uiStrType1Len + 1;
-		}
-
-		if (m_uiStrType2Len)
-		{
-			size += m_uiStrType2Len + 1;
-		}
-
+		size += m_uiStrType1Len ? (m_uiStrType1Len + 1) : 0;
+		size += m_uiStrType2Len ? (m_uiStrType2Len + 1) : 0;
 		return size;
 	}
 
@@ -171,7 +174,7 @@ namespace GSD::SPT
 		if (m_uiStrLen)
 		{
 			m_msStr = { vMem.CurPtr<char>(), m_uiStrLen };
-			vMem.Skip(m_uiStrLen);
+			vMem.Skip(m_uiStrLen + 1);
 		}
 	}
 
@@ -194,10 +197,7 @@ namespace GSD::SPT
 
 		view << m_uiVal_0 << m_uiVal_1 << m_uiVal_2 << m_uiVal_3 << m_uiStrLen << m_uiVal_5 << m_ucVal_6 << m_uiVal_7;
 
-		if (m_uiStrLen)
-		{
-			view.Write(m_msStr.data(), m_uiStrLen + 1);
-		}
+		m_uiStrLen ? (void)view.Write(m_msStr.data(), m_uiStrLen + 1) : void(0);
 
 		return mem_data;
 	}
@@ -205,6 +205,7 @@ namespace GSD::SPT
 	Rut::RxJson::JValue Arg_Type1::Make(size_t nCodePage) const
 	{
 		Rut::RxJson::JValue json;
+
 		json[L"Val_0"] = Str::NumToStr(L"0x%08x", m_uiVal_0);
 		json[L"Val_1"] = Str::NumToStr(L"0x%08x", m_uiVal_1);
 		json[L"Val_2"] = Str::NumToStr(L"0x%08x", m_uiVal_2);
@@ -213,20 +214,16 @@ namespace GSD::SPT
 		json[L"Val_6"] = Str::NumToStr(L"0x%08x", m_ucVal_6);
 		json[L"Val_7"] = Str::NumToStr(L"0x%08x", m_uiVal_7);
 		json[L"Str"] = Str::LoadANSI(m_msStr, nCodePage);
+
 		return json;
 	}
 
 	size_t Arg_Type1::GetSize() const
 	{
 		size_t size = 0;
-
-		size += sizeof(m_uiVal_0) + sizeof(m_uiVal_1) + sizeof(m_uiVal_2) + sizeof(m_uiVal_3) + sizeof(m_uiStrLen) + sizeof(m_uiVal_5) + sizeof(m_ucVal_6) + sizeof(m_uiVal_7);
-
-		if (m_uiStrLen)
-		{
-			size += m_uiStrLen + 1;
-		}
-
+		size += sizeof(m_uiVal_0) + sizeof(m_uiVal_1) + sizeof(m_uiVal_2) + sizeof(m_uiVal_3);
+		size += sizeof(m_uiStrLen) + sizeof(m_uiVal_5) + sizeof(m_ucVal_6) + sizeof(m_uiVal_7);
+		size += m_uiStrLen ? (m_uiStrLen + 1) : 0;
 		return size;
 	}
 
@@ -247,11 +244,16 @@ namespace GSD::SPT
 		this->Load(vMem);
 	}
 
+	Arg_Type2::Arg_Type2(Rut::RxJson::JValue& rfJson, size_t nCodePage)
+	{
+		this->Load(rfJson, nCodePage);
+	}
+
 	void Arg_Type2::Load(Rut::RxMem::View& vMem)
 	{
 		vMem >> m_uiParameterType1Count;
 
-		for (size_t ite_type1 = 0; ite_type1 < m_uiParameterType1Count; ite_type1++)
+		for (auto i : std::views::iota(0u, m_uiParameterType1Count))
 		{
 			m_vcParameterType1.emplace_back(vMem);
 		}
@@ -260,32 +262,52 @@ namespace GSD::SPT
 	void Arg_Type2::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
 	{
 		m_uiParameterType1Count = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"ArgType1Count"]);
-		std::ranges::for_each(rfJson[L"ArgType1List"].ToAry(), [this, &nCodePage](auto& type1_json) {m_vcParameterType1.emplace_back(type1_json, nCodePage); });
+
+		for (auto& type1_json : rfJson[L"ArgType1List"].ToAry()) 
+		{ 
+			m_vcParameterType1.emplace_back(type1_json, nCodePage);
+		}
 	}
 
 	Rut::RxMem::Auto Arg_Type2::Make() const
 	{
 		Rut::RxMem::Auto mem_data(this->GetSize());
 		Rut::RxMem::View view = mem_data.GetView();
+
 		view << m_uiParameterType1Count;
-		std::ranges::for_each(m_vcParameterType1, [&view](auto& type1) { view << type1.Make(); });
+
+		for (auto& type1: m_vcParameterType1) 
+		{ 
+			view << type1.Make();
+		}
+
 		return mem_data;
 	}
 
 	Rut::RxJson::JValue Arg_Type2::Make(size_t nCodePage) const
 	{
 		Rut::RxJson::JValue json;
+
 		json[L"ArgType1Count"] = Str::NumToStr(L"0x%08x", m_uiParameterType1Count);
+
 		Rut::RxJson::JArray& count_arrary = json[L"ArgType1List"].ToAry();
-		std::ranges::for_each(m_vcParameterType1, [&count_arrary, &nCodePage](auto& type1) { count_arrary.emplace_back(type1.Make(nCodePage)); });
+		for (auto& type1 : m_vcParameterType1) 
+		{ 
+			count_arrary.emplace_back(type1.Make(nCodePage));
+		}
+
 		return json;
 	}
 
 	size_t Arg_Type2::GetSize() const
 	{
-		size_t size = 0;
-		size += sizeof(m_uiParameterType1Count);
-		std::ranges::for_each(m_vcParameterType1, [&size](auto& type1) { size += type1.GetSize(); });
+		size_t size = sizeof(m_uiParameterType1Count);
+
+		for (auto& type1 : m_vcParameterType1) 
+		{ 
+			size += type1.GetSize();
+		}
+
 		return size;
 	}
 
@@ -298,6 +320,11 @@ namespace GSD::SPT
 	Arg_Type3::Arg_Type3(Rut::RxMem::View& vMem)
 	{
 		this->Load(vMem);
+	}
+
+	Arg_Type3::Arg_Type3(Rut::RxJson::JValue& rfJson, size_t nCodePage)
+	{
+		this->Load(rfJson, nCodePage);
 	}
 
 	void Arg_Type3::Load(Rut::RxMem::View& vMem)
@@ -316,16 +343,20 @@ namespace GSD::SPT
 	{
 		Rut::RxMem::Auto mem_data(this->GetSize());
 		Rut::RxMem::View view = mem_data.GetView();
+
 		view << m_uiVal_0 << m_uiVal_1 << m_uiVal_2;
+
 		return mem_data;
 	}
 
 	Rut::RxJson::JValue Arg_Type3::Make(size_t nCodePage) const
 	{
 		Rut::RxJson::JValue json;
+
 		json[L"Val_0"] = Str::NumToStr(L"0x%08x", m_uiVal_0);
 		json[L"Val_1"] = Str::NumToStr(L"0x%08x", m_uiVal_1);
 		json[L"Val_2"] = Str::NumToStr(L"0x%08x", m_uiVal_2);
+
 		return json;
 	}
 

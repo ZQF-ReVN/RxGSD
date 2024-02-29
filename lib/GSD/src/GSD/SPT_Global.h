@@ -35,10 +35,11 @@ namespace GSD::SPT
 			m_EncryptorInfo.Load(vMem);
 
 			vMem >> m_uiUnFlag;
+
 			if (m_uiUnFlag != 0) { throw std::runtime_error("SPT_Global: Unknow Format"); }
 
-			for (auto& append_script : m_aAppendScript)
-			{
+			for (auto& append_script : m_aAppendScript) 
+			{ 
 				append_script.Load(vMem);
 			}
 
@@ -56,10 +57,12 @@ namespace GSD::SPT
 		std::vector<std::wstring> GetStrTable(size_t nCodePage) const
 		{
 			std::vector<std::wstring> str_table;
-			for (const auto& str : m_vcGlobalStr)
+
+			for (const auto& str : m_vcGlobalStr) 
 			{
 				str_table.emplace_back(Str::LoadANSI(str, nCodePage));
 			}
+
 			return str_table;
 		}
 	};

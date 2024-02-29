@@ -27,6 +27,7 @@ namespace GSD::SPT
 	public:
 		Arg_Type0();
 		Arg_Type0(Rut::RxMem::View& vMem);
+		Arg_Type0(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 
 		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
@@ -81,6 +82,7 @@ namespace GSD::SPT
 	public:
 		Arg_Type2();
 		Arg_Type2(Rut::RxMem::View& vMem);
+		Arg_Type2(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 
 		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
@@ -102,6 +104,7 @@ namespace GSD::SPT
 	public:
 		Arg_Type3();
 		Arg_Type3(Rut::RxMem::View& vMem);
+		Arg_Type3(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 
 		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);

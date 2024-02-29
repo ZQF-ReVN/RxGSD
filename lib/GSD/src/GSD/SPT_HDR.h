@@ -28,8 +28,8 @@ namespace GSD::SPT
 
 		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
-		Rut::RxMem::Auto Make() const;
-		Rut::RxJson::JValue Make(size_t nCodePage) const;
+		void Make(Rut::RxMem::Auto& amMem) const;
+		void Make(Rut::RxJson::JValue& rfJson, size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
@@ -46,8 +46,8 @@ namespace GSD::SPT
 
 		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
-		Rut::RxMem::Auto Make() const;
-		Rut::RxJson::JValue Make(size_t nCodePage) const;
+		void Make(Rut::RxMem::Auto& amMem) const;
+		void Make(Rut::RxJson::JValue& rfJson, size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
@@ -66,8 +66,8 @@ namespace GSD::SPT
 
 		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
-		Rut::RxMem::Auto Make() const;
-		Rut::RxJson::JValue Make(size_t nCodePage) const;
+		void Make(Rut::RxMem::Auto& amMem) const;
+		void Make(Rut::RxJson::JValue& rfJson, size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;
@@ -86,8 +86,8 @@ namespace GSD::SPT
 
 		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
-		Rut::RxMem::Auto Make() const;
-		Rut::RxJson::JValue Make(size_t nCodePage) const;
+		void Make(Rut::RxMem::Auto& amMem) const;
+		void Make(Rut::RxJson::JValue& rfJson, size_t nCodePage) const;
 
 	public:
 		size_t GetSize() const;

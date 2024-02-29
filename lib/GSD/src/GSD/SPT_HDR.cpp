@@ -59,10 +59,11 @@ namespace GSD::SPT
 		}
 	}
 
-	Rut::RxMem::Auto Append_Script_Entry::Make() const
+	void Append_Script_Entry::Make(Rut::RxMem::Auto& amMem) const
 	{
-		Rut::RxMem::Auto mem_data(this->GetSize());
-		Rut::RxMem::View view = mem_data.GetView();
+		amMem.SetSize(this->GetSize());
+
+		Rut::RxMem::View view = amMem.GetView();
 
 		view << m_uiStrLen0;
 		if (m_uiStrLen0)
@@ -77,31 +78,25 @@ namespace GSD::SPT
 		}
 
 		view << m_uiUn0 << m_uiUn1 << m_uiUn2 << m_aAppend;
-
-		return mem_data;
 	}
 
-	Rut::RxJson::JValue Append_Script_Entry::Make(size_t nCodePage) const
+	void Append_Script_Entry::Make(Rut::RxJson::JValue& rfJson, size_t nCodePage) const
 	{
-		Rut::RxJson::JValue json;
+		rfJson[L"StrLen0"] = Str::NumToStr(L"0x%08x", m_uiStrLen0);
+		rfJson[L"Str0"] = Str::LoadANSI(m_msStr0, nCodePage);
+		rfJson[L"StrLen1"] = Str::NumToStr(L"0x%08x", m_uiStrLen1);
+		rfJson[L"Str1"] = Str::LoadANSI(m_msStr1, nCodePage);
+		rfJson[L"Un0"] = Str::NumToStr(L"0x%08x", m_uiUn0);
+		rfJson[L"Un1"] = Str::NumToStr(L"0x%08x", m_uiUn1);
+		rfJson[L"Un2"] = Str::NumToStr(L"0x%08x", m_uiUn2);
 
-		json[L"StrLen0"] = Str::NumToStr(L"0x%08x", m_uiStrLen0);
-		json[L"Str0"] = Str::LoadANSI(m_msStr0, nCodePage);
-		json[L"StrLen1"] = Str::NumToStr(L"0x%08x", m_uiStrLen1);
-		json[L"Str1"] = Str::LoadANSI(m_msStr1, nCodePage);
-		json[L"Un0"] = Str::NumToStr(L"0x%08x", m_uiUn0);
-		json[L"Un1"] = Str::NumToStr(L"0x%08x", m_uiUn1);
-		json[L"Un2"] = Str::NumToStr(L"0x%08x", m_uiUn2);
-
-		Rut::RxJson::JArray& json_append = json[L"AppendData"].ToAry();
-
+		Rut::RxJson::JArray& json_append = rfJson[L"AppendData"].ToAry();
 		std::span<uint32_t> append_sp{ (uint32_t*)m_aAppend, sizeof(m_aAppend) / 4 };
+		json_append.reserve(append_sp.size());
 		for (auto& ite_append : append_sp)
 		{
 			json_append.emplace_back(Str::NumToStr(L"0x%08x", ite_append));
 		}
-
-		return json;
 	}
 
 	size_t Append_Script_Entry::GetSize() const
@@ -135,34 +130,34 @@ namespace GSD::SPT
 		}
 	}
 
-	Rut::RxMem::Auto Append_Script::Make() const
+	void Append_Script::Make(Rut::RxMem::Auto& amMem) const
 	{
-		Rut::RxMem::Auto mem_data(this->GetSize());
-		Rut::RxMem::View view = mem_data.GetView();
+		amMem.SetSize(this->GetSize());
+
+		Rut::RxMem::View view = amMem.GetView();
 
 		view << m_uiScriptCount;
 
+		Rut::RxMem::Auto buffer;
 		for (const auto& info : m_vcInfo) 
 		{ 
-			view << info.Make();
+			info.Make(buffer);
+			view << buffer;
 		}
-
-		return mem_data;
 	}
 
-	Rut::RxJson::JValue Append_Script::Make(size_t nCodePage) const
+	void Append_Script::Make(Rut::RxJson::JValue& rfJson, size_t nCodePage) const
 	{
-		Rut::RxJson::JValue json;
+		rfJson[L"ScriptCount"] = Str::NumToStr(L"0x%08x", m_uiScriptCount);
 
-		json[L"ScriptCount"] = Str::NumToStr(L"0x%08x", m_uiScriptCount);
-
-		Rut::RxJson::JArray& json_info = json[L"InfoList"].ToAry();
+		Rut::RxJson::JArray& json_info = rfJson[L"InfoList"].ToAry();
+		json_info.reserve(m_vcInfo.size());
 		for (const auto& info : m_vcInfo) 
-		{ 
-			json_info.emplace_back(info.Make(nCodePage));
+		{
+			Rut::RxJson::JValue tmp;
+			info.Make(tmp, nCodePage);
+			json_info.emplace_back(std::move(tmp));
 		}
-
-		return json;
 	}
 
 	size_t Append_Script::GetSize() const
@@ -196,22 +191,18 @@ namespace GSD::SPT
 		m_ucUn1 = (uint8_t)Str::StrToNum(L"0x%02x", rfJson[L"Un1"]);
 	}
 
-	Rut::RxMem::Auto Encryptor_Info::Make() const
+	void Encryptor_Info::Make(Rut::RxMem::Auto& amMem) const
 	{
-		Rut::RxMem::Auto mem_data(this->GetSize());
-		Rut::RxMem::View view = mem_data.GetView();
-		view << m_ucDecStartIndex << m_ucDecModeType << m_ucUn0 << m_ucUn1;
-		return mem_data;
+		amMem.SetSize(this->GetSize());
+		amMem.GetView() << m_ucDecStartIndex << m_ucDecModeType << m_ucUn0 << m_ucUn1;
 	}
 
-	Rut::RxJson::JValue Encryptor_Info::Make(size_t nCodePage) const
+	void Encryptor_Info::Make(Rut::RxJson::JValue& rfJson, size_t nCodePage) const
 	{
-		Rut::RxJson::JValue json;
-		json[L"DecStartIndex"] = Str::NumToStr(L"0x%02x", m_ucDecStartIndex);
-		json[L"DecModeType"] = Str::NumToStr(L"0x%02x", m_ucDecModeType);
-		json[L"Un0"] = Str::NumToStr(L"0x%02x", m_ucUn0);
-		json[L"Un1"] = Str::NumToStr(L"0x%02x", m_ucUn1);
-		return json;
+		rfJson[L"DecStartIndex"] = Str::NumToStr(L"0x%02x", m_ucDecStartIndex);
+		rfJson[L"DecModeType"] = Str::NumToStr(L"0x%02x", m_ucDecModeType);
+		rfJson[L"Un0"] = Str::NumToStr(L"0x%02x", m_ucUn0);
+		rfJson[L"Un1"] = Str::NumToStr(L"0x%02x", m_ucUn1);
 	}
 
 	size_t Encryptor_Info::GetSize() const
@@ -238,22 +229,18 @@ namespace GSD::SPT
 		m_uiUn2 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Un2"]);
 	}
 
-	Rut::RxMem::Auto Codes_Info::Make() const
+	void Codes_Info::Make(Rut::RxMem::Auto& amMem) const
 	{
-		Rut::RxMem::Auto mem_data(this->GetSize());
-		Rut::RxMem::View view = mem_data.GetView();
-		view << m_uiCodeCount << m_uiUn0 << m_uiUn1 << m_uiUn2;
-		return mem_data;
+		amMem.SetSize(this->GetSize());
+		amMem.GetView() << m_uiCodeCount << m_uiUn0 << m_uiUn1 << m_uiUn2;
 	}
 
-	Rut::RxJson::JValue Codes_Info::Make(size_t nCodePage) const
+	void Codes_Info::Make(Rut::RxJson::JValue& rfJson, size_t nCodePage) const
 	{
-		Rut::RxJson::JValue json;
-		json[L"CodeCount"] = Str::NumToStr(L"0x%08x", m_uiCodeCount);
-		json[L"Un0"] = Str::NumToStr(L"0x%08x", m_uiUn0);
-		json[L"Un1"] = Str::NumToStr(L"0x%08x", m_uiUn1);
-		json[L"Un2"] = Str::NumToStr(L"0x%08x", m_uiUn2);
-		return json;
+		rfJson[L"CodeCount"] = Str::NumToStr(L"0x%08x", m_uiCodeCount);
+		rfJson[L"Un0"] = Str::NumToStr(L"0x%08x", m_uiUn0);
+		rfJson[L"Un1"] = Str::NumToStr(L"0x%08x", m_uiUn1);
+		rfJson[L"Un2"] = Str::NumToStr(L"0x%08x", m_uiUn2);
 	}
 
 	size_t Codes_Info::GetSize() const
@@ -326,18 +313,25 @@ namespace GSD::SPT
 		Rut::RxMem::Auto mem_data(this->GetSize());
 		Rut::RxMem::View view = mem_data.GetView();
 
-		view << m_EncryptorInfo.Make() << m_uiUnCount << m_uiScriptNameLen;
+		Rut::RxMem::Auto buffer;
+
+		m_EncryptorInfo.Make(buffer);
+		view << buffer;
+
+		view << m_uiUnCount << m_uiScriptNameLen;
 
 		if (m_uiScriptNameLen)
 		{
 			view.Write(m_msScriptName.data(), m_uiScriptNameLen);
 		}
 
-		view << m_CodesInfo.Make();
+		m_CodesInfo.Make(buffer);
+		view << buffer;
 
 		for (auto& append_script : m_aAppendScript)
 		{
-			view << append_script.Make();
+			append_script.Make(buffer);
+			view << buffer;
 		}
 
 		view << m_uiUnsize;
@@ -349,17 +343,19 @@ namespace GSD::SPT
 	{
 		Rut::RxJson::JValue json;
 
-		json[L"EncryptorInfo"] = m_EncryptorInfo.Make(nCodePage);
+		m_EncryptorInfo.Make(json[L"EncryptorInfo"], nCodePage);
 		json[L"UnCount"] = Str::NumToStr(L"0x%08x", m_uiUnCount);
 		json[L"ScriptNameLen"] = Str::NumToStr(L"0x%08x", m_uiScriptNameLen);
 		json[L"ScriptName"] = Str::LoadANSI(m_msScriptName, nCodePage);
-		json[L"CodesInfo"] = m_CodesInfo.Make(nCodePage);
+		m_CodesInfo.Make(json[L"CodesInfo"], nCodePage);
 
 		Rut::RxJson::JArray& json_append_script = json[L"Append"].ToAry();
-
+		json_append_script.reserve(sizeof(m_aAppendScript) / sizeof(Append_Script));
 		for (const auto& append_script : m_aAppendScript)
 		{
-			json_append_script.emplace_back(append_script.Make(nCodePage));
+			Rut::RxJson::JValue tmp;
+			append_script.Make(tmp, nCodePage);
+			json_append_script.emplace_back(std::move(tmp));
 		}
 
 		json[L"Unsize"] = Str::NumToStr(L"0x%08x", m_uiUnsize);

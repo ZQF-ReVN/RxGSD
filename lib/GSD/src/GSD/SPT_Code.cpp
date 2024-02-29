@@ -74,80 +74,93 @@ namespace GSD::SPT
 		}
 	}
 
-	Rut::RxMem::Auto Code::Make() const
+	void Code::Make(Rut::RxMem::Auto& amMem) const
 	{
-		Rut::RxMem::Auto mem_data(this->GetSize());
-		Rut::RxMem::View view = mem_data.GetView();
+		amMem.SetSize(this->GetSize());
+
+		Rut::RxMem::View view = amMem.GetView();
 
 		view << m_uiCommand << m_uiVal_1 << m_uiVal_2 << m_uiVal_3 << m_uiVal_4 << m_uiSequnece << m_uiArgType1Count << m_uiArgType2Count << m_uiArgType3Count;
 
-		m_uiCommand == 1 ? (void)(view << m_ArgType0.Make()) : void(0); // Proc Text Struct
+		Rut::RxMem::Auto buffer;
+
+		if (m_uiCommand == 1) // Proc Text Struct
+		{
+			m_ArgType0.Make(buffer);
+			view << buffer;
+		}
 
 		for (auto& type1 : m_vcArgType1) 
 		{ 
-			view << type1.Make();
+			type1.Make(buffer);
+			view << buffer;
 		}
 
 		for (auto& type2 : m_vcArgType2) 
 		{ 
-			view << type2.Make();
+			type2.Make(buffer);
+			view << buffer;
 		}
 
 		for (auto& type3 : m_vcArgType3) 
 		{ 
-			view << type3.Make();
+			type3.Make(buffer);
+			view << buffer;
 		}
-
-		return mem_data;
 	}
 
-	Rut::RxJson::JValue Code::Make(size_t nCodePage) const
+	void Code::Make(Rut::RxJson::JValue& rfJson, size_t nCodePage) const
 	{
-		Rut::RxJson::JValue json;
-
-		json[L"Command"] = Str::NumToStr(L"0x%08x", m_uiCommand);
-		json[L"Val_1"] = Str::NumToStr(L"0x%08x", m_uiVal_1);
-		json[L"Val_2"] = Str::NumToStr(L"0x%08x", m_uiVal_2);
-		json[L"Val_3"] = Str::NumToStr(L"0x%08x", m_uiVal_3);
-		json[L"Val_4"] = Str::NumToStr(L"0x%08x", m_uiVal_4);
-		json[L"Sequnece"] = Str::NumToStr(L"0x%08x", m_uiSequnece);
-		json[L"ArgType1Count"] = Str::NumToStr(L"0x%08x", m_uiArgType1Count);
-		json[L"ArgType2Count"] = Str::NumToStr(L"0x%08x", m_uiArgType2Count);
-		json[L"ArgType3Count"] = Str::NumToStr(L"0x%08x", m_uiArgType3Count);
+		rfJson[L"Command"] = Str::NumToStr(L"0x%08x", m_uiCommand);
+		rfJson[L"Val_1"] = Str::NumToStr(L"0x%08x", m_uiVal_1);
+		rfJson[L"Val_2"] = Str::NumToStr(L"0x%08x", m_uiVal_2);
+		rfJson[L"Val_3"] = Str::NumToStr(L"0x%08x", m_uiVal_3);
+		rfJson[L"Val_4"] = Str::NumToStr(L"0x%08x", m_uiVal_4);
+		rfJson[L"Sequnece"] = Str::NumToStr(L"0x%08x", m_uiSequnece);
+		rfJson[L"ArgType1Count"] = Str::NumToStr(L"0x%08x", m_uiArgType1Count);
+		rfJson[L"ArgType2Count"] = Str::NumToStr(L"0x%08x", m_uiArgType2Count);
+		rfJson[L"ArgType3Count"] = Str::NumToStr(L"0x%08x", m_uiArgType3Count);
 
 		if (m_uiCommand == 1)// Proc Text Struct
 		{
-			json[L"ArgType0"] = m_ArgType0.Make(nCodePage);
+			m_ArgType0.Make(rfJson[L"ArgType0"], nCodePage);
 		}
 
 		if (m_vcArgType1.size())
 		{
-			Rut::RxJson::JArray& json_type1 = json[L"ArgType1"].ToAry();
+			Rut::RxJson::JArray& json_type1 = rfJson[L"ArgType1"].ToAry();
+			json_type1.reserve(m_vcArgType1.size());
 			for (auto& type1 : m_vcArgType1)
 			{
-				json_type1.emplace_back(type1.Make(nCodePage));
+				Rut::RxJson::JValue tmp;
+				type1.Make(tmp, nCodePage);
+				json_type1.push_back(std::move(tmp));
 			}
 		}
 
 		if (m_vcArgType2.size())
 		{
-			Rut::RxJson::JArray& json_type2 = json[L"ArgType2"].ToAry();
+			Rut::RxJson::JArray& json_type2 = rfJson[L"ArgType2"].ToAry();
+			json_type2.reserve(m_vcArgType2.size());
 			for (auto& type2 : m_vcArgType2)
 			{
-				json_type2.emplace_back(type2.Make(nCodePage));
+				Rut::RxJson::JValue tmp;
+				type2.Make(tmp, nCodePage);
+				json_type2.push_back(std::move(tmp));
 			}
 		}
 
 		if (m_vcArgType3.size())
 		{
-			Rut::RxJson::JArray& json_type3 = json[L"ArgType3"].ToAry();
+			Rut::RxJson::JArray& json_type3 = rfJson[L"ArgType3"].ToAry();
+			json_type3.reserve(m_vcArgType3.size());
 			for (auto& type3 : m_vcArgType3)
 			{
-				json_type3.emplace_back(type3.Make(nCodePage));
+				Rut::RxJson::JValue tmp;
+				type3.Make(tmp, nCodePage);
+				json_type3.push_back(std::move(tmp));
 			}
 		}
-
-		return json;
 	}
 
 	size_t Code::GetSize() const

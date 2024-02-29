@@ -49,9 +49,11 @@ namespace GSD::SPT
 
 		view << m_HDR.Make();
 
+		Rut::RxMem::Auto buffer;
 		for (auto& code : m_vcCode) 
 		{ 
-			view << code.Make();
+			code.Make(buffer);
+			view << buffer;
 		}
 
 		return mem_data;
@@ -64,9 +66,12 @@ namespace GSD::SPT
 		json[L"Header"] = m_HDR.Make(nCodePage);
 
 		Rut::RxJson::JArray& code_list = json[L"Codes"].ToAry();
+		code_list.reserve(m_vcCode.size());
 		for (auto& code : m_vcCode) 
-		{ 
-			code_list.emplace_back(code.Make(nCodePage));
+		{
+			Rut::RxJson::JValue tmp;
+			code.Make(tmp, nCodePage);
+			code_list.push_back(std::move(tmp));
 		}
 
 		return json;

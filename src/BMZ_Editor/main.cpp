@@ -1,7 +1,7 @@
 ﻿#include <iostream>
 
-#include "Rut/RxCmd.h"
-#include "GSD/BMZ_Cryptor.h"
+#include <Rut/RxCmd.h>
+#include <GSD/BMZ_Cryptor.h>
 
 
 static void UserMain(int argc, wchar_t* argv[])
@@ -30,11 +30,6 @@ static void UserMain(int argc, wchar_t* argv[])
 	{
 		std::cerr << err.what() << std::endl;
 	}
-}
-
-static void DebugMain()
-{
-
 }
 
 int wmain(int argc, wchar_t* argv[])

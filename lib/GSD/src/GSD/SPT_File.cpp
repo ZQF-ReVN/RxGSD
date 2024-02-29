@@ -15,6 +15,11 @@ namespace GSD::SPT
 		this->Load(phSpt);
 	}
 
+	File::File(Rut::RxJson::JValue& rfJson, size_t nCodePage)
+	{
+		this->Load(rfJson, nCodePage);
+	}
+
 	void File::Load(const std::filesystem::path& phSpt)
 	{
 		Rut::RxMem::Auto spt{ phSpt };

@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "Rut/RxCmd.h"
-#include "GSD/GSP_Editor.h"
+#include <Rut/RxCmd.h>
+#include <GSD/GSP_Editor.h>
 
 
 static void UserMain(int argc, wchar_t* argv[])
@@ -29,11 +29,6 @@ static void UserMain(int argc, wchar_t* argv[])
 	{
 		std::cerr << err.what() << std::endl;
 	}
-}
-
-static void DebugMain()
-{
-	GSD::GSP::Pack(L"data/", L"data1.gsp");
 }
 
 int wmain(int argc, wchar_t* argv[])

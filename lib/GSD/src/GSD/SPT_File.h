@@ -27,6 +27,7 @@ namespace GSD::SPT
 	public:
 		File();
 		File(const std::filesystem::path& phSpt);
+		File(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 
 		void Load(const std::filesystem::path& phSpt);
 		void Load(Rut::RxMem::View& vMem);

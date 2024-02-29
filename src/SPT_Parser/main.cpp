@@ -1,24 +1,22 @@
 ﻿#include <iostream>
 
-#include "Rut/RxMem.h"
-#include "Rut/RxCmd.h"
-#include "GSD/SPT_File.h"
-#include "GSD/SPT_Cryptor.h"
+#include <Rut/RxMem.h>
+#include <Rut/RxCmd.h>
+#include <GSD/SPT_File.h>
+#include <GSD/SPT_Cryptor.h>
 
 
 static void SptToJson(const std::filesystem::path& phSpt, const std::filesystem::path& phJson, size_t nCodePage)
 {
-	GSD::SPT::File spt_file;
-	spt_file.Load(phSpt);
+	GSD::SPT::File spt_file(phSpt);
 	Rut::RxJson::JValue spt_json = spt_file.Make(nCodePage);
 	Rut::RxJson::Parser::Save(spt_json, phJson, true);
 }
 
 static void JsonToSpt(const std::filesystem::path& phJson, const std::filesystem::path& phSpt, size_t nCodePage)
 {
-	GSD::SPT::File spt_file;
 	Rut::RxJson::JValue spt_json = Rut::RxJson::Parser{}.Load(phJson);
-	spt_file.Load(spt_json, nCodePage);
+	GSD::SPT::File spt_file(spt_json, nCodePage);
 	spt_file.Make().SaveData(phSpt);
 }
 
@@ -80,19 +78,6 @@ static void UserMain(int argc, wchar_t* argv[])
 	catch (const std::exception& err)
 	{
 		std::cerr << err.what() << std::endl;
-	}
-}
-
-static void DebugMain()
-{
-	size_t code_page = 932;
-	std::filesystem::path save_path = L"spt_json/";
-	std::filesystem::create_directories(save_path);
-	for (auto& entry : std::filesystem::directory_iterator(L"spt_dec/"))
-	{
-		if (entry.is_regular_file() == false) { continue; }
-		if (entry.path().extension() != L".spt") { continue; }
-		::SptToJson(entry, save_path / entry.path().stem().replace_extension(L".json"), code_page);
 	}
 }
 

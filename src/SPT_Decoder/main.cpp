@@ -1,9 +1,9 @@
 ﻿#include <iostream>
 
-#include "Rut/RxMem.h"
-#include "Rut/RxCmd.h"
-#include "GSD/SPT_File.h"
-#include "GSD/SPT_Cryptor.h"
+#include <Rut/RxMem.h>
+#include <Rut/RxCmd.h>
+#include <GSD/SPT_File.h>
+#include <GSD/SPT_Cryptor.h>
 
 
 static void UserMain(int argc, wchar_t* argv[])
@@ -42,19 +42,6 @@ static void UserMain(int argc, wchar_t* argv[])
 	catch (const std::exception& err)
 	{
 		std::cerr << err.what() << std::endl;
-	}
-}
-
-static void DebugMain()
-{
-	std::filesystem::path save_path = L"spt_dec";
-	for (auto& entry : std::filesystem::directory_iterator("spt"))
-	{
-		if (entry.is_regular_file() == false) { continue; }
-		const std::filesystem::path& spt_path = entry.path();
-		Rut::RxMem::Auto spt_file{ spt_path.wstring() };
-		GSD::SPT::Cryptor::Decode(spt_file, true);
-		spt_file.SaveData(save_path / spt_path.filename());
 	}
 }
 

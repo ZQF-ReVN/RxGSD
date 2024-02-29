@@ -1,10 +1,10 @@
 ﻿#include <iostream>
 #include <filesystem>
 
-#include "Rut/RxStr.h"
-#include "Rut/RxCmd.h"
-#include "GSD/SPT_File.h"
-#include "GSD/SPT_Global.h"
+#include <Rut/RxStr.h>
+#include <Rut/RxCmd.h>
+#include <GSD/SPT_File.h>
+#include <GSD/SPT_Global.h>
 
 
 static bool Export(std::vector<std::wstring>& vcName, const std::filesystem::path& phSpt, const std::filesystem::path& phJson, size_t nCodePage)
@@ -153,38 +153,6 @@ static void UserMain(int argc, wchar_t* argv[])
 		std::cerr << err.what() << std::endl;
 	}
 }
-
-static void DebugMain()
-{
-	GSD::SPT::Global global;
-	global.Load(L"global.dat");
-	std::vector<std::wstring> name_list = global.GetStrTable(932);
-
-	std::filesystem::path spt_folder = L"spt_dec/";
-	std::filesystem::path json_folder = L"spt_txt/";
-	std::filesystem::path spt_new_folder = L"spt_new/";
-	std::filesystem::create_directories(json_folder);
-	//for (auto& entry : std::filesystem::directory_iterator(spt_folder))
-	//{
-	//	if (entry.is_regular_file() == false) { continue; }
-	//	if (entry.path().extension() != L".spt") { continue; }
-	//	const std::filesystem::path& spt_path = entry.path();
-	//	const std::filesystem::path& json_path = json_folder / entry.path().filename().replace_extension(L".json");
-	//	::Export(name_list, spt_path, json_path, 932);
-	//}
-
-	std::filesystem::create_directories(spt_new_folder);
-	for (auto& entry : std::filesystem::directory_iterator(json_folder))
-	{
-		if (entry.is_regular_file() == false) { continue; }
-		if (entry.path().extension() != L".json") { continue; }
-		std::filesystem::path spt_name = entry.path().filename().replace_extension(L".spt");
-		const std::filesystem::path& spt_path = spt_folder / spt_name;
-		const std::filesystem::path& spt_save_path = spt_new_folder / spt_name;
-		::Import(name_list, spt_path, entry, spt_save_path, 932);
-	}
-}
-
 
 int wmain(int argc, wchar_t* argv[])
 {

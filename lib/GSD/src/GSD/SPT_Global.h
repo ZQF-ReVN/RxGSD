@@ -26,36 +26,31 @@ namespace GSD::SPT
 		void Load(const std::filesystem::path& phGlobal)
 		{
 			Rut::RxMem::Auto global_mem(phGlobal);
-			this->Load(global_mem.GetPtr());
+			Rut::RxMem::View global_view = global_mem.GetView();
+			this->Load(global_view);
 		}
 
-		void Load(uint8_t* pData)
+		void Load(Rut::RxMem::View& vMem)
 		{
-			uint8_t* cur_ptr = pData;
+			m_EncryptorInfo.Load(vMem);
 
-			m_EncryptorInfo.Load(pData);
-			cur_ptr += m_EncryptorInfo.GetSize();
-
-			m_uiUnFlag = *((uint32_t*)(cur_ptr));
+			vMem >> m_uiUnFlag;
 			if (m_uiUnFlag != 0) { throw std::runtime_error("SPT_Global: Unknow Format"); }
-			cur_ptr += 4;
 
 			for (auto& append_script : m_aAppendScript)
 			{
-				append_script.Load(cur_ptr);
-				cur_ptr += append_script.GetSize();
+				append_script.Load(vMem);
 			}
 
-			m_uiGlobalStrCount = *((uint32_t*)(cur_ptr));
-			cur_ptr += 4;
+			vMem >> m_uiGlobalStrCount;
 
 			for (auto ite_str : std::views::iota(0u, m_uiGlobalStrCount))
 			{
-				m_vcGlobalStr.emplace_back((char*)cur_ptr);
-				cur_ptr += 260;
+				m_vcGlobalStr.emplace_back(vMem.CurPtr<char>());
+				vMem.Skip(260);
 			}
 
-			memcpy(m_aUnData, cur_ptr, 0x60);
+			vMem >> m_aUnData;
 		}
 
 		std::vector<std::wstring> GetStrTable(size_t nCodePage) const

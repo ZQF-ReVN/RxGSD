@@ -26,8 +26,9 @@ static void TestMake()
 			std::wcout << L"Parser: " << sdt_path.wstring() << L"  ";
 			{
 				Rut::RxMem::Auto spt{ sdt_path };
+				Rut::RxMem::View view = spt.GetView();
 				GSD::SPT::File parser;
-				parser.Load(spt.GetPtr());
+				parser.Load(view);
 				parser.Make().SaveData(L"spt_dump/" + sdt_path.filename().wstring());
 				GSD::SPT::CheckDumpDataMatched(spt.GetPtr(), parser);
 				auto json = parser.Make(932);
@@ -52,11 +53,11 @@ static void TestHdrParse()
 		if (entry.path().extension() != L".spt") { continue; }
 
 		Rut::RxMem::Auto spt_org_mem(entry);
-
+		Rut::RxMem::View spt_org_viw = spt_org_mem.GetView();
 		size_t spt_real_size = 0;
 
 		GSD::SPT::File spt_file1;
-		spt_file1.Load(spt_org_mem.GetPtr());
+		spt_file1.Load(spt_org_viw);
 		Rut::RxJson::JValue spt_file1_json = spt_file1.Make(932);
 
 		spt_real_size = spt_file1.GetSize();
@@ -68,7 +69,8 @@ static void TestHdrParse()
 		Rut::RxMem::Auto spt_file2_mem = spt_file2.Make();
 
 		GSD::SPT::File spt_file3;
-		spt_file3.Load(spt_file1_mem.GetPtr());
+		Rut::RxMem::View spt_file1_view = spt_file1_mem.GetView();
+		spt_file3.Load(spt_file1_view);
 
 		// Check Reload Data
 		if (spt_file1_mem.GetSize() == spt_file2_mem.GetSize())

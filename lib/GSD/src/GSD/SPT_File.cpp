@@ -1,5 +1,7 @@
 #include "SPT_File.h"
 
+#include <ranges>
+
 
 namespace GSD::SPT
 {
@@ -16,73 +18,37 @@ namespace GSD::SPT
 	void File::Load(const std::filesystem::path& phSpt)
 	{
 		Rut::RxMem::Auto spt{ phSpt };
-		this->Load(spt.GetPtr());
+		Rut::RxMem::View view = spt.GetView();
+		this->Load(view);
 	}
 
-	void File::Load(uint8_t* pData)
+	void File::Load(Rut::RxMem::View& vMem)
 	{
-		uint8_t* cur_ptr = pData;
-
-		this->m_HDR.Load(cur_ptr);
-		cur_ptr += this->m_HDR.GetSize();
-
-		size_t code_count = this->m_HDR.GetCodeCount();
-		for (size_t ite_chunk = 0; ite_chunk < code_count; ite_chunk++)
-		{
-			Code code;
-			code.Load(cur_ptr);
-			cur_ptr += code.GetSize();
-			m_vcCode.emplace_back(std::move(code));
-		}
+		m_HDR.Load(vMem);
+		m_vcCode.append_range(std::views::repeat(Code(vMem), m_HDR.GetCodeCount()));
 	}
 
 	void File::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
 	{
 		m_HDR.Load(rfJson[L"Header"], nCodePage);
-
-		Rut::RxJson::JArray& code_list = rfJson[L"Codes"];
-		for (auto& code_json : code_list)
-		{
-			Code code;
-			code.Load(code_json, nCodePage);
-			m_vcCode.push_back(std::move(code));
-		}
+		std::ranges::for_each(rfJson[L"Codes"].ToAry(), [this, &nCodePage](auto& code_json) { m_vcCode.emplace_back(code_json, nCodePage); });
 	}
 
 	Rut::RxMem::Auto File::Make() const
 	{
-		Rut::RxMem::Auto mem_data;
-		mem_data.SetSize(this->GetSize());
-		uint8_t* cur_ptr = mem_data.GetPtr();
-		{
-			Rut::RxMem::Auto hdr_mem = this->m_HDR.Make();
-			memcpy(cur_ptr, hdr_mem.GetPtr(), hdr_mem.GetSize());
-			cur_ptr += hdr_mem.GetSize();
-
-			for (const auto& code : m_vcCode)
-			{
-				Rut::RxMem::Auto code_mem = code.Make();
-				memcpy(cur_ptr, code_mem.GetPtr(), code_mem.GetSize());
-				cur_ptr += code_mem.GetSize();
-			}
-		}
+		Rut::RxMem::Auto mem_data(this->GetSize());
+		Rut::RxMem::View view = mem_data.GetView();
+		view << m_HDR.Make();
+		std::ranges::for_each(m_vcCode, [&view](auto& code) { view << code.Make(); });
 		return mem_data;
 	}
 
 	Rut::RxJson::JValue File::Make(size_t nCodePage) const
 	{
 		Rut::RxJson::JValue json;
-		{
-			json[L"Header"] = m_HDR.Make(nCodePage);
-
-			Rut::RxJson::JArray& code_list = json[L"Codes"].ToAry();
-			{
-				for (const auto& code : m_vcCode)
-				{
-					code_list.emplace_back(code.Make(nCodePage));
-				}
-			}
-		}
+		json[L"Header"] = m_HDR.Make(nCodePage);
+		Rut::RxJson::JArray& code_list = json[L"Codes"].ToAry();
+		std::ranges::for_each(m_vcCode, [&code_list, &nCodePage](auto& code) { code_list.emplace_back(code.Make(nCodePage)); });
 		return json;
 	}
 
@@ -93,14 +59,8 @@ namespace GSD::SPT
 
 	size_t File::GetSize() const
 	{
-		size_t size = 0;
-		{
-			size += this->m_HDR.GetSize();
-			for (const auto& code : m_vcCode)
-			{
-				size += code.GetSize();
-			}
-		}
+		size_t size = m_HDR.GetSize();
+		std::ranges::for_each(m_vcCode, [&size](auto& code) { size += code.GetSize(); });
 		return size;
 	}
 }

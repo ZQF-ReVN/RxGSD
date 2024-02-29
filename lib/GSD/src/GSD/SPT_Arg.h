@@ -26,8 +26,9 @@ namespace GSD::SPT
 
 	public:
 		Arg_Type0();
+		Arg_Type0(Rut::RxMem::View& vMem);
 
-		void Load(uint8_t* pData);
+		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;
@@ -52,14 +53,16 @@ namespace GSD::SPT
 		uint32_t m_uiVal_3 = 0;
 		uint32_t m_uiStrLen = 0;
 		uint32_t m_uiVal_5 = 0;
-		uint8_t m_uiVal_6 = 0;
+		uint8_t m_ucVal_6 = 0;
 		uint32_t m_uiVal_7 = 0;
 		std::string m_msStr;
 
 	public:
 		Arg_Type1();
+		Arg_Type1(Rut::RxMem::View& vMem);
+		Arg_Type1(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 
-		void Load(uint8_t* pData);
+		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;
@@ -77,8 +80,9 @@ namespace GSD::SPT
 
 	public:
 		Arg_Type2();
+		Arg_Type2(Rut::RxMem::View& vMem);
 
-		void Load(uint8_t* pData);
+		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;
@@ -97,8 +101,9 @@ namespace GSD::SPT
 
 	public:
 		Arg_Type3();
+		Arg_Type3(Rut::RxMem::View& vMem);
 
-		void Load(uint8_t* pData);
+		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;

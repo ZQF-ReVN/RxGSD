@@ -1,6 +1,7 @@
 #include "SPT_Arg.h"
 #include "SPT_Str.h"
 
+#include <ranges>
 #include <stdexcept>
 
 
@@ -11,42 +12,30 @@ namespace GSD::SPT
 
 	}
 
-	void Arg_Type0::Load(uint8_t* pData)
+	Arg_Type0::Arg_Type0(Rut::RxMem::View& vMem)
 	{
-		uint8_t* cur_prt = pData;
+		this->Load(vMem);
+	}
 
-		{
-			uint32_t* tmp_ptr = (uint32_t*)pData;
-			m_uiNameReallySeq = tmp_ptr[0];
-			m_uiNameDisplaySeq = tmp_ptr[1];
-			m_uiUn2 = tmp_ptr[2];
-			m_uiVoiceFileSeq = tmp_ptr[3];
-			m_uiStrType0Len = tmp_ptr[4];
-			m_uiStrType1Len = tmp_ptr[5];
-			m_uiStrType2Len = tmp_ptr[6];
-		}
-		cur_prt += 4 * 7;
+	void Arg_Type0::Load(Rut::RxMem::View& vMem)
+	{
+		vMem >> m_uiNameReallySeq >> m_uiNameDisplaySeq >> m_uiUn2 >> m_uiVoiceFileSeq >> m_uiStrType0Len >> m_uiStrType1Len >> m_uiStrType2Len;
 
 		if (m_uiStrType0Len)
 		{
-			const SPT_Char_Entry* char_entry_arry = (SPT_Char_Entry*)cur_prt;
-			for (size_t ite_entry = 0; ite_entry < m_uiStrType0Len; ite_entry++)
-			{
-				SPT_Char_Entry entry = char_entry_arry[ite_entry];
-				m_vcStrType0CharList.push_back(entry);
-			}
-
-			cur_prt += m_vcStrType0CharList.size() * sizeof(SPT_Char_Entry);
+			m_vcStrType0CharList.append_range(std::views::repeat(vMem.Read<SPT_Char_Entry>(), m_uiStrType0Len));
 		}
+
 		if (m_uiStrType1Len)
 		{
-			m_msStrType1 = { (char*)cur_prt };
-			cur_prt += m_uiStrType1Len + 1;
+			m_msStrType1 = { vMem.CurPtr<char>() };
+			vMem.Skip(m_uiStrType1Len + 1);
 		}
+
 		if (m_uiStrType2Len)
 		{
-			m_msStrType2 = { (char*)cur_prt };
-			cur_prt += m_uiStrType1Len + 1;
+			m_msStrType2 = { vMem.CurPtr<char>() };
+			vMem.Skip(m_uiStrType2Len + 1);
 		}
 	}
 
@@ -63,43 +52,27 @@ namespace GSD::SPT
 
 	Rut::RxMem::Auto Arg_Type0::Make() const
 	{
-		Rut::RxMem::Auto make_mem(this->GetSize());
-		uint8_t* cur_prt = make_mem.GetPtr();
+		Rut::RxMem::Auto mem(this->GetSize());
+		Rut::RxMem::View view = mem.GetView();
 
-		{
-			uint32_t* tmp_ptr = (uint32_t*)cur_prt;
-			tmp_ptr[0] = m_uiNameReallySeq;
-			tmp_ptr[1] = m_uiNameDisplaySeq;
-			tmp_ptr[2] = m_uiUn2;
-			tmp_ptr[3] = m_uiVoiceFileSeq;
-			tmp_ptr[4] = m_uiStrType0Len;
-			tmp_ptr[5] = m_uiStrType1Len;
-			tmp_ptr[6] = m_uiStrType2Len;
-		}
-		cur_prt += 4 * 7;
+		view << m_uiNameReallySeq << m_uiNameDisplaySeq << m_uiUn2 << m_uiVoiceFileSeq << m_uiStrType0Len << m_uiStrType1Len << m_uiStrType2Len;
 
 		if (m_uiStrType0Len)
 		{
-			SPT_Char_Entry* char_entry_arry = (SPT_Char_Entry*)cur_prt;
-			for (size_t ite_entry = 0; ite_entry < m_uiStrType0Len; ite_entry++)
-			{
-				char_entry_arry[ite_entry] = m_vcStrType0CharList[ite_entry];
-			}
-
-			cur_prt += m_vcStrType0CharList.size() * sizeof(SPT_Char_Entry);
+			std::ranges::for_each(m_vcStrType0CharList, [&view](auto& entry) { view << entry; });
 		}
+
 		if (m_uiStrType1Len)
 		{
-			memcpy(cur_prt, m_msStrType1.data(), m_uiStrType1Len);
-			cur_prt += m_uiStrType1Len + 1;
-		}
-		if (m_uiStrType2Len)
-		{
-			memcpy(cur_prt, m_msStrType2.data(), m_uiStrType2Len);
-			cur_prt += m_uiStrType2Len + 1;
+			view.Write(m_msStrType1.data(), m_uiStrType1Len + 1);
 		}
 
-		return make_mem;
+		if (m_uiStrType2Len)
+		{
+			view.Write(m_msStrType2.data(), m_uiStrType2Len + 1);
+		}
+
+		return mem;
 	}
 
 	Rut::RxJson::JValue Arg_Type0::Make(size_t nCodePage) const
@@ -166,6 +139,7 @@ namespace GSD::SPT
 		{
 			size += m_uiStrType1Len + 1;
 		}
+
 		if (m_uiStrType2Len)
 		{
 			size += m_uiStrType2Len + 1;
@@ -180,31 +154,24 @@ namespace GSD::SPT
 
 	}
 
-	void Arg_Type1::Load(uint8_t* pData)
+	Arg_Type1::Arg_Type1(Rut::RxMem::View& vMem)
 	{
-		uint8_t* cur_ptr = pData;
+		this->Load(vMem);
+	}
 
-		{
-			uint32_t* tmp_ptr = (uint32_t*)cur_ptr;
-			m_uiVal_0 = tmp_ptr[0];
-			m_uiVal_1 = tmp_ptr[1];
-			m_uiVal_2 = tmp_ptr[2];
-			m_uiVal_3 = tmp_ptr[3];
-			m_uiStrLen = tmp_ptr[4];
-			m_uiVal_5 = tmp_ptr[5];
-		}
-		cur_ptr += 6 * 4;
+	Arg_Type1::Arg_Type1(Rut::RxJson::JValue& rfJson, size_t nCodePage)
+	{
+		this->Load(rfJson, nCodePage);
+	}
 
-		m_uiVal_6 = *(cur_ptr);
-		cur_ptr += 1;
-
-		m_uiVal_7 = *(uint32_t*)(cur_ptr);
-		cur_ptr += 4;
+	void Arg_Type1::Load(Rut::RxMem::View& vMem)
+	{
+		vMem >> m_uiVal_0 >> m_uiVal_1 >> m_uiVal_2 >> m_uiVal_3 >> m_uiStrLen >> m_uiVal_5 >> m_ucVal_6 >> m_uiVal_7;
 
 		if (m_uiStrLen)
 		{
-			char* str_ptr = (char*)(cur_ptr);
-			m_msStr = { str_ptr, m_uiStrLen };
+			m_msStr = { vMem.CurPtr<char>(), m_uiStrLen };
+			vMem.Skip(m_uiStrLen);
 		}
 	}
 
@@ -215,7 +182,7 @@ namespace GSD::SPT
 		m_uiVal_2 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_2"]);
 		m_uiVal_3 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_3"]);
 		m_uiVal_5 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_5"]);
-		m_uiVal_6 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_6"]);
+		m_ucVal_6 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_6"]);
 		m_uiVal_7 = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"Val_7"]);
 		this->SetStr(Str::MakeANSI(rfJson[L"Str"], nCodePage));
 	}
@@ -223,29 +190,13 @@ namespace GSD::SPT
 	Rut::RxMem::Auto Arg_Type1::Make() const
 	{
 		Rut::RxMem::Auto mem_data(this->GetSize());
-		uint8_t* cur_ptr = mem_data.GetPtr();
+		Rut::RxMem::View view = mem_data.GetView();
 
-		{
-			uint32_t* tmp_ptr = (uint32_t*)cur_ptr;
-			tmp_ptr[0] = m_uiVal_0;
-			tmp_ptr[1] = m_uiVal_1;
-			tmp_ptr[2] = m_uiVal_2;
-			tmp_ptr[3] = m_uiVal_3;
-			tmp_ptr[4] = m_uiStrLen;
-			tmp_ptr[5] = m_uiVal_5;
-		}
-		cur_ptr += 6 * 4;
-
-		*(cur_ptr) = m_uiVal_6;
-		cur_ptr += 1;
-
-		*(uint32_t*)(cur_ptr) = m_uiVal_7;
-		cur_ptr += 4;
+		view << m_uiVal_0 << m_uiVal_1 << m_uiVal_2 << m_uiVal_3 << m_uiStrLen << m_uiVal_5 << m_ucVal_6 << m_uiVal_7;
 
 		if (m_uiStrLen)
 		{
-			char* str_ptr = (char*)(cur_ptr);
-			memcpy(str_ptr, m_msStr.data(), m_uiStrLen + 1);
+			view.Write(m_msStr.data(), m_uiStrLen + 1);
 		}
 
 		return mem_data;
@@ -259,7 +210,7 @@ namespace GSD::SPT
 		json[L"Val_2"] = Str::NumToStr(L"0x%08x", m_uiVal_2);
 		json[L"Val_3"] = Str::NumToStr(L"0x%08x", m_uiVal_3);
 		json[L"Val_5"] = Str::NumToStr(L"0x%08x", m_uiVal_5);
-		json[L"Val_6"] = Str::NumToStr(L"0x%08x", m_uiVal_6);
+		json[L"Val_6"] = Str::NumToStr(L"0x%08x", m_ucVal_6);
 		json[L"Val_7"] = Str::NumToStr(L"0x%08x", m_uiVal_7);
 		json[L"Str"] = Str::LoadANSI(m_msStr, nCodePage);
 		return json;
@@ -269,7 +220,7 @@ namespace GSD::SPT
 	{
 		size_t size = 0;
 
-		size += sizeof(m_uiVal_0) + sizeof(m_uiVal_1) + sizeof(m_uiVal_2) + sizeof(m_uiVal_3) + sizeof(m_uiStrLen) + sizeof(m_uiVal_5) + sizeof(m_uiVal_6) + sizeof(m_uiVal_7);
+		size += sizeof(m_uiVal_0) + sizeof(m_uiVal_1) + sizeof(m_uiVal_2) + sizeof(m_uiVal_3) + sizeof(m_uiStrLen) + sizeof(m_uiVal_5) + sizeof(m_ucVal_6) + sizeof(m_uiVal_7);
 
 		if (m_uiStrLen)
 		{
@@ -291,48 +242,33 @@ namespace GSD::SPT
 
 	}
 
-	void Arg_Type2::Load(uint8_t* pData)
+	Arg_Type2::Arg_Type2(Rut::RxMem::View& vMem)
 	{
-		m_uiParameterType1Count = *(uint32_t*)pData;
-		uint8_t* cur_ptr = pData + 4;
+		this->Load(vMem);
+	}
+
+	void Arg_Type2::Load(Rut::RxMem::View& vMem)
+	{
+		vMem >> m_uiParameterType1Count;
 
 		for (size_t ite_type1 = 0; ite_type1 < m_uiParameterType1Count; ite_type1++)
 		{
-			Arg_Type1 type1;
-			type1.Load(cur_ptr);
-			cur_ptr += type1.GetSize();
-			m_vcParameterType1.emplace_back(std::move(type1));
+			m_vcParameterType1.emplace_back(vMem);
 		}
 	}
 
 	void Arg_Type2::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
 	{
 		m_uiParameterType1Count = (uint32_t)Str::StrToNum(L"0x%08x", rfJson[L"ArgType1Count"]);
-
-		Rut::RxJson::JArray& count_arrary = rfJson[L"ArgType1List"].ToAry();
-		for (auto& type1_json : count_arrary)
-		{
-			Arg_Type1 type1_obj;
-			type1_obj.Load(type1_json, nCodePage);
-			m_vcParameterType1.push_back(std::move(type1_obj));
-		}
+		std::ranges::for_each(rfJson[L"ArgType1List"].ToAry(), [this, &nCodePage](auto& type1_json) {m_vcParameterType1.emplace_back(type1_json, nCodePage); });
 	}
 
 	Rut::RxMem::Auto Arg_Type2::Make() const
 	{
 		Rut::RxMem::Auto mem_data(this->GetSize());
-		uint8_t* data_ptr = mem_data.GetPtr();
-
-		*(uint32_t*)data_ptr = m_uiParameterType1Count;
-		uint8_t* cur_ptr = data_ptr + 4;
-
-		for (const auto& type1 : m_vcParameterType1)
-		{
-			Rut::RxMem::Auto mem = type1.Make();
-			memcpy(cur_ptr, mem.GetPtr(), mem.GetSize());
-			cur_ptr += mem.GetSize();
-		}
-
+		Rut::RxMem::View view = mem_data.GetView();
+		view << m_uiParameterType1Count;
+		std::ranges::for_each(m_vcParameterType1, [&view](auto& type1) { view << type1.Make(); });
 		return mem_data;
 	}
 
@@ -341,24 +277,15 @@ namespace GSD::SPT
 		Rut::RxJson::JValue json;
 		json[L"ArgType1Count"] = Str::NumToStr(L"0x%08x", m_uiParameterType1Count);
 		Rut::RxJson::JArray& count_arrary = json[L"ArgType1List"].ToAry();
-		for (const auto& type1 : m_vcParameterType1)
-		{
-			count_arrary.emplace_back(type1.Make(nCodePage));
-		}
+		std::ranges::for_each(m_vcParameterType1, [&count_arrary, &nCodePage](auto& type1) { count_arrary.emplace_back(type1.Make(nCodePage)); });
 		return json;
 	}
 
 	size_t Arg_Type2::GetSize() const
 	{
 		size_t size = 0;
-
 		size += sizeof(m_uiParameterType1Count);
-
-		for (const auto& type1 : m_vcParameterType1)
-		{
-			size += type1.GetSize();
-		}
-
+		std::ranges::for_each(m_vcParameterType1, [&size](auto& type1) { size += type1.GetSize(); });
 		return size;
 	}
 
@@ -368,12 +295,14 @@ namespace GSD::SPT
 
 	}
 
-	void Arg_Type3::Load(uint8_t* pData)
+	Arg_Type3::Arg_Type3(Rut::RxMem::View& vMem)
 	{
-		uint32_t* data_ptr = (uint32_t*)pData;
-		m_uiVal_0 = data_ptr[0];
-		m_uiVal_1 = data_ptr[1];
-		m_uiVal_2 = data_ptr[2];
+		this->Load(vMem);
+	}
+
+	void Arg_Type3::Load(Rut::RxMem::View& vMem)
+	{
+		vMem >> m_uiVal_0 >> m_uiVal_1 >> m_uiVal_2;
 	}
 
 	void Arg_Type3::Load(Rut::RxJson::JValue& rfJson, size_t nCodePage)
@@ -386,12 +315,8 @@ namespace GSD::SPT
 	Rut::RxMem::Auto Arg_Type3::Make() const
 	{
 		Rut::RxMem::Auto mem_data(this->GetSize());
-		uint32_t* data_ptr = (uint32_t*)mem_data.GetPtr();
-
-		data_ptr[0] = m_uiVal_0;
-		data_ptr[1] = m_uiVal_1;
-		data_ptr[2] = m_uiVal_2;
-
+		Rut::RxMem::View view = mem_data.GetView();
+		view << m_uiVal_0 << m_uiVal_1 << m_uiVal_2;
 		return mem_data;
 	}
 

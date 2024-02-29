@@ -11,50 +11,38 @@ namespace GSD::SPT
 
 	}
 
-	void Code::Load(uint8_t* pData)
+	Code::Code(Rut::RxMem::View& vMem)
 	{
-		uint32_t* data_ptr = (uint32_t*)pData;
+		this->Load(vMem);
+	}
 
-		m_uiCommand = data_ptr[0];
-		m_uiVal_1 = data_ptr[1];
-		m_uiVal_2 = data_ptr[2];
-		m_uiVal_3 = data_ptr[3];
-		m_uiVal_4 = data_ptr[4];
-		m_uiSequnece = data_ptr[5];
-		m_uiArgType1Count = data_ptr[6];
-		m_uiArgType2Count = data_ptr[7];
-		m_uiArgType3Count = data_ptr[8];
+	Code::Code(Rut::RxJson::JValue& rfJson, size_t nCodePage)
+	{
+		this->Load(rfJson, nCodePage);
+	}
 
-		uint8_t* append_data_ptr = pData + 9 * 4;
+	void Code::Load(Rut::RxMem::View& vMem)
+	{
+		vMem >> m_uiCommand >> m_uiVal_1 >> m_uiVal_2 >> m_uiVal_3 >> m_uiVal_4 >> m_uiSequnece >> m_uiArgType1Count >> m_uiArgType2Count >> m_uiArgType3Count;
 
 		if (m_uiCommand == 1) // Proc Text Struct
 		{
-			m_ArgType0.Load(append_data_ptr);
-			append_data_ptr += m_ArgType0.GetSize();
+			m_ArgType0.Load(vMem);
 		}
 
 		for (size_t ite_type1 = 0; ite_type1 < m_uiArgType1Count; ite_type1++)
 		{
-			Arg_Type1 type1;
-			type1.Load(append_data_ptr);
-			append_data_ptr += type1.GetSize();
-			m_vcArgType1.push_back(type1);
+			m_vcArgType1.emplace_back(vMem);
 		}
 
 		for (size_t ite_type2 = 0; ite_type2 < m_uiArgType2Count; ite_type2++)
 		{
-			Arg_Type2 type2;
-			type2.Load(append_data_ptr);
-			append_data_ptr += type2.GetSize();
-			m_vcArgType2.push_back(type2);
+			m_vcArgType2.emplace_back(vMem);
 		}
 
 		for (size_t ite_type3 = 0; ite_type3 < m_uiArgType3Count; ite_type3++)
 		{
-			Arg_Type3 type3;
-			type3.Load(append_data_ptr);
-			append_data_ptr += type3.GetSize();
-			m_vcArgType3.push_back(type3);
+			m_vcArgType3.emplace_back(vMem);
 		}
 	}
 

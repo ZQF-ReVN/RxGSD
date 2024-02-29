@@ -31,8 +31,10 @@ namespace GSD::SPT
 
 	public:
 		Code();
+		Code(Rut::RxMem::View& vMem);
+		Code(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 
-		void Load(uint8_t* pData);
+		void Load(Rut::RxMem::View& vMem);
 		void Load(Rut::RxJson::JValue& rfJson, size_t nCodePage);
 		Rut::RxMem::Auto Make() const;
 		Rut::RxJson::JValue Make(size_t nCodePage) const;

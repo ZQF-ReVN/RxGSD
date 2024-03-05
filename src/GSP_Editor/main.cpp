@@ -22,6 +22,10 @@ static void UserMain(int argc, wchar_t* argv[])
 	{
 		GSD::GSP::Pack(arg[L"-folder"], arg[L"-gsp"]);
 	}
+	else
+	{
+		throw std::runtime_error("Command Error!");
+	}
 
 }
 

@@ -23,6 +23,10 @@ static void UserMain(int argc, wchar_t* argv[])
 	{
 		GSD::BMZ::Cryptor::Encode(arg[L"-bmz"], arg[L"-bmp"], arg[L"-new"]);
 	}
+	else
+	{
+		throw std::runtime_error("Command Error!");
+	}
 }
 
 int wmain(int argc, wchar_t* argv[])

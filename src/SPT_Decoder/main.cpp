@@ -36,7 +36,10 @@ static void UserMain(int argc, wchar_t* argv[])
 			spt_file.SaveData(save_path / entry.path().filename());
 		}
 	}
-
+	else
+	{
+		throw std::runtime_error("Command Error!");
+	}
 }
 
 int wmain(int argc, wchar_t* argv[])

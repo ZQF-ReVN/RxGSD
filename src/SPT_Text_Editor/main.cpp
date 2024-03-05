@@ -145,7 +145,6 @@ static void UserMain(int argc, wchar_t* argv[])
 	{
 		throw std::runtime_error("Command Error!");
 	}
-
 }
 
 int wmain(int argc, wchar_t* argv[])

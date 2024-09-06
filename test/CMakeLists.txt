@@ -1,1 +1,6 @@
-add_subdirectory("SPT_Test")
+add_subdirectory("BMZ_Test")
+add_subdirectory("GSP_Test")
+add_subdirectory("SPT_Cryptor_Test")
+add_subdirectory("SPT_HDR_Test")
+add_subdirectory("SPT_Parser_Test")
+add_subdirectory("SPT_Text_Test")

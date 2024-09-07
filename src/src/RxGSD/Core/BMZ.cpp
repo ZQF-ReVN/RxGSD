@@ -41,7 +41,7 @@ namespace ZQF::RxGSD
 		// bmz hdr
 		BMZ_HDR bmz_hdr
 		{ 
-			.nSignature{ '3CLZ' },
+			.nSignature{ 0x33434C5A }, // 'ZLC3'
 			.uiDecompressSize{ bmp_mem.SizeBytes<std::uint32_t>() }
 		};
 

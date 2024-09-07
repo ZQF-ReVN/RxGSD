@@ -23,7 +23,7 @@ namespace ZQF::RxGSD::SPT
 		std::vector<SPT::Char_Entry> char_entry_list;
 		{
 			std::size_t notation_pos_beg{};
-			SPT::Char_Entry entry = { 0 };
+			SPT::Char_Entry entry{};
 			for (std::size_t ite_char{}; ite_char < msText.size(); ite_char++)
 			{
 				if ((uint8_t)msText[ite_char] >= 0x81)
@@ -44,7 +44,7 @@ namespace ZQF::RxGSD::SPT
 					}
 					else if (msText[ite_char] == '/')
 					{
-						if (notation_pos_beg == -1)
+						if (notation_pos_beg == SIZE_MAX)
 						{
 							throw std::runtime_error("Notation token mismatched");
 						}

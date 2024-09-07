@@ -15,7 +15,6 @@ auto main(void) -> int
 		std::string_view save_dir{ "spt_dec/" };
 		for (ZQF::ZxFS::Walker walker{ "data/" }; walker.NextFile();)
 		{
-			if (walker.IsSuffix(".spt") == false) { continue; }
 			ZQF::ZxMem spt_file{ walker.GetPath() };
 			ZQF::RxGSD::SPT::Cryptor::Decode(spt_file.Span(), true);
 			spt_file.Save(std::string{ save_dir }.append(walker.GetName()));

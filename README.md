@@ -1,3 +1,5 @@
+**⚠This repository is for developers only, if you just want to use the tools, please go to [ReVN](https://github.com/Dir-A/ReVN)!⚠**
+
 # GSDTools
 Tools For Atelier Sakura's GSD Engine. Filename Extension `.gsp` `.spt` `.bmz`
 

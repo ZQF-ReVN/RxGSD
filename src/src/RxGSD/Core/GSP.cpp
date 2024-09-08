@@ -1,5 +1,5 @@
 #include "GSP.h"
-#include "GSD_Types.h"
+#include "GSD_Struct.h"
 #include <ZxCvt/ZxCvt.h>
 #include <ZxFS/Core.h>
 #include <ZxFS/Searcher.h>
@@ -16,13 +16,13 @@ namespace ZQF::RxGSD
 		ZxFile ifs{ msPackPath, ZxFile::OpenMod::ReadSafe };
 		const auto entry_count{ ifs.Get<std::uint32_t>() };
 
-		ZxMem index_table{ entry_count * RxGSD::GSP_Entry::SizeBytes };
+		ZxMem index_table{ entry_count * Struct::GSP_Entry::SizeBytes };
 		ifs.Read(index_table.Span());
 
 		ZxCvt cvt;
 		ZxMem cache;
 		std::string save_path{ msSavDir };
-		for (const auto& entry : index_table.Span<RxGSD::GSP_Entry>())
+		for (const auto& entry : index_table.Span<Struct::GSP_Entry>())
 		{
 			ifs.Read(cache.Resize(entry.nBytes).Span());
 			cache.Save(save_path.append(cvt.MBCSToUTF8(entry.aFileName, 932)));
@@ -35,8 +35,8 @@ namespace ZQF::RxGSD
 		std::vector<std::string> file_path_vec{ ZxFS::Searcher::GetFilePaths(msFilesDir, true, false) };
 		if (file_path_vec.empty()) { throw std::runtime_error(std::string{ "RxGSD::GSP::Import(): not find files! -> " }.append(msFilesDir)); }
 
-		ZxMem index_table_mem{ file_path_vec.size() * GSP_Entry::SizeBytes };
-		const auto index_table_sp{ index_table_mem.Span<RxGSD::GSP_Entry>() };
+		ZxMem index_table_mem{ file_path_vec.size() * Struct::GSP_Entry::SizeBytes };
+		const auto index_table_sp{ index_table_mem.Span<Struct::GSP_Entry>() };
 		{
 			ZxCvt cvt;
 			auto foa{ static_cast<std::uint32_t>(4 + index_table_mem.SizeBytes()) };

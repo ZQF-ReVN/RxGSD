@@ -1,5 +1,5 @@
 #include "BMZ.h"
-#include "GSD_Types.h"
+#include "GSD_Struct.h"
 #include <zlib.h>
 #include <ZxMem/ZxMem.h>
 #include <ZxFile/ZxFile.h>
@@ -11,7 +11,7 @@ namespace ZQF::RxGSD
 	auto BMZ::Export(const std::string_view msBMZPath, const std::string_view msBMPPath) -> void
 	{
 		ZxMem bmz_mem{ msBMZPath };
-		const auto hdr_ptr{ bmz_mem.Ptr<BMZ_HDR*>() };
+		const auto hdr_ptr{ bmz_mem.Ptr<Struct::BMZ_HDR*>() };
 
 		auto bmp_org_size{ static_cast<uLongf>(hdr_ptr->uiDecompressSize) };
 		const auto bmp_compress_data_size{ bmz_mem.SizeBytes<uLong>() - 0x8 };
@@ -39,7 +39,7 @@ namespace ZQF::RxGSD
 		bmz_data_mem.Resize(bmz_data_buf_bytes);
 
 		// bmz hdr
-		BMZ_HDR bmz_hdr
+		Struct::BMZ_HDR bmz_hdr
 		{ 
 			.nSignature{ 0x33434C5A }, // 'ZLC3'
 			.uiDecompressSize{ bmp_mem.SizeBytes<std::uint32_t>() }
@@ -53,11 +53,11 @@ namespace ZQF::RxGSD
 		if (raw_bmz_size_opt.has_value() == false) { throw std::runtime_error(std::string{ "RxGSD::BMZ::Cryptor::Encode(): get raw bmz size error! -> " }.append(msBMZPath)); }
 		const auto raw_bmz_size{ *raw_bmz_size_opt };
 		// read ANIM hdr
-		raw_bmz_ifs.Seek(raw_bmz_size - BMZ_ANIM_HDR::SizeBytes, ZxFile::MoveWay::Set);
-		const auto anim_hdr{ raw_bmz_ifs.Get<BMZ_ANIM_HDR>() };
+		raw_bmz_ifs.Seek(raw_bmz_size - Struct::BMZ_ANIM_HDR::SizeBytes, ZxFile::MoveWay::Set);
+		const auto anim_hdr{ raw_bmz_ifs.Get<Struct::BMZ_ANIM_HDR>() };
 		if (std::memcmp(anim_hdr.aSignature, "ANIMV450", sizeof(anim_hdr.aSignature)) == 0)
 		{
-			const auto anim_size{ static_cast<std::size_t>(anim_hdr.nEntryCnt) * 0x58 + BMZ_ANIM_HDR::SizeBytes };
+			const auto anim_size{ static_cast<std::size_t>(anim_hdr.nEntryCnt) * 0x58 + Struct::BMZ_ANIM_HDR::SizeBytes };
 			raw_bmz_ifs.Seek(raw_bmz_size - anim_size, ZxFile::MoveWay::Set);
 			raw_bmz_ifs.Read(anim_mem.Resize(anim_size).Span());
 		}

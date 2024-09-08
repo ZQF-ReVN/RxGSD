@@ -29,7 +29,7 @@ namespace ZQF::RxGSD::SPT
 		{
 			for ([[maybe_unused]]auto idx : std::views::iota(0u, m_uiStrType0Len)) 
 			{ 
-				m_vcStrType0.emplace_back(rfMem.Get<SPT::Char_Entry>());
+				m_vcStrType0.emplace_back(rfMem.Get<Struct::SPT_Char_Entry>());
 			}
 		}
 
@@ -130,7 +130,7 @@ namespace ZQF::RxGSD::SPT
 		std::size_t bytes{};
 		bytes += sizeof(m_uiNameReallySeq) + sizeof(m_uiNameDisplaySeq) + sizeof(m_uiUn2) + sizeof(m_uiVoiceFileSeq);
 		bytes += sizeof(m_uiStrType0Len) + sizeof(m_uiStrType1Len) + sizeof(m_uiStrType2Len);
-		bytes += m_vcStrType0.size() * SPT::Char_Entry::SizeBytes;
+		bytes += m_vcStrType0.size() * Struct::SPT_Char_Entry::SizeBytes;
 		bytes += static_cast<std::size_t>(m_uiStrType1Len ? (m_uiStrType1Len + 1) : 0);
 		bytes += static_cast<std::size_t>(m_uiStrType2Len ? (m_uiStrType2Len + 1) : 0);
 		return bytes;

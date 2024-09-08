@@ -4,3 +4,7 @@ add_subdirectory("SPT_Cryptor_Test")
 add_subdirectory("SPT_HDR_Test")
 add_subdirectory("SPT_Parser_Test")
 add_subdirectory("SPT_Text_Test")
+
+if ((MSVC) AND (CMAKE_SIZEOF_VOID_P EQUAL 4))
+	add_subdirectory("VFS_Hook_Test")
+endif()

@@ -3,7 +3,7 @@
 #include <vector>
 #include <ZxMem/ZxMem.h>
 #include <ZxJson/JValue.h>
-#include <RxGSD/Core/GSD_Types.h>
+#include <RxGSD/Core/GSD_Struct.h>
 
 
 namespace ZQF::RxGSD::SPT

@@ -18,12 +18,12 @@ namespace ZQF::RxGSD::SPT
 		return std::string{ cvt.UTF8ToMBCS(u8Str, nCodePage) };
 	}
 
-	auto Str::MakeCharTable(const std::string_view msText) -> std::vector<SPT::Char_Entry>
+	auto Str::MakeCharTable(const std::string_view msText) -> std::vector<Struct::SPT_Char_Entry>
 	{
-		std::vector<SPT::Char_Entry> char_entry_list;
+		std::vector<Struct::SPT_Char_Entry> char_entry_list;
 		{
 			std::size_t notation_pos_beg{};
-			SPT::Char_Entry entry{};
+			Struct::SPT_Char_Entry entry{};
 			for (std::size_t ite_char{}; ite_char < msText.size(); ite_char++)
 			{
 				if ((uint8_t)msText[ite_char] >= 0x81)
@@ -80,7 +80,7 @@ namespace ZQF::RxGSD::SPT
 		return char_entry_list;
 	}
 
-	auto Str::ParseCharTable(const std::vector<SPT::Char_Entry>& rfCharEntries) -> std::string
+	auto Str::ParseCharTable(const std::vector<Struct::SPT_Char_Entry>& rfCharEntries) -> std::string
 	{
 		std::vector<std::uint32_t> char_list;
 		{

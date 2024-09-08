@@ -3,7 +3,7 @@
 #include <vector>
 #include <ZxMem/ZxMem.h>
 #include <ZxJson/JValue.h>
-#include <RxGSD/Core/GSD_Types.h>
+#include <RxGSD/Core/GSD_Struct.h>
 
 
 namespace ZQF::RxGSD::SPT
@@ -19,7 +19,7 @@ namespace ZQF::RxGSD::SPT
 		std::uint32_t m_uiStrType1Len{};
 		std::uint32_t m_uiStrType2Len{};
 
-		std::vector<SPT::Char_Entry> m_vcStrType0;
+		std::vector<Struct::SPT_Char_Entry> m_vcStrType0;
 		std::string m_msStrType1;
 		std::string m_msStrType2;
 

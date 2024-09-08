@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <string_view>
-#include <RxGSD/Core/GSD_Types.h>
+#include <RxGSD/Core/GSD_Struct.h>
 
 
 namespace ZQF::RxGSD::SPT
@@ -37,7 +37,7 @@ namespace ZQF::RxGSD::SPT
 
 		static auto LoadANSI(const std::string_view msStr, const std::size_t nCodePage) -> std::string;
 		static auto MakeANSI(const std::string_view u8Str, const std::size_t nCodePage) -> std::string;
-		static auto MakeCharTable(const std::string_view msText) -> std::vector<SPT::Char_Entry>;
-		static auto ParseCharTable(const std::vector<SPT::Char_Entry>& rfCharEntries) -> std::string;
+		static auto MakeCharTable(const std::string_view msText) -> std::vector<Struct::SPT_Char_Entry>;
+		static auto ParseCharTable(const std::vector<Struct::SPT_Char_Entry>& rfCharEntries) -> std::string;
 	};
 }

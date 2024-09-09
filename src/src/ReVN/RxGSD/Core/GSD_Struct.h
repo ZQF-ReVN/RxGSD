@@ -2,7 +2,7 @@
 #include <cstdint>
 
 
-namespace ZQF::RxGSD
+namespace ZQF::ReVN::RxGSD
 {
 #pragma pack(push,1)
 

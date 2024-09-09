@@ -3,11 +3,11 @@
 #include <string_view>
 #include <Zut/ZxMem.h>
 #include <Zut/ZxJson.h>
-#include <RxGSD/Core/SPT_HDR.h>
-#include <RxGSD/Core/SPT_Code.h>
+#include <ReVN/RxGSD/Core/SPT_HDR.h>
+#include <ReVN/RxGSD/Core/SPT_Code.h>
 
 
-namespace ZQF::RxGSD::SPT
+namespace ZQF::ReVN::RxGSD::SPT
 {
 	class File
 	{

@@ -3,7 +3,7 @@
 #include <cstdint>
 
 
-namespace ZQF::RxGSD::SPT
+namespace ZQF::ReVN::RxGSD::SPT
 {
 	class Cryptor
 	{

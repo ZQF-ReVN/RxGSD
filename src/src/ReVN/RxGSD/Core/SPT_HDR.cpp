@@ -3,7 +3,7 @@
 #include <ranges>
 
 
-namespace ZQF::RxGSD::SPT
+namespace ZQF::ReVN::RxGSD::SPT
 {
 	Append_Script_Entry::Append_Script_Entry()
 	{

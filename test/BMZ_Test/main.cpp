@@ -1,6 +1,8 @@
 ﻿#include <print>
 #include <iostream>
-#include <RxGSD/Core/BMZ.h>
+#include <ReVN/RxGSD/Core/BMZ.h>
+
+namespace RxGSD { using namespace ZQF::ReVN::RxGSD; }
 
 
 auto main(void) -> int
@@ -8,7 +10,7 @@ auto main(void) -> int
 	try
 	{
 		// ZQF::RxGSD::BMZ::Export("Sys_config_win_full.bmz", "Sys_config_win_full.bmp");
-		ZQF::RxGSD::BMZ::Import("Sys_config_win_full.bmz", "Sys_config_win_full.bmp", "Sys_config_win_full.bmz.new");
+		RxGSD::BMZ::Import("Sys_config_win_full.bmz", "Sys_config_win_full.bmp", "Sys_config_win_full.bmz.new");
 	}
 	catch (const std::exception& err)
 	{

@@ -11,15 +11,15 @@ endif()
 
 # Set Source File Path
 list(APPEND ReVN_RxGSD_Core_Src_Files
-    "src/RxGSD/Core/GSP.cpp"
-    "src/RxGSD/Core/BMZ.cpp"
-    "src/RxGSD/Core/SPT_Arg.cpp"
-    "src/RxGSD/Core/SPT_Code.cpp"
-    "src/RxGSD/Core/SPT_Cryptor.cpp"
-    "src/RxGSD/Core/SPT_File.cpp"
-    "src/RxGSD/Core/SPT_Global.cpp"
-    "src/RxGSD/Core/SPT_HDR.cpp"
-    "src/RxGSD/Core/SPT_Str.cpp")
+    "src/ReVN/RxGSD/Core/GSP.cpp"
+    "src/ReVN/RxGSD/Core/BMZ.cpp"
+    "src/ReVN/RxGSD/Core/SPT_Arg.cpp"
+    "src/ReVN/RxGSD/Core/SPT_Code.cpp"
+    "src/ReVN/RxGSD/Core/SPT_Cryptor.cpp"
+    "src/ReVN/RxGSD/Core/SPT_File.cpp"
+    "src/ReVN/RxGSD/Core/SPT_Global.cpp"
+    "src/ReVN/RxGSD/Core/SPT_HDR.cpp"
+    "src/ReVN/RxGSD/Core/SPT_Str.cpp")
 
 # Set Library
 add_library(ReVN_RxGSD_Core ${ReVN_RxGSD_Core_Src_Files})
@@ -42,7 +42,7 @@ endif()
 if((MSVC) AND (CMAKE_SIZEOF_VOID_P EQUAL 4))
     # Set Source File Path
     list(APPEND ReVN_RxGSD_Hook_Src_Files
-        "src/RxGSD/Hook/VFS_Hook.cpp")
+        "src/ReVN/RxGSD/Hook/VFS_Hook.cpp")
 
     # Set Library
     add_library(ReVN_RxGSD_Hook ${ReVN_RxGSD_Hook_Src_Files})

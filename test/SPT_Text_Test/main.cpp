@@ -6,13 +6,15 @@
 #include <Zut/ZxMem.h>
 #include <Zut/ZxCvt.h>
 #include <Zut/ZxJson.h>
-#include <RxGSD/Core/SPT_File.h>
-#include <RxGSD/Core/SPT_Global.h>
+#include <ReVN/RxGSD/Core/SPT_File.h>
+#include <ReVN/RxGSD/Core/SPT_Global.h>
+
+namespace RxGSD { using namespace ZQF::ReVN::RxGSD; }
 
 
 static auto Export(const std::vector<std::string>& vcName, const std::string_view msSptPath, const std::string_view msJsonPath, const std::size_t nCodePage) -> bool
 {
-	ZQF::RxGSD::SPT::File spt{ msSptPath };
+	RxGSD::SPT::File spt{ msSptPath };
 
 	ZxCvt cvt;
 	ZxJson::JArray_t msg_json;
@@ -50,7 +52,7 @@ static auto Export(const std::vector<std::string>& vcName, const std::string_vie
 
 static auto Import(const std::string_view msSptPath, const std::string_view msJsonPath, const std::string_view msSptNewPath, const std::size_t nCodePage) -> bool
 {
-	ZQF::RxGSD::SPT::File spt{ msSptPath };
+	RxGSD::SPT::File spt{ msSptPath };
 
 	const auto msg_json_doc{ ZxJson::LoadViaFile(msJsonPath) };
 	const auto& msg_vec{ msg_json_doc.GetArray() };
@@ -89,7 +91,7 @@ auto main(void) -> int
 {
 	try
 	{
-		ZQF::RxGSD::SPT::Global global;
+		RxGSD::SPT::Global global;
 		global.Load("spt_dec/global.dat");
 		[[maybe_unused]] std::vector<std::string> name_list{ global.GetStrTable(932) };
 

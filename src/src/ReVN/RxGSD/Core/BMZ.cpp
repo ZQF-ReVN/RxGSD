@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 
-namespace ZQF::RxGSD
+namespace ZQF::ReVN::RxGSD
 {
 	auto BMZ::Export(const std::string_view msBMZPath, const std::string_view msBMPPath) -> void
 	{

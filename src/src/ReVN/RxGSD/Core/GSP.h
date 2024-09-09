@@ -2,7 +2,7 @@
 #include <string_view>
 
 
-namespace ZQF::RxGSD
+namespace ZQF::ReVN::RxGSD
 {
 	class GSP
 	{

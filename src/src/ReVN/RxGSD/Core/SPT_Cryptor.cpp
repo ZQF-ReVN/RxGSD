@@ -2,7 +2,7 @@
 #include <cmath>
 
 
-namespace ZQF::RxGSD::SPT
+namespace ZQF::ReVN::RxGSD::SPT
 {
 	static std::uint32_t sg_aTable[128] =
 	{

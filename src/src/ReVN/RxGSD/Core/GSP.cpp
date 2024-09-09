@@ -8,7 +8,7 @@
 #include <ranges>
 
 
-namespace ZQF::RxGSD
+namespace ZQF::ReVN::RxGSD
 {
 	auto GSP::Export(const std::string_view msPackPath, const std::string_view msSavDir) -> void
 	{

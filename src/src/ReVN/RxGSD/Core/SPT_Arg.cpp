@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 
-namespace ZQF::RxGSD::SPT
+namespace ZQF::ReVN::RxGSD::SPT
 {
 	Arg_Type0::Arg_Type0()
 	{

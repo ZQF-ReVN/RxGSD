@@ -2,10 +2,10 @@
 #include <vector>
 #include <string>
 #include <string_view>
-#include <RxGSD/Core/GSD_Struct.h>
+#include <ReVN/RxGSD/Core/GSD_Struct.h>
 
 
-namespace ZQF::RxGSD::SPT
+namespace ZQF::ReVN::RxGSD::SPT
 {
 	class Str
 	{

@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 
-namespace ZQF::RxGSD::SPT
+namespace ZQF::ReVN::RxGSD::SPT
 {
 	template <typename SPT_OBJ_T>
 	static auto CheckDumpDataMatched(uint8_t* pOrg, SPT_OBJ_T& rfOBj) -> void

@@ -3,10 +3,10 @@
 #include <vector>
 #include <Zut/ZxMem.h>
 #include <Zut/ZxJson.h>
-#include <RxGSD/Core/GSD_Struct.h>
+#include <ReVN/RxGSD/Core/GSD_Struct.h>
 
 
-namespace ZQF::RxGSD::SPT
+namespace ZQF::ReVN::RxGSD::SPT
 {
 	class Append_Script_Entry
 	{

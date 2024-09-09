@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 
-namespace ZQF::RxGSD::SPT
+namespace ZQF::ReVN::RxGSD::SPT
 {
 	auto Str::LoadANSI(const std::string_view msStr, const std::size_t nCodePage) -> std::string
 	{

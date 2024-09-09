@@ -1,14 +1,16 @@
 #include <print>
 #include <iostream>
-#include <RxGSD/Core/GSP.h>
+#include <ReVN/RxGSD/Core/GSP.h>
+
+namespace RxGSD { using namespace ZQF::ReVN::RxGSD; }
 
 
 auto main(void) -> int
 {
 	try
 	{
-		ZQF::RxGSD::GSP::Export("data.gsp", "data/");
-		//ZQF::RxGSD::GSP::Import("data/", "image3.new.gsp");
+		RxGSD::GSP::Export("data.gsp", "data/");
+		//RxGSD::GSP::Import("data/", "image3.new.gsp");
 	}
 	catch (const std::exception& err)
 	{

@@ -2,7 +2,7 @@
 #include <cstdint>
 
 
-namespace ZQF::RxGSD
+namespace ZQF::ReVN::RxGSD
 {
 	// uiType [1-12]
 	// GSD::VM::Parser::TextStruct [004CECF0]
@@ -29,7 +29,7 @@ namespace ZQF::RxGSD
 }
 
 
-namespace ZQF::RxGSD
+namespace ZQF::ReVN::RxGSD
 {
 #pragma pack(push,1)
 	struct MStruct

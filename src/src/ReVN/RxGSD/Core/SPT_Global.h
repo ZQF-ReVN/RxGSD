@@ -1,10 +1,10 @@
 #pragma once
 #include <ranges>
 #include <Zut/ZxCvt.h>
-#include <RxGSD/Core/SPT_HDR.h>
+#include <ReVN/RxGSD/Core/SPT_HDR.h>
 
 
-namespace ZQF::RxGSD::SPT
+namespace ZQF::ReVN::RxGSD::SPT
 {
 	class Global
 	{

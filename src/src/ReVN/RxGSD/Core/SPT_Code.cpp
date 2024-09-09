@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 
-namespace ZQF::RxGSD::SPT
+namespace ZQF::ReVN::RxGSD::SPT
 {
 	Code::Code()
 	{

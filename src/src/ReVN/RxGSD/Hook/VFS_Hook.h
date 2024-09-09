@@ -6,7 +6,7 @@
 #include <ZxHook/SHooker.h>
 
 
-namespace ZQF::RxGSD
+namespace ZQF::ReVN::RxGSD
 {
 	template <class MEM_STRCUT_TYPE>
 	struct VFSHook

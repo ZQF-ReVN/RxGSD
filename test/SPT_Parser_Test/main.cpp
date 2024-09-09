@@ -4,7 +4,9 @@
 #include <string_view>
 #include <Zut/ZxFS.h>
 #include <Zut/ZxMem.h>
-#include <RxGSD/Core/SPT_File.h>
+#include <ReVN/RxGSD/Core/SPT_File.h>
+
+namespace RxGSD { using namespace ZQF::ReVN::RxGSD; }
 
 
 auto main(void) -> int
@@ -17,7 +19,7 @@ auto main(void) -> int
 
 			ZxMem spt_org_mem{ walker.GetPath() };
 
-			ZQF::RxGSD::SPT::File spt_file;
+			RxGSD::SPT::File spt_file;
 			spt_file.Load(spt_org_mem);
 			auto spt_dump_mem{ spt_file.Make() };
 			// check org dump data
@@ -37,7 +39,7 @@ auto main(void) -> int
 
 
 			const auto spt_dump_json{ spt_file.Make(932) };
-			ZQF::RxGSD::SPT::File spt_reload_via_json;
+			RxGSD::SPT::File spt_reload_via_json;
 			spt_reload_via_json.Load(spt_dump_json, 932);
 			const auto spt_reload_via_json_dump_mem{ spt_reload_via_json.Make() };
 			// check reload via json dump data
@@ -55,7 +57,7 @@ auto main(void) -> int
 				continue;
 			}
 
-			ZQF::RxGSD::SPT::File spt_reload_via_mem;
+			RxGSD::SPT::File spt_reload_via_mem;
 			spt_reload_via_mem.Load(spt_dump_mem);
 			const auto spt_reload_via_mem_dump_mem{ spt_reload_via_json.Make() };
 			// check reload via mem dump data

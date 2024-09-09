@@ -27,7 +27,8 @@ add_library(ReVN::RxGSD::Core ALIAS ReVN_RxGSD_Core)
 target_include_directories(ReVN_RxGSD_Core PUBLIC "src")
 target_compile_features(ReVN_RxGSD_Core PRIVATE cxx_std_23)
 target_compile_options(ReVN_RxGSD_Core PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
-target_link_libraries(ReVN_RxGSD_Core PUBLIC Zut::ZxMem Zut::ZxJson Zut::ZxCvt Zut::ZxFile Zut::ZxFS ZLIB::ZLIB)
+target_link_libraries(ReVN_RxGSD_Core PRIVATE Zut::ZxFile Zut::ZxFS ZLIB::ZLIB)
+target_link_libraries(ReVN_RxGSD_Core PUBLIC Zut::ZxMem Zut::ZxJson Zut::ZxCvt)
 
 # Warning
 if(MSVC)

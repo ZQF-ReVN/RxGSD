@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include <string_view>
-#include <ZxMem/ZxMem.h>
-#include <ZxJson/JValue.h>
+#include <Zut/ZxMem.h>
+#include <Zut/ZxJson.h>
 #include <RxGSD/Core/SPT_HDR.h>
 #include <RxGSD/Core/SPT_Code.h>
 

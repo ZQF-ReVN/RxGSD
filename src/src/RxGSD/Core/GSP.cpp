@@ -1,10 +1,9 @@
 #include "GSP.h"
 #include "GSD_Struct.h"
-#include <ZxCvt/ZxCvt.h>
-#include <ZxFS/Core.h>
-#include <ZxFS/Searcher.h>
-#include <ZxMem/ZxMem.h>
-#include <ZxFile/ZxFile.h>
+#include <Zut/ZxCvt.h>
+#include <Zut/ZxFS.h>
+#include <Zut/ZxMem.h>
+#include <Zut/ZxFile.h>
 #include <vector>
 #include <ranges>
 

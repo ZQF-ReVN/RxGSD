@@ -1,8 +1,8 @@
 #include "BMZ.h"
 #include "GSD_Struct.h"
 #include <zlib.h>
-#include <ZxMem/ZxMem.h>
-#include <ZxFile/ZxFile.h>
+#include <Zut/ZxMem.h>
+#include <Zut/ZxFile.h>
 #include <stdexcept>
 
 

@@ -2,11 +2,10 @@
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <ZxFS/Core.h>
-#include <ZxFS/Walker.h>
-#include <ZxMem/ZxMem.h>
-#include <ZxCvt/ZxCvt.h>
-#include <ZxJson/JIO.h>
+#include <Zut/ZxFS.h>
+#include <Zut/ZxMem.h>
+#include <Zut/ZxCvt.h>
+#include <Zut/ZxJson.h>
 #include <RxGSD/Core/SPT_File.h>
 #include <RxGSD/Core/SPT_Global.h>
 
@@ -15,13 +14,13 @@ static auto Export(const std::vector<std::string>& vcName, const std::string_vie
 {
 	ZQF::RxGSD::SPT::File spt{ msSptPath };
 
-	ZQF::ZxCvt cvt;
-	ZQF::ZxJson::JArray_t msg_json;
+	ZxCvt cvt;
+	ZxJson::JArray_t msg_json;
 	for (auto& code : spt.GetCodeList())
 	{
 		if (code.GetArgType0().GetType0TextLen() == 0) { continue; };
 
-		ZQF::ZxJson::JValue msg_obj;
+		ZxJson::JValue msg_obj;
 
 		const auto char_name_seq{ code.GetArgType0().GetNameSeq() };
 		if (char_name_seq != static_cast<std::uint32_t>(-1))
@@ -44,7 +43,7 @@ static auto Export(const std::vector<std::string>& vcName, const std::string_vie
 		return false;
 	}
 
-	ZQF::ZxJson::StoreViaFile(msJsonPath, ZQF::ZxJson::JValue{ std::move(msg_json) }, true, true);
+	ZxJson::StoreViaFile(msJsonPath, ZxJson::JValue{ std::move(msg_json) }, true, true);
 
 	return true;
 }
@@ -53,10 +52,10 @@ static auto Import(const std::string_view msSptPath, const std::string_view msJs
 {
 	ZQF::RxGSD::SPT::File spt{ msSptPath };
 
-	const auto msg_json_doc{ ZQF::ZxJson::LoadViaFile(msJsonPath) };
+	const auto msg_json_doc{ ZxJson::LoadViaFile(msJsonPath) };
 	const auto& msg_vec{ msg_json_doc.GetArray() };
 
-	ZQF::ZxCvt cvt;
+	ZxCvt cvt;
 	std::size_t msg_idx{};
 	for (auto& code : spt.GetCodeList())
 	{
@@ -99,26 +98,26 @@ auto main(void) -> int
 
 		// export batch
 		const std::string_view json_dir{ "spt_json/" };
-		ZQF::ZxFS::DirMake(json_dir, true);
-		for (ZQF::ZxFS::Walker walker{ spt_dir }; walker.NextFile();)
+		ZxFS::DirMake(json_dir, true);
+		for (ZxFS::Walker walker{ spt_dir }; walker.NextFile();)
 		{
 			if (walker.IsSuffix(".spt") == false) { continue; }
 
 			const auto spt_file_path{ walker.GetPath() };
-			const auto json_file_name{ std::string{ ZQF::ZxFS::FileNameStem(walker.GetName()) }.append(".json") };
+			const auto json_file_name{ std::string{ ZxFS::FileNameStem(walker.GetName()) }.append(".json") };
 			const auto json_file_path{ std::string{ json_dir }.append(json_file_name) };
 			::Export(name_list, spt_file_path, json_file_path, 932);
 		}
 
 		// import batch
 		const std::string_view spt_new_dir{ "spt_new/" };
-		ZQF::ZxFS::DirMake(spt_new_dir, true);
-		for (ZQF::ZxFS::Walker walker{ json_dir }; walker.NextFile();)
+		ZxFS::DirMake(spt_new_dir, true);
+		for (ZxFS::Walker walker{ json_dir }; walker.NextFile();)
 		{
 			if (walker.IsSuffix(".json") == false) { continue; }
 
 			const auto json_file_path{ walker.GetPath() };
-			const auto spt_file_name{ std::string{ ZQF::ZxFS::FileNameStem(walker.GetName()) }.append(".spt") };
+			const auto spt_file_name{ std::string{ ZxFS::FileNameStem(walker.GetName()) }.append(".spt") };
 			const auto spt_file_path{ std::string{ spt_dir }.append(spt_file_name) };
 			const auto spt_file_sav_path{ std::string{ spt_new_dir }.append(spt_file_name) };
 			::Import(spt_file_path, json_file_path, spt_file_sav_path, 932);

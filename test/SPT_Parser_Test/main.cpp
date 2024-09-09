@@ -2,9 +2,8 @@
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <ZxFS/Core.h>
-#include <ZxFS/Walker.h>
-#include <ZxMem/ZxMem.h>
+#include <Zut/ZxFS.h>
+#include <Zut/ZxMem.h>
 #include <RxGSD/Core/SPT_File.h>
 
 
@@ -12,11 +11,11 @@ auto main(void) -> int
 {
 	try
 	{
-		for (ZQF::ZxFS::Walker walker{"spt_dec/"}; walker.NextFile();)
+		for (ZxFS::Walker walker{"spt_dec/"}; walker.NextFile();)
 		{
 			if (walker.IsSuffix(".spt") == false) { continue; }
 
-			ZQF::ZxMem spt_org_mem{ walker.GetPath() };
+			ZxMem spt_org_mem{ walker.GetPath() };
 
 			ZQF::RxGSD::SPT::File spt_file;
 			spt_file.Load(spt_org_mem);

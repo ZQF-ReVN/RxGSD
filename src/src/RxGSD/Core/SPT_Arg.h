@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <ZxMem/ZxMem.h>
-#include <ZxJson/JValue.h>
+#include <Zut/ZxMem.h>
+#include <Zut/ZxJson.h>
 #include <RxGSD/Core/GSD_Struct.h>
 
 
